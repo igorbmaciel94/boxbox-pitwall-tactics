@@ -1,0 +1,78 @@
+{
+  "version": "1.0.0",
+  "teams": [
+    {
+      "id": "crimson",
+      "name": "Crimson Racing",
+      "color": "#DC2626",
+      "perk": {
+        "id": "crimson-late-charge",
+        "name": "Late Charge",
+        "description": "At end of turn, gain 1 position if tire wear is above 60.",
+        "timing": "end-of-turn",
+        "effect": { "position": -1 },
+        "condition": "tire-wear-above-60"
+      }
+    },
+    {
+      "id": "azure",
+      "name": "Azure Motorsport",
+      "color": "#2563EB",
+      "perk": {
+        "id": "azure-cool-head",
+        "name": "Cool Head",
+        "description": "Reduce tire wear by 15 this turn.",
+        "timing": "standard",
+        "effect": { "tireWear": -15 }
+      }
+    },
+    {
+      "id": "emerald",
+      "name": "Emerald Grand Prix",
+      "color": "#059669",
+      "perk": {
+        "id": "emerald-fuel-efficiency",
+        "name": "Fuel Efficiency",
+        "description": "Recover 20 fuel this turn.",
+        "timing": "standard",
+        "effect": { "fuel": -20 }
+      }
+    },
+    {
+      "id": "amber",
+      "name": "Amber Autosport",
+      "color": "#D97706",
+      "perk": {
+        "id": "amber-rain-master",
+        "name": "Rain Master",
+        "description": "Reduce rain meter by 4 and gain 1 position.",
+        "timing": "standard",
+        "effect": { "rainMeter": -4, "position": -1 }
+      }
+    },
+    {
+      "id": "violet",
+      "name": "Violet Velocity",
+      "color": "#7C3AED",
+      "perk": {
+        "id": "violet-power-surge",
+        "name": "Power Surge",
+        "description": "Gain 3 positions but add 10 tire wear.",
+        "timing": "standard",
+        "effect": { "position": -3, "tireWear": 10 }
+      }
+    },
+    {
+      "id": "onyx",
+      "name": "Onyx Engineering",
+      "color": "#1F2937",
+      "perk": {
+        "id": "onyx-fortify",
+        "name": "Fortify",
+        "description": "Reduce tire wear by 10 and fuel by 10.",
+        "timing": "standard",
+        "effect": { "tireWear": -10, "fuel": -10 }
+      }
+    }
+  ]
+}

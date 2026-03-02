@@ -1,0 +1,251 @@
+{
+  "version": "1.0.0",
+  "scenarios": [
+    {
+      "id": "monaco",
+      "name": "Monaco Grand Prix",
+      "circuit": "Circuit de Monaco",
+      "turns": 6,
+      "params": {
+        "startingPosition": 10,
+        "baseTireWear": 5,
+        "baseFuel": 8,
+        "rainChance": 0.15,
+        "eventWeights": {
+          "safety-car": 25,
+          "vsc": 15,
+          "rain": 10,
+          "rival-pits": 15,
+          "track-limits": 10,
+          "traffic": 15,
+          "clear-air": 5,
+          "drs-train": 0,
+          "mechanical-issue": 5
+        }
+      },
+      "objectives": [
+        {
+          "id": "monaco-main",
+          "description": "Finish in the top 5",
+          "type": "main",
+          "evaluate": "finish-above",
+          "params": { "position": 5 },
+          "points": 10
+        },
+        {
+          "id": "monaco-bonus",
+          "description": "Finish with tire wear below 50",
+          "type": "bonus",
+          "evaluate": "tire-wear-below",
+          "params": { "threshold": 50 },
+          "points": 3
+        }
+      ]
+    },
+    {
+      "id": "spa",
+      "name": "Belgian Grand Prix",
+      "circuit": "Circuit de Spa-Francorchamps",
+      "turns": 6,
+      "params": {
+        "startingPosition": 8,
+        "baseTireWear": 8,
+        "baseFuel": 10,
+        "rainChance": 0.40,
+        "eventWeights": {
+          "safety-car": 15,
+          "vsc": 10,
+          "rain": 30,
+          "rival-pits": 10,
+          "track-limits": 5,
+          "traffic": 5,
+          "clear-air": 10,
+          "drs-train": 10,
+          "mechanical-issue": 5
+        }
+      },
+      "objectives": [
+        {
+          "id": "spa-main",
+          "description": "Finish in the top 3",
+          "type": "main",
+          "evaluate": "finish-above",
+          "params": { "position": 3 },
+          "points": 12
+        },
+        {
+          "id": "spa-bonus",
+          "description": "Use team perk during the race",
+          "type": "bonus",
+          "evaluate": "used-perk",
+          "params": {},
+          "points": 3
+        }
+      ]
+    },
+    {
+      "id": "monza",
+      "name": "Italian Grand Prix",
+      "circuit": "Autodromo Nazionale Monza",
+      "turns": 6,
+      "params": {
+        "startingPosition": 12,
+        "baseTireWear": 6,
+        "baseFuel": 12,
+        "rainChance": 0.10,
+        "eventWeights": {
+          "safety-car": 10,
+          "vsc": 10,
+          "rain": 5,
+          "rival-pits": 15,
+          "track-limits": 5,
+          "traffic": 10,
+          "clear-air": 15,
+          "drs-train": 25,
+          "mechanical-issue": 5
+        }
+      },
+      "objectives": [
+        {
+          "id": "monza-main",
+          "description": "Finish in the top 6",
+          "type": "main",
+          "evaluate": "finish-above",
+          "params": { "position": 6 },
+          "points": 8
+        },
+        {
+          "id": "monza-bonus",
+          "description": "Play at least 2 aggressive cards",
+          "type": "bonus",
+          "evaluate": "min-cards-with-tag",
+          "params": { "tag": "aggressive", "count": 2 },
+          "points": 4
+        }
+      ]
+    },
+    {
+      "id": "silverstone",
+      "name": "British Grand Prix",
+      "circuit": "Silverstone Circuit",
+      "turns": 6,
+      "params": {
+        "startingPosition": 9,
+        "baseTireWear": 10,
+        "baseFuel": 9,
+        "rainChance": 0.25,
+        "eventWeights": {
+          "safety-car": 15,
+          "vsc": 15,
+          "rain": 20,
+          "rival-pits": 15,
+          "track-limits": 10,
+          "traffic": 5,
+          "clear-air": 10,
+          "drs-train": 5,
+          "mechanical-issue": 5
+        }
+      },
+      "objectives": [
+        {
+          "id": "silverstone-main",
+          "description": "Finish in the top 4",
+          "type": "main",
+          "evaluate": "finish-above",
+          "params": { "position": 4 },
+          "points": 10
+        },
+        {
+          "id": "silverstone-bonus",
+          "description": "Finish with fuel above 20",
+          "type": "bonus",
+          "evaluate": "fuel-above",
+          "params": { "threshold": 20 },
+          "points": 3
+        }
+      ]
+    },
+    {
+      "id": "suzuka",
+      "name": "Japanese Grand Prix",
+      "circuit": "Suzuka International Racing Course",
+      "turns": 6,
+      "params": {
+        "startingPosition": 11,
+        "baseTireWear": 12,
+        "baseFuel": 8,
+        "rainChance": 0.20,
+        "eventWeights": {
+          "safety-car": 15,
+          "vsc": 10,
+          "rain": 15,
+          "rival-pits": 15,
+          "track-limits": 15,
+          "traffic": 10,
+          "clear-air": 10,
+          "drs-train": 5,
+          "mechanical-issue": 5
+        }
+      },
+      "objectives": [
+        {
+          "id": "suzuka-main",
+          "description": "Finish in the top 5",
+          "type": "main",
+          "evaluate": "finish-above",
+          "params": { "position": 5 },
+          "points": 10
+        },
+        {
+          "id": "suzuka-bonus",
+          "description": "Never exceed 80 tire wear",
+          "type": "bonus",
+          "evaluate": "max-tire-wear-below",
+          "params": { "threshold": 80 },
+          "points": 5
+        }
+      ]
+    },
+    {
+      "id": "interlagos",
+      "name": "Brazilian Grand Prix",
+      "circuit": "Autodromo Jose Carlos Pace",
+      "turns": 6,
+      "params": {
+        "startingPosition": 10,
+        "baseTireWear": 8,
+        "baseFuel": 10,
+        "rainChance": 0.35,
+        "eventWeights": {
+          "safety-car": 20,
+          "vsc": 15,
+          "rain": 25,
+          "rival-pits": 10,
+          "track-limits": 5,
+          "traffic": 5,
+          "clear-air": 5,
+          "drs-train": 10,
+          "mechanical-issue": 5
+        }
+      },
+      "objectives": [
+        {
+          "id": "interlagos-main",
+          "description": "Finish in the top 3",
+          "type": "main",
+          "evaluate": "finish-above",
+          "params": { "position": 3 },
+          "points": 12
+        },
+        {
+          "id": "interlagos-bonus",
+          "description": "Play at least 1 weather card",
+          "type": "bonus",
+          "evaluate": "min-cards-with-tag",
+          "params": { "tag": "weather", "count": 1 },
+          "points": 3
+        }
+      ]
+    }
+  ]
+}
