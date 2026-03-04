@@ -1,95 +1,230 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-carbon: #0a0a1a;
-  --color-carbon-light: #16213e;
-  --color-carbon-mid: #111827;
-  --color-metal: #2d3748;
-  --color-metal-light: #4a5568;
-  --color-metal-dark: #1a202c;
-  --color-hud-green: #48bb78;
-  --color-hud-red: #f56565;
-  --color-hud-amber: #ed8936;
-  --color-hud-blue: #4299e1;
-  --color-hud-yellow: #ecc94b;
-  --color-hud-cyan: #76e4f7;
-  --color-race-gold: #f6e05e;
-  --color-race-silver: #cbd5e0;
-  --color-race-bronze: #c6956c;
-  --font-family-display: 'Orbitron', sans-serif;
+  --color-carbon: #0b1118;
+  --color-carbon-light: #151d28;
+  --color-carbon-mid: #1a2230;
+  --color-metal: #2a394f;
+  --color-metal-light: #94a3b8;
+  --color-metal-dark: #0f1723;
+  --color-f1-red: #e10600;
+  --color-f1-red-dark: #8a0c09;
+  --color-hud-green: #34d399;
+  --color-hud-red: #f87171;
+  --color-hud-amber: #fbbf24;
+  --color-hud-blue: #60a5fa;
+  --color-hud-yellow: #fde047;
+  --color-hud-cyan: #67e8f9;
+  --color-race-gold: #fbbf24;
+  --color-race-silver: #cbd5e1;
+  --color-race-bronze: #d97706;
+  --font-family-display: 'Barlow Condensed', sans-serif;
+  --font-family-ui: 'Barlow', sans-serif;
   --font-family-mono: 'JetBrains Mono', monospace;
 }
 
-/* Base body styles */
+:root {
+  color-scheme: dark;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
-  font-family: var(--font-family-mono);
-  background-color: var(--color-carbon);
+  position: relative;
   min-height: 100dvh;
+  margin: 0;
+  color: #f1f5f9;
+  font-family: var(--font-family-ui);
+  letter-spacing: 0.01em;
+  background: #0c1219;
 }
 
-/* Noise texture overlay for carbon fiber feel */
-.bg-noise {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+body::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(225, 6, 0, 0.06), transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(57, 104, 157, 0.08), transparent 50%),
+    linear-gradient(180deg, #111827 0%, #0f172a 100%);
 }
 
-/* Safety car pulse animation */
+body::selection {
+  background: rgba(96, 165, 250, 0.3);
+}
+
+.font-ui {
+  font-family: var(--font-family-ui);
+}
+
+.safe-area-pt {
+  padding-top: max(env(safe-area-inset-top), 0px);
+}
+
+.safe-area-pb {
+  padding-bottom: max(env(safe-area-inset-bottom), 0px);
+}
+
+/* ── Animations ── */
+
 @keyframes sc-pulse {
   0%, 100% { opacity: 0; }
-  50% { opacity: 0.15; }
+  50% { opacity: 0.12; }
 }
 
 .animate-sc-pulse {
   animation: sc-pulse 2s ease-in-out infinite;
 }
 
-/* Rain overlay animation */
 @keyframes rain-flash {
   0%, 100% { opacity: 0; }
-  50% { opacity: 0.1; }
+  50% { opacity: 0.08; }
 }
 
 .animate-rain-flash {
-  animation: rain-flash 1.5s ease-in-out infinite;
+  animation: rain-flash 1.4s ease-in-out infinite;
 }
 
-/* Card flip animation */
 @keyframes card-flip {
-  0% { transform: rotateY(180deg); }
-  100% { transform: rotateY(0deg); }
+  0% { transform: rotateY(180deg); opacity: 0; }
+  100% { transform: rotateY(0deg); opacity: 1; }
 }
 
 .animate-card-flip {
-  animation: card-flip 0.5s ease-out forwards;
+  animation: card-flip 0.4s ease-out forwards;
   transform-style: preserve-3d;
 }
 
-/* Slide up animation for modals */
 @keyframes slide-up {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
 
 .animate-slide-up {
-  animation: slide-up 0.3s ease-out forwards;
+  animation: slide-up 0.25s ease-out forwards;
 }
 
-/* Fade in */
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
 .animate-fade-in {
-  animation: fade-in 0.3s ease-out forwards;
+  animation: fade-in 0.2s ease-out forwards;
 }
 
-/* Lap splash */
-@keyframes lap-splash {
-  0% { transform: scale(0.5); opacity: 0; }
-  50% { transform: scale(1.1); opacity: 1; }
-  100% { transform: scale(1); opacity: 0; }
+@keyframes panel-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-.animate-lap-splash {
-  animation: lap-splash 1.2s ease-out forwards;
+.animate-panel-pop {
+  animation: panel-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes glow-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-glow-in {
+  animation: glow-in 0.25s ease-out both;
+}
+
+/* ── Panels & Cards ── */
+
+.arcade-panel {
+  background: rgba(22, 32, 48, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+}
+
+.arcade-card {
+  background: rgba(22, 32, 48, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+}
+
+.arcade-card-hover {
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.arcade-card-hover:hover {
+  transform: translateY(-2px);
+  border-color: rgba(148, 163, 184, 0.22);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.arcade-chip {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 8px;
+}
+
+.pitlane-divider {
+  position: relative;
+}
+
+.pitlane-divider::after {
+  content: '';
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: -10px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--color-f1-red), transparent);
+  opacity: 0.5;
+}
+
+.sheen-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.08) 48%, transparent 70%);
+  transition: opacity 0.2s ease;
+}
+
+.sheen-overlay:hover::after {
+  opacity: 1;
+}
+
+/* ── Scrollbar ── */
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.35);
 }

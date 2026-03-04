@@ -71,6 +71,8 @@ describe('runRace', () => {
     for (const event of debrief.eventHistory) {
       expect(event.type).toBeTruthy();
       expect(event.name).toBeTruthy();
+      expect(event.flavorIndex).toBeGreaterThanOrEqual(0);
+      expect(event.flavorIndex).toBeLessThan(catalog.strings.events[event.type].length);
     }
   });
 

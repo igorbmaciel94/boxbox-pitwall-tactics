@@ -95,6 +95,8 @@ describe('selectEvent', () => {
 
     expect(event.type).toBeTruthy();
     expect(event.name).toBeTruthy();
+    expect(event.flavorIndex).toBeGreaterThanOrEqual(0);
+    expect(event.flavorIndex).toBeLessThan(catalog.strings.events[event.type].length);
     expect(event.flavorText).toBeTruthy();
     expect(typeof event.requiresQuickDecision).toBe('boolean');
   });
@@ -117,6 +119,7 @@ describe('applyPreEffects', () => {
     const event = {
       type: 'rain' as const,
       name: 'Rain',
+      flavorIndex: 0,
       preEffect: { rainMeter: 2 },
       requiresQuickDecision: false,
       flavorText: 'Rain.',
@@ -130,6 +133,7 @@ describe('applyPreEffects', () => {
     const event = {
       type: 'rival-pits' as const,
       name: 'Rival Pits',
+      flavorIndex: 0,
       requiresQuickDecision: false,
       flavorText: 'Rivals.',
     };
@@ -144,6 +148,7 @@ describe('applyPostEffects', () => {
     const event = {
       type: 'rival-pits' as const,
       name: 'Rival Pits',
+      flavorIndex: 0,
       postEffect: { position: 1 },
       requiresQuickDecision: false,
       flavorText: 'Rivals.',
@@ -157,6 +162,7 @@ describe('applyPostEffects', () => {
     const event = {
       type: 'traffic' as const,
       name: 'Traffic',
+      flavorIndex: 0,
       postEffect: { position: 1, tireWear: 5 },
       requiresQuickDecision: false,
       flavorText: 'Traffic.',
@@ -185,6 +191,7 @@ describe('updateEventTracking', () => {
     const event = {
       type: 'safety-car' as const,
       name: 'Safety Car',
+      flavorIndex: 0,
       requiresQuickDecision: true,
       flavorText: 'SC.',
     };
@@ -199,6 +206,7 @@ describe('updateEventTracking', () => {
     const event = {
       type: 'vsc' as const,
       name: 'VSC',
+      flavorIndex: 0,
       requiresQuickDecision: true,
       flavorText: 'VSC.',
     };

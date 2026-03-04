@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router';
+import { Routes, Route, useLocation } from 'react-router';
 import { useEffect } from 'react';
 import { Shell } from './components/layout/Shell';
 import { HomeScreen } from './screens/HomeScreen';
@@ -12,10 +12,15 @@ import { GarageScreen } from './screens/GarageScreen';
 import { HowToPlayScreen } from './screens/HowToPlayScreen';
 import { useGameStore } from './stores/game-store';
 import { loadBrowserCatalog } from './catalog/browser-loader';
-import { loadAllPersistedData, saveSelectedTeam, saveCurrentDeck, saveBestScore, addRunHistoryEntry } from './stores/persistence';
+import { loadAllPersistedData, saveLocale, saveSelectedTeam, saveCurrentDeck, saveBestScore, addRunHistoryEntry } from './stores/persistence';
+import { useI18n } from './i18n';
+import { useAudio } from './hooks/use-audio';
 
 export function App() {
+  const location = useLocation();
   const setCatalog = useGameStore((s) => s.setCatalog);
+  const { locale, setLocale } = useI18n();
+  const { setBackgroundTrack } = useAudio();
 
   // Load catalog and persisted data on startup
   useEffect(() => {
@@ -24,6 +29,7 @@ export function App() {
 
     loadAllPersistedData().then((data) => {
       const store = useGameStore.getState();
+      if (data.locale) setLocale(data.locale);
       if (data.selectedTeam) store.selectTeam(data.selectedTeam);
       if (data.currentDeck.length > 0) store.setDeck(data.currentDeck);
       if (data.savedDecks.length > 0) store.setSavedDecks(data.savedDecks);
@@ -47,7 +53,16 @@ export function App() {
     });
 
     return unsub;
-  }, [setCatalog]);
+  }, [setCatalog, setLocale]);
+
+  useEffect(() => {
+    document.documentElement.lang = locale === 'pt-BR' ? 'pt-BR' : 'en';
+    saveLocale(locale);
+  }, [locale]);
+
+  useEffect(() => {
+    setBackgroundTrack(location.pathname === '/race' ? 'race' : 'menu');
+  }, [location.pathname, setBackgroundTrack]);
 
   return (
     <Shell>

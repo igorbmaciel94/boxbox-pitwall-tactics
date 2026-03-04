@@ -8,25 +8,25 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses = {
   primary:
-    'bg-hud-blue hover:bg-hud-blue/80 text-white border border-hud-blue/50',
+    'bg-f1-red text-white shadow-lg shadow-f1-red/20 hover:bg-[#cc0500] active:bg-[#b00400]',
   secondary:
-    'bg-metal hover:bg-metal-light text-white border border-metal-light/50',
+    'bg-white/10 text-white hover:bg-white/15',
   ghost:
-    'bg-transparent hover:bg-white/10 text-white border border-white/20',
+    'bg-white/5 text-white/90 hover:bg-white/10',
   danger:
-    'bg-hud-red/20 hover:bg-hud-red/30 text-hud-red border border-hud-red/50',
+    'bg-hud-red/15 text-hud-red hover:bg-hud-red/25',
 };
 
 const sizeClasses = {
-  sm: 'px-3 py-1.5 text-xs',
-  md: 'px-4 py-2 text-sm',
+  sm: 'px-3 py-2 text-sm',
+  md: 'px-4 py-2.5 text-[15px]',
   lg: 'px-6 py-3 text-base',
 };
 
 export function Button({ variant = 'primary', size = 'md', className = '', children, ...props }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center justify-center rounded-md font-mono font-medium transition-all duration-150 active:scale-95 disabled:opacity-40 disabled:pointer-events-none ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+      className={`relative inline-flex min-h-11 items-center justify-center rounded-xl font-ui font-semibold tracking-wide transition-all duration-150 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40 ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
       {...props}
     >
       {children}

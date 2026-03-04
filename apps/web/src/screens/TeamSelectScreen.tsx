@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router';
 import type { TeamData } from '@boxbox/engine';
 import { useGameStore } from '../stores/game-store';
 import { getTeamImageUrl, getTeamFallbackGradient } from '../lib/images';
+import { useI18n } from '../i18n';
 
 export function TeamSelectScreen() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const catalog = useGameStore((s) => s.catalog);
   const selectedTeamId = useGameStore((s) => s.selectedTeamId);
   const selectTeam = useGameStore((s) => s.selectTeam);
@@ -13,11 +15,9 @@ export function TeamSelectScreen() {
   if (!catalog) return null;
 
   return (
-    <div className="flex flex-col px-4 pt-6">
-      <h1 className="font-display text-lg font-bold uppercase tracking-wider mb-1">Select Team</h1>
-      <p className="text-xs text-metal-light mb-6">
-        Choose your constructor. Each team has a unique one-time perk.
-      </p>
+    <div className="flex flex-col px-5 pt-6">
+      <h1 className="mb-1 font-display text-2xl font-bold uppercase tracking-wide">{t('team.title')}</h1>
+      <p className="mb-5 text-sm text-metal-light">{t('team.subtitle')}</p>
 
       <div className="flex flex-col gap-3">
         {catalog.teams.map((team) => (
@@ -41,17 +41,18 @@ function TeamCard({ team, active, onSelect }: {
   active: boolean;
   onSelect: () => void;
 }) {
+  const { t, getTeamName, getPerkName, getPerkDescription } = useI18n();
   const [imgFailed, setImgFailed] = useState(false);
 
   return (
     <button
       onClick={onSelect}
-      className={`relative overflow-hidden rounded-lg border bg-carbon-mid text-left transition-all duration-150
-        ${active ? 'border-white/60 ring-1 ring-white/20' : 'border-metal-light/20 hover:border-metal-light/50'}
-        hover:bg-metal-dark active:scale-[0.98]`}
+      className={`relative overflow-hidden rounded-2xl text-left transition-all duration-150
+        ${active ? 'ring-2 ring-f1-red/50 ring-offset-2 ring-offset-carbon' : ''}
+        hover:scale-[1.01] active:scale-[0.98]`}
     >
       {/* Team image / gradient banner */}
-      <div className="relative h-20 w-full overflow-hidden">
+      <div className="relative h-24 w-full overflow-hidden">
         {!imgFailed ? (
           <img
             src={getTeamImageUrl(team.id)}
@@ -66,51 +67,50 @@ function TeamCard({ team, active, onSelect }: {
             style={{ background: getTeamFallbackGradient(team.id) }}
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-carbon-mid via-carbon-mid/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-carbon-mid/95 via-carbon-mid/40 to-transparent" />
 
-        {/* Team name overlaid */}
-        <div className="absolute bottom-2 left-3 flex items-center gap-2">
-          <span className="font-display text-sm font-bold uppercase tracking-wider drop-shadow-lg" style={{ color: team.color }}>
-            {team.name}
+        <div className="absolute bottom-3 left-4 flex items-center gap-2">
+          <span className="font-display text-xl font-bold uppercase tracking-wide drop-shadow-lg" style={{ color: team.color }}>
+            {getTeamName(team.id, team.name)}
           </span>
           {active && (
-            <span className="text-[9px] rounded bg-white/10 px-1.5 py-0.5 text-hud-green font-semibold backdrop-blur-sm">
-              SELECTED
+            <span className="rounded-full bg-hud-green/20 px-2.5 py-0.5 text-[10px] font-semibold uppercase text-hud-green">
+              {t('team.selected')}
             </span>
           )}
         </div>
       </div>
 
       {/* Perk info */}
-      <div className="p-3">
-        <div className="mb-1">
-          <span className="text-[10px] font-display font-semibold uppercase tracking-wider text-metal-light">
-            {team.perk.name}
+      <div className="bg-carbon-mid/60 p-4">
+        <div className="mb-1.5 flex items-center gap-2">
+          <span className="font-display text-sm font-semibold uppercase tracking-wide text-white/80">
+            {getPerkName(team.perk.id, team.perk.name)}
           </span>
-          <span className="ml-2 text-[9px] rounded bg-metal/50 px-1.5 py-0.5 text-metal-light uppercase">
-            {team.perk.timing === 'end-of-turn' ? 'Auto' : 'Active'}
+          <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-metal-light">
+            {team.perk.timing === 'end-of-turn' ? t('team.auto') : t('team.active')}
           </span>
         </div>
 
-        <p className="text-[10px] text-metal-light leading-relaxed">{team.perk.description}</p>
+        <p className="text-sm leading-relaxed text-metal-light">{getPerkDescription(team.perk.id, team.perk.description)}</p>
 
-        <div className="mt-2 flex gap-3 text-[10px]">
+        <div className="mt-2.5 flex flex-wrap gap-3 text-xs">
           {team.perk.effect.position != null && team.perk.effect.position !== 0 && (
-            <span className="text-hud-green">POS {team.perk.effect.position > 0 ? '+' : ''}{team.perk.effect.position}</span>
+            <span className="text-hud-green">{t('stats.pos')} {team.perk.effect.position > 0 ? '+' : ''}{team.perk.effect.position}</span>
           )}
           {team.perk.effect.tireWear != null && team.perk.effect.tireWear !== 0 && (
             <span className={(team.perk.effect.tireWear ?? 0) < 0 ? 'text-hud-green' : 'text-hud-red'}>
-              WEAR {(team.perk.effect.tireWear ?? 0) > 0 ? '+' : ''}{team.perk.effect.tireWear}
+              {t('stats.wear')} {(team.perk.effect.tireWear ?? 0) > 0 ? '+' : ''}{team.perk.effect.tireWear}
             </span>
           )}
           {team.perk.effect.fuel != null && team.perk.effect.fuel !== 0 && (
             <span className={(team.perk.effect.fuel ?? 0) < 0 ? 'text-hud-green' : 'text-hud-red'}>
-              ERS {(team.perk.effect.fuel ?? 0) > 0 ? '+' : ''}{team.perk.effect.fuel}
+              {t('stats.ers')} {(team.perk.effect.fuel ?? 0) > 0 ? '+' : ''}{team.perk.effect.fuel}
             </span>
           )}
           {team.perk.effect.rainMeter != null && team.perk.effect.rainMeter !== 0 && (
             <span className={(team.perk.effect.rainMeter ?? 0) < 0 ? 'text-hud-green' : 'text-hud-red'}>
-              RAIN {(team.perk.effect.rainMeter ?? 0) > 0 ? '+' : ''}{team.perk.effect.rainMeter}
+              {t('stats.rain')} {(team.perk.effect.rainMeter ?? 0) > 0 ? '+' : ''}{team.perk.effect.rainMeter}
             </span>
           )}
         </div>

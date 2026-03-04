@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { CardData } from '@boxbox/engine';
 import { Badge } from '../shared/Badge';
 import { getCardImageUrl, getCardFallbackGradient } from '../../lib/images';
+import { useI18n } from '../../i18n';
 
 type CardSize = 'sm' | 'md';
 
@@ -24,46 +25,52 @@ function EffectDelta({ label, value, positive, small }: { label: string; value: 
   const sign = value > 0 ? '+' : '';
 
   return (
-    <span className={`${small ? 'text-[9px]' : 'text-xs'} font-mono ${color}`}>
+    <span className={`${small ? 'text-[10px]' : 'text-sm'} font-mono ${color}`}>
       {label} {sign}{value}
     </span>
   );
 }
 
 export function CardComponent({ card, selected = false, disabled = false, compact = false, size, onClick }: CardComponentProps) {
+  const { getCardName, getCardRulesText, t } = useI18n();
   const [imgFailed, setImgFailed] = useState(false);
-
-  const borderColor = selected
-    ? 'border-hud-blue shadow-lg shadow-hud-blue/20'
-    : 'border-metal-light/30 hover:border-metal-light/60';
 
   const fallbackGradient = getCardFallbackGradient(card.tags);
 
   const isSmall = size === 'sm';
   const showArt = !compact;
-  const artHeight = isSmall ? 'h-14' : 'h-24';
-  const infoPadding = isSmall ? 'p-1.5' : 'p-2.5';
-  const nameSize = isSmall ? 'text-[9px]' : 'text-xs';
-  const rulesSize = isSmall ? 'text-[8px] mb-1 leading-snug' : 'text-[10px] mb-2 leading-relaxed';
+  const artHeight = isSmall ? 'h-[42%]' : 'h-28';
+  const infoPadding = isSmall ? 'p-2' : 'p-3';
+  const nameSize = isSmall ? 'text-xs' : 'text-sm';
+  const rulesSize = isSmall ? 'mb-1 text-[11px] leading-snug' : 'mb-2 text-xs leading-relaxed';
+  const cardStyle = isSmall ? { aspectRatio: '63 / 88' } : undefined;
+  const showRules = !compact && !isSmall;
 
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`relative w-full rounded-lg border overflow-hidden text-left transition-all duration-150
-        ${borderColor}
-        ${disabled ? 'opacity-40 pointer-events-none' : 'hover:scale-[1.02] active:scale-[0.98]'}
-        ${selected ? 'ring-1 ring-hud-blue/40' : ''}
+      style={cardStyle}
+      className={`group relative w-full overflow-hidden rounded-2xl text-left transition-all duration-150
+        ${selected ? 'ring-2 ring-f1-red/60 ring-offset-2 ring-offset-carbon bg-white/8' : 'bg-white/[0.04]'}
+        ${disabled ? 'pointer-events-none opacity-40' : 'hover:bg-white/[0.07] active:scale-[0.98]'}
+        ${isSmall ? 'flex flex-col origin-bottom' : ''}
+        ${selected && isSmall ? 'z-10 -translate-y-1 scale-[1.02]' : ''}
       `}
     >
-      {/* Card art area — top portion */}
+      {selected && isSmall && (
+        <span className="absolute left-1.5 top-1.5 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-f1-red text-[11px] font-black text-white shadow">
+          ✓
+        </span>
+      )}
+      {/* Card art area */}
       {showArt && (
         <div className={`relative w-full ${artHeight} overflow-hidden`}>
           {!imgFailed ? (
             <img
               src={getCardImageUrl(card.id)}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               onError={() => setImgFailed(true)}
               loading="lazy"
             />
@@ -73,11 +80,9 @@ export function CardComponent({ card, selected = false, disabled = false, compac
               style={{ background: fallbackGradient }}
             />
           )}
-          {/* Gradient overlay for readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-carbon-dark/90 via-carbon-dark/40 to-transparent" />
-          {/* QD badge on art */}
+          <div className="absolute inset-0 bg-gradient-to-t from-carbon/90 via-carbon/30 to-transparent" />
           {card.quickDecisionEligible && (
-            <span className={`absolute top-1 right-1 bg-hud-yellow/90 text-carbon-dark font-black rounded ${isSmall ? 'text-[7px] px-1 py-0' : 'text-[9px] px-1.5 py-0.5'}`}>
+            <span className={`absolute right-1.5 top-1.5 rounded-full bg-hud-yellow/90 font-black text-carbon ${isSmall ? 'px-1.5 py-0 text-[8px]' : 'px-2 py-0.5 text-[10px]'}`}>
               QD
             </span>
           )}
@@ -85,49 +90,45 @@ export function CardComponent({ card, selected = false, disabled = false, compac
       )}
 
       {/* Card info area */}
-      <div className={`${infoPadding} bg-carbon-mid`}>
-        {/* QD indicator for compact mode */}
+      <div className={`${infoPadding}`}>
         {compact && card.quickDecisionEligible && (
-          <span className="absolute top-1.5 right-1.5 text-hud-yellow text-[10px] font-bold" title="Quick Decision eligible">
+          <span className="absolute right-1.5 top-1.5 text-xs font-bold text-hud-yellow" title={t('race.qdEligibleTitle')}>
             QD
           </span>
         )}
 
-        {/* Name */}
-        <div className={`font-display ${nameSize} font-semibold uppercase tracking-wider mb-0.5`}>
-          {card.name}
+        <div className={`mb-0.5 font-display ${nameSize} font-semibold uppercase tracking-wide`}>
+          {getCardName(card.id, card.name)}
         </div>
 
-        {/* Rules text — shown when not compact */}
-        {!compact && (
+        {showRules && (
           <p className={`${rulesSize} text-metal-light`}>
-            {card.rulesText}
+            {getCardRulesText(card.id, card.rulesText)}
           </p>
         )}
 
-        {/* Effects */}
-        <div className={`flex flex-wrap gap-x-2 gap-y-0.5 ${isSmall ? 'mb-0.5' : 'mb-1.5'}`}>
+        <div className={`flex flex-wrap gap-x-2 gap-y-0.5 ${isSmall ? 'mb-1' : 'mb-1.5'}`}>
           {card.effect.position !== undefined && card.effect.position !== 0 && (
-            <EffectDelta label="POS" value={card.effect.position} positive="bad" small={isSmall} />
+            <EffectDelta label={t('stats.pos')} value={card.effect.position} positive="bad" small={isSmall} />
           )}
           {card.effect.tireWear !== undefined && card.effect.tireWear !== 0 && (
-            <EffectDelta label="WEAR" value={card.effect.tireWear} positive="bad" small={isSmall} />
+            <EffectDelta label={t('stats.wear')} value={card.effect.tireWear} positive="bad" small={isSmall} />
           )}
           {card.effect.fuel !== undefined && card.effect.fuel !== 0 && (
-            <EffectDelta label="ERS" value={card.effect.fuel} positive="bad" small={isSmall} />
+            <EffectDelta label={t('stats.ers')} value={card.effect.fuel} positive="bad" small={isSmall} />
           )}
           {card.effect.rainMeter !== undefined && card.effect.rainMeter !== 0 && (
-            <EffectDelta label="RAIN" value={card.effect.rainMeter} positive="bad" small={isSmall} />
+            <EffectDelta label={t('stats.rain')} value={card.effect.rainMeter} positive="bad" small={isSmall} />
           )}
         </div>
 
-        {/* Tags */}
-        <div className="flex gap-1">
+        <div className={`flex gap-1 ${isSmall ? 'overflow-hidden' : ''}`}>
           {card.tags.map((tag) => (
             <Badge key={tag} tag={tag} />
           ))}
         </div>
       </div>
+      {selected && isSmall && <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 rounded-b-2xl bg-f1-red" />}
     </button>
   );
 }

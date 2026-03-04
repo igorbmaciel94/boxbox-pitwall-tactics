@@ -3,6 +3,7 @@ import { Modal } from '../shared/Modal';
 import { HandDisplay } from './HandDisplay';
 import { Button } from '../shared/Button';
 import { useState } from 'react';
+import { useI18n } from '../../i18n';
 
 interface QuickDecisionModalProps {
   open: boolean;
@@ -12,13 +13,14 @@ interface QuickDecisionModalProps {
 }
 
 export function QuickDecisionModal({ open, state, catalog, onSubmit }: QuickDecisionModalProps) {
+  const { t } = useI18n();
   const [selected, setSelected] = useState<CardId | null>(null);
 
   return (
-    <Modal open={open} title="Quick Decision">
+    <Modal open={open} title={t('race.quickDecisionTitle')}>
       <div className="space-y-4">
-        <p className="text-xs text-metal-light">
-          A critical moment! You may play a quick-decision card from your hand, or skip.
+        <p className="text-sm leading-relaxed text-metal-light">
+          {t('race.quickDecisionDesc')}
         </p>
         <HandDisplay
           hand={state.hand}
@@ -37,7 +39,7 @@ export function QuickDecisionModal({ open, state, catalog, onSubmit }: QuickDeci
               onSubmit(null);
             }}
           >
-            Skip
+            {t('race.skip')}
           </Button>
           <Button
             variant="primary"
@@ -49,7 +51,7 @@ export function QuickDecisionModal({ open, state, catalog, onSubmit }: QuickDeci
               setSelected(null);
             }}
           >
-            Play Card
+            {t('race.playCard')}
           </Button>
         </div>
       </div>

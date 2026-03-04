@@ -2,9 +2,11 @@ import { get, set } from 'idb-keyval';
 import type { CardId, RaceDebrief, TeamId } from '@boxbox/engine';
 import type { BestScore, RunHistoryEntry, SavedDeck, SeasonRunEntry } from '../lib/types';
 import { calculateMedal } from '../lib/constants';
+import type { Locale } from '../i18n';
 
 const KEYS = {
   selectedTeam: 'boxbox-team',
+  locale: 'boxbox-locale',
   savedDecks: 'boxbox-decks',
   currentDeck: 'boxbox-current-deck',
   bestScores: 'boxbox-best-scores',
@@ -19,6 +21,15 @@ export async function saveSelectedTeam(teamId: TeamId): Promise<void> {
 
 export async function loadSelectedTeam(): Promise<TeamId | null> {
   return (await get<TeamId>(KEYS.selectedTeam)) ?? null;
+}
+
+// --- Locale ---
+export async function saveLocale(locale: Locale): Promise<void> {
+  await set(KEYS.locale, locale);
+}
+
+export async function loadLocale(): Promise<Locale | null> {
+  return (await get<Locale>(KEYS.locale)) ?? null;
 }
 
 // --- Current Deck ---
@@ -100,9 +111,10 @@ export async function addSeasonRun(entry: SeasonRunEntry): Promise<SeasonRunEntr
 
 // --- Load all persisted data at startup ---
 export async function loadAllPersistedData() {
-  const [selectedTeam, currentDeck, savedDecks, bestScores, runHistory, seasonRuns] =
+  const [selectedTeam, locale, currentDeck, savedDecks, bestScores, runHistory, seasonRuns] =
     await Promise.all([
       loadSelectedTeam(),
+      loadLocale(),
       loadCurrentDeck(),
       loadDeckList(),
       loadBestScores(),
@@ -110,5 +122,5 @@ export async function loadAllPersistedData() {
       loadSeasonRuns(),
     ]);
 
-  return { selectedTeam, currentDeck, savedDecks, bestScores, runHistory, seasonRuns };
+  return { selectedTeam, locale, currentDeck, savedDecks, bestScores, runHistory, seasonRuns };
 }

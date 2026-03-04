@@ -28,6 +28,7 @@ export type TurnPhase =
 export interface RaceEvent {
   type: EventType;
   name: string;
+  flavorIndex: number;
   preEffect?: CardEffect;
   postEffect?: CardEffect;
   requiresQuickDecision: boolean;

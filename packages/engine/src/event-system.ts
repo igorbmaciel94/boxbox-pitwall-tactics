@@ -99,11 +99,13 @@ export function selectEvent(
 function buildEvent(type: EventType, catalog: GameCatalogData, rng: SeededRng): RaceEvent {
   const def = EVENT_DEFINITIONS[type];
   const flavorTexts = catalog.strings.events[type];
-  const flavorText = flavorTexts[rng.nextInt(0, flavorTexts.length - 1)];
+  const flavorIndex = rng.nextInt(0, flavorTexts.length - 1);
+  const flavorText = flavorTexts[flavorIndex];
 
   return {
     type,
     name: type.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+    flavorIndex,
     preEffect: def.preEffect,
     postEffect: def.postEffect,
     requiresQuickDecision: def.requiresQuickDecision,

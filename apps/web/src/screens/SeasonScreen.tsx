@@ -6,6 +6,7 @@ import { Modal } from '../components/shared/Modal';
 import { CardComponent } from '../components/race/CardComponent';
 import { getPositionColor } from '../lib/constants';
 import type { CardId } from '@boxbox/engine';
+import { useI18n } from '../i18n';
 
 function hashCombine(a: number, b: number): number {
   let h = (a ^ (b * 0x9e3779b9 + 0x6d2b79f5)) | 0;
@@ -17,6 +18,7 @@ function hashCombine(a: number, b: number): number {
 
 export function SeasonScreen() {
   const navigate = useNavigate();
+  const { t, getScenarioName, getScenarioCircuit, getTeamName, getCardName } = useI18n();
   const catalog = useGameStore((s) => s.catalog);
   const selectedTeamId = useGameStore((s) => s.selectedTeamId);
   const seasonProgress = useGameStore((s) => s.seasonProgress);
@@ -29,14 +31,12 @@ export function SeasonScreen() {
   const [showCardSwap, setShowCardSwap] = useState(false);
   const [swapDeck, setSwapDeck] = useState<CardId[]>([]);
 
-  // Start season if not started
   useEffect(() => {
     if (!seasonProgress) {
       startSeason();
     }
   }, []);
 
-  // Check for card swap after race 3
   useEffect(() => {
     if (seasonProgress && seasonProgress.currentRaceIndex === 3 && !seasonProgress.cardSwapDone) {
       setSwapDeck([...currentDeck]);
@@ -46,8 +46,8 @@ export function SeasonScreen() {
 
   if (!catalog || !seasonProgress) {
     return (
-      <div className="flex items-center justify-center h-64 text-metal-light text-xs">
-        Loading season...
+      <div className="flex h-64 items-center justify-center text-sm text-metal-light">
+        {t('season.loadingSeason')}
       </div>
     );
   }
@@ -55,7 +55,6 @@ export function SeasonScreen() {
   const { raceOrder, currentRaceIndex, raceResults, cumulativeScore } = seasonProgress;
   const isComplete = currentRaceIndex >= raceOrder.length;
 
-  // Navigate to results in useEffect to avoid calling navigate during render
   useEffect(() => {
     if (isComplete) {
       navigate('/season/results');
@@ -96,19 +95,19 @@ export function SeasonScreen() {
   };
 
   return (
-    <div className="flex flex-col px-4 pt-6">
+    <div className="flex flex-col px-5 pt-6">
       <div className="flex items-center justify-between mb-1">
-        <h1 className="font-display text-lg font-bold uppercase tracking-wider">Season</h1>
-        <span className="font-mono text-sm">{cumulativeScore} pts</span>
+        <h1 className="font-display text-2xl font-bold uppercase tracking-wide">{t('season.title')}</h1>
+        <span className="font-mono text-base">{cumulativeScore} {t('common.scorePts')}</span>
       </div>
       {team && (
-        <p className="text-[10px] mb-4" style={{ color: team.color }}>
-          {team.name}
+        <p className="mb-5 text-sm" style={{ color: team.color }}>
+          {getTeamName(team.id, team.name)}
         </p>
       )}
 
       {/* Progress bar */}
-      <div className="flex gap-1 mb-6">
+      <div className="flex gap-1.5 mb-6">
         {raceOrder.map((scenarioId, i) => {
           const scenario = catalog.scenarios.find((s) => s.id === scenarioId);
           const result = raceResults[i];
@@ -117,19 +116,19 @@ export function SeasonScreen() {
           return (
             <div key={i} className="flex-1 text-center">
               <div
-                className={`h-2 rounded-full mb-1 transition-colors ${
+                className={`h-1.5 rounded-full mb-1.5 transition-colors ${
                   result
                     ? 'bg-hud-green'
                     : isCurrent
-                      ? 'bg-hud-blue animate-pulse'
-                      : 'bg-metal-dark'
+                      ? 'bg-f1-red'
+                      : 'bg-white/10'
                 }`}
               />
-              <div className="text-[8px] font-display uppercase tracking-wider text-metal-light truncate">
-                {scenario?.name.split(' ')[0] ?? scenarioId}
+              <div className="truncate text-[10px] uppercase tracking-wider text-metal-light">
+                {scenario ? getScenarioName(scenario.id, scenario.name).split(' ')[0] : scenarioId}
               </div>
               {result && (
-                <div className={`text-[9px] ${getPositionColor(result.finalPosition)}`}>
+                <div className={`text-xs ${getPositionColor(result.finalPosition)}`}>
                   P{result.finalPosition}
                 </div>
               )}
@@ -140,18 +139,18 @@ export function SeasonScreen() {
 
       {/* Past results */}
       {raceResults.length > 0 && (
-        <div className="mb-4 space-y-1.5">
-          <div className="text-[10px] font-display uppercase tracking-wider text-metal-light">
-            Completed Races
+        <div className="mb-4 space-y-2 rounded-2xl bg-white/[0.04] p-4">
+          <div className="text-xs font-display uppercase tracking-wider text-metal-light">
+            {t('season.completedRaces')}
           </div>
           {raceResults.map((result, i) => {
             const sc = catalog.scenarios.find((s) => s.id === result.scenarioId);
             return (
-              <div key={i} className="flex items-center justify-between rounded border border-metal-light/10 bg-carbon-mid/50 p-2 text-[10px]">
-                <span>{sc?.name}</span>
+              <div key={i} className="flex items-center justify-between rounded-xl bg-white/[0.04] p-3 text-xs">
+                <span>{sc ? getScenarioName(sc.id, sc.name) : result.scenarioId}</span>
                 <div className="flex gap-3">
                   <span className={getPositionColor(result.finalPosition)}>P{result.finalPosition}</span>
-                  <span>{result.totalScore} pts</span>
+                  <span>{result.totalScore} {t('common.scorePts')}</span>
                 </div>
               </div>
             );
@@ -160,40 +159,44 @@ export function SeasonScreen() {
       )}
 
       {/* Next race */}
-      <div className="rounded-lg border border-hud-blue/30 bg-carbon-mid p-4 mb-4">
-        <div className="text-[10px] font-display uppercase tracking-wider text-hud-blue mb-1">
-          Race {currentRaceIndex + 1} of {raceOrder.length}
+      <div className="mb-5 rounded-2xl border border-f1-red/30 bg-f1-red/5 p-4">
+        <div className="mb-1 text-xs font-display uppercase tracking-wider text-f1-red/80">
+          {t('season.raceOf', { current: currentRaceIndex + 1, total: raceOrder.length })}
         </div>
-        <div className="font-display text-sm font-bold uppercase tracking-wider">{currentScenario?.name}</div>
-        <div className="text-[10px] text-metal-light">{currentScenario?.circuit}</div>
-        <div className="mt-2 flex gap-3 text-[9px] text-metal-light">
-          <span>Start P{currentScenario?.params.startingPosition}</span>
-          <span>{currentScenario?.turns} laps</span>
+        <div className="font-display text-xl font-bold uppercase tracking-wide">
+          {currentScenario ? getScenarioName(currentScenario.id, currentScenario.name) : '-'}
+        </div>
+        <div className="text-sm text-metal-light">
+          {currentScenario ? getScenarioCircuit(currentScenario.id, currentScenario.circuit) : '-'}
+        </div>
+        <div className="mt-2 flex gap-3 text-xs text-metal-light">
+          <span>{t('race.start')} P{currentScenario?.params.startingPosition}</span>
+          <span>{currentScenario?.turns} {t('race.laps')}</span>
         </div>
       </div>
 
       <Button variant="primary" size="lg" className="w-full" onClick={handleStartNextRace}>
-        Start Race
+        {t('season.startRace')}
       </Button>
 
       {/* Card Swap Modal */}
       <Modal
         open={showCardSwap}
-        title="Mid-Season Card Swap"
+        title={t('season.cardSwapTitle')}
         onClose={() => {
           setSeasonCardSwapDone();
           setShowCardSwap(false);
         }}
       >
-        <div className="space-y-3">
-          <p className="text-xs text-metal-light">
-            After 3 races, you may modify your deck for the remaining season.
+        <div className="space-y-4">
+          <p className="text-sm text-metal-light">
+            {t('season.cardSwapDesc')}
           </p>
 
-          <div className="text-[10px] font-display uppercase tracking-wider text-metal-light">
-            Current Deck ({swapDeck.length}/9)
+          <div className="text-xs font-display uppercase tracking-wider text-metal-light">
+            {t('season.currentDeck')} ({swapDeck.length}/9)
           </div>
-          <div className="grid grid-cols-3 gap-1">
+          <div className="grid grid-cols-3 gap-1.5">
             {Array.from({ length: 9 }).map((_, i) => {
               const cardId = swapDeck[i];
               const card = cardId ? catalog.cards.find((c) => c.id === cardId) : null;
@@ -201,19 +204,23 @@ export function SeasonScreen() {
                 <button
                   key={i}
                   onClick={() => cardId && removeFromSwapDeck(i)}
-                  className={`rounded border p-1.5 text-center text-[8px] font-mono min-h-[36px] flex items-center justify-center
-                    ${card ? 'border-metal-light/40 bg-carbon-mid hover:border-hud-red/50' : 'border-metal-light/10 bg-carbon-mid/50 text-metal-light/30'}`}
+                  className={`flex min-h-[40px] items-center justify-center rounded-xl p-2 text-center text-[10px] font-mono
+                    ${
+                      card
+                        ? 'bg-white/8 hover:bg-hud-red/10'
+                        : 'border border-dashed border-white/10 text-white/20'
+                    }`}
                 >
-                  {card ? card.name : 'Empty'}
+                  {card ? getCardName(card.id, card.name) : t('common.empty')}
                 </button>
               );
             })}
           </div>
 
-          <div className="text-[10px] font-display uppercase tracking-wider text-metal-light">
-            All Cards
+          <div className="text-xs font-display uppercase tracking-wider text-metal-light">
+            {t('season.allCards')}
           </div>
-          <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto">
+          <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
             {catalog.cards.map((card) => {
               const count = swapDeck.filter((c) => c === card.id).length;
               const canAdd = swapDeck.length < 9 && count < 2;
@@ -237,7 +244,7 @@ export function SeasonScreen() {
             disabled={swapDeck.length !== 9}
             onClick={handleCardSwapConfirm}
           >
-            Confirm Deck
+            {t('deck.confirmDeck')}
           </Button>
         </div>
       </Modal>

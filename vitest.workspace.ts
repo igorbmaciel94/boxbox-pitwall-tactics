@@ -21,4 +21,17 @@ export default defineWorkspace([
       include: ['__tests__/**/*.test.ts'],
     },
   },
+  {
+    resolve: {
+      alias: {
+        '@boxbox/engine': resolve(__dirname, 'packages/engine/src/index.ts'),
+        '@content-data': resolve(__dirname, 'packages/content/data'),
+      },
+    },
+    test: {
+      name: 'web',
+      root: 'apps/web',
+      include: ['__tests__/**/*.test.ts'],
+    },
+  },
 ]);

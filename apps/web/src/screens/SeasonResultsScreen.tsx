@@ -2,9 +2,11 @@ import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { Button } from '../components/shared/Button';
 import { getPositionColor, calculateMedal, MEDAL_COLORS } from '../lib/constants';
+import { useI18n } from '../i18n';
 
 export function SeasonResultsScreen() {
   const navigate = useNavigate();
+  const { t, getTeamName, getScenarioName, getMedalLabel } = useI18n();
   const catalog = useGameStore((s) => s.catalog);
   const seasonProgress = useGameStore((s) => s.seasonProgress);
   const selectedTeamId = useGameStore((s) => s.selectedTeamId);
@@ -12,8 +14,8 @@ export function SeasonResultsScreen() {
 
   if (!catalog || !seasonProgress || seasonProgress.raceResults.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-metal-light text-xs">
-        No season data available.
+      <div className="flex h-64 items-center justify-center text-sm text-metal-light">
+        {t('seasonResults.noData')}
       </div>
     );
   }
@@ -26,23 +28,23 @@ export function SeasonResultsScreen() {
   const worstRace = raceResults.reduce((worst, r) => (r.totalScore < worst.totalScore ? r : worst), raceResults[0]);
 
   return (
-    <div className="flex flex-col px-4 pt-6">
-      <h1 className="font-display text-lg font-bold uppercase tracking-wider mb-1">Season Results</h1>
+    <div className="flex flex-col px-5 pt-6">
+      <h1 className="mb-1 font-display text-2xl font-bold uppercase tracking-wide">{t('seasonResults.title')}</h1>
       {team && (
-        <p className="text-[10px] mb-4" style={{ color: team.color }}>{team.name}</p>
+        <p className="mb-5 text-sm" style={{ color: team.color }}>{getTeamName(team.id, team.name)}</p>
       )}
 
-      <div className="rounded-lg border border-metal-light/20 bg-carbon-mid p-6 text-center mb-4">
-        <div className="font-display text-sm font-semibold uppercase tracking-wider text-metal-light">Final Score</div>
-        <div className="font-display text-4xl font-black mt-1">{cumulativeScore}</div>
-        <div className="text-xs text-metal-light mt-1">{raceResults.length} races completed</div>
+      <div className="mb-5 rounded-2xl bg-white/[0.04] p-6 text-center">
+        <div className="text-xs font-display uppercase tracking-wider text-metal-light">{t('seasonResults.finalScore')}</div>
+        <div className="font-display text-4xl font-black mt-2">{cumulativeScore}</div>
+        <div className="mt-1 text-sm text-metal-light">{raceResults.length} {t('common.racesCompleted')}</div>
         {medal && (
-          <div className={`mt-2 font-display text-sm font-bold uppercase ${MEDAL_COLORS[medal]}`}>{medal} season</div>
+          <div className={`mt-2 font-display text-sm font-bold uppercase ${MEDAL_COLORS[medal]}`}>{getMedalLabel(medal, medal)} {t('seasonResults.seasonSuffix')}</div>
         )}
       </div>
 
-      <div className="rounded-lg border border-metal-light/20 bg-carbon-mid p-3 mb-4">
-        <div className="text-[10px] font-display uppercase tracking-wider text-metal-light mb-2">Race Results</div>
+      <div className="mb-5 rounded-2xl bg-white/[0.04] p-4">
+        <div className="mb-3 text-xs font-display uppercase tracking-wider text-metal-light">{t('seasonResults.raceResults')}</div>
         <div className="space-y-2">
           {raceResults.map((result, i) => {
             const sc = catalog.scenarios.find((s) => s.id === result.scenarioId);
@@ -51,20 +53,26 @@ export function SeasonResultsScreen() {
             return (
               <div
                 key={i}
-                className={`flex items-center justify-between rounded border p-2 text-xs
-                  ${isBest ? 'border-hud-green/30 bg-hud-green/5' : isWorst ? 'border-hud-red/30 bg-hud-red/5' : 'border-metal-light/10 bg-carbon-mid/50'}`}
+                className={`flex items-center justify-between rounded-xl p-3 text-xs
+                  ${
+                    isBest
+                      ? 'bg-hud-green/8 border border-hud-green/20'
+                      : isWorst
+                        ? 'bg-hud-red/8 border border-hud-red/20'
+                        : 'bg-white/[0.04]'
+                  }`}
               >
                 <div>
-                  <div className="font-display text-[10px] font-semibold uppercase tracking-wider">{sc?.name}</div>
-                  <div className="text-[9px] text-metal-light">
-                    {isBest && 'Best race '}
-                    {isWorst && 'Worst race '}
-                    {result.objectivesCompleted.length}/{sc?.objectives.length ?? 0} objectives
+                  <div className="font-display text-xs font-semibold uppercase tracking-wide">{sc ? getScenarioName(sc.id, sc.name) : result.scenarioId}</div>
+                  <div className="text-[9px] text-metal-light mt-0.5">
+                    {isBest && `${t('common.bestRace')} `}
+                    {isWorst && `${t('common.worstRace')} `}
+                    {result.objectivesCompleted.length}/{sc?.objectives.length ?? 0} {t('common.objectivesWord')}
                   </div>
                 </div>
                 <div className="text-right">
                   <div className={getPositionColor(result.finalPosition)}>P{result.finalPosition}</div>
-                  <div className="font-mono font-bold">{result.totalScore} pts</div>
+                  <div className="font-mono font-bold">{result.totalScore} {t('common.scorePts')}</div>
                 </div>
               </div>
             );
@@ -72,12 +80,12 @@ export function SeasonResultsScreen() {
         </div>
       </div>
 
-      <div className="flex gap-2 pb-4">
+      <div className="flex gap-2.5 pb-4">
         <Button variant="ghost" size="md" className="flex-1" onClick={() => { resetAll(); navigate('/'); }}>
-          Home
+          {t('common.home')}
         </Button>
         <Button variant="primary" size="md" className="flex-1" onClick={() => { resetAll(); navigate('/season'); }}>
-          New Season
+          {t('seasonResults.newSeason')}
         </Button>
       </div>
     </div>

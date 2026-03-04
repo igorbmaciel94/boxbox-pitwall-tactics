@@ -1,29 +1,35 @@
 import { useState } from 'react';
 import { useGameStore } from '../stores/game-store';
 import { calculateMedal, MEDAL_COLORS, getPositionColor } from '../lib/constants';
+import { useI18n } from '../i18n';
 
 type Tab = 'history' | 'best';
 
 export function GarageScreen() {
   const [tab, setTab] = useState<Tab>('history');
+  const { t, getScenarioName, getScenarioCircuit, getTeamName, getMedalLabel } = useI18n();
   const runHistory = useGameStore((s) => s.runHistory);
   const bestScores = useGameStore((s) => s.bestScores);
   const catalog = useGameStore((s) => s.catalog);
 
   return (
-    <div className="flex flex-col px-4 pt-6">
-      <h1 className="font-display text-lg font-bold uppercase tracking-wider mb-4">Garage</h1>
+    <div className="flex flex-col px-5 pt-6">
+      <h1 className="mb-5 font-display text-2xl font-bold uppercase tracking-wide">{t('garage.title')}</h1>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-4">
-        {(['history', 'best'] as const).map((t) => (
+      <div className="flex gap-1.5 mb-5">
+        {(['history', 'best'] as const).map((tabKey) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`flex-1 rounded py-2 font-display text-[10px] font-semibold uppercase tracking-wider transition-colors
-              ${tab === t ? 'bg-hud-blue text-white' : 'bg-metal/30 text-metal-light hover:bg-metal/50'}`}
+            key={tabKey}
+            onClick={() => setTab(tabKey)}
+            className={`flex-1 rounded-full py-2 text-xs font-medium uppercase tracking-wider transition-colors
+              ${
+                tab === tabKey
+                  ? 'bg-f1-red text-white'
+                  : 'bg-white/5 text-metal-light hover:bg-white/10 hover:text-white'
+              }`}
           >
-            {t === 'history' ? 'Run History' : 'Best Scores'}
+            {tabKey === 'history' ? t('garage.runHistory') : t('garage.bestScores')}
           </button>
         ))}
       </div>
@@ -31,8 +37,8 @@ export function GarageScreen() {
       {tab === 'history' && (
         <div className="flex flex-col gap-2">
           {runHistory.length === 0 ? (
-            <p className="text-center text-xs text-metal-light py-8">
-              No races completed yet. Start racing to see your history here.
+            <p className="py-8 text-center text-sm text-metal-light">
+              {t('garage.noHistory')}
             </p>
           ) : (
             runHistory.map((entry, i) => {
@@ -41,23 +47,23 @@ export function GarageScreen() {
               return (
                 <div
                   key={i}
-                  className="rounded-lg border border-metal-light/20 bg-carbon-mid p-3"
+                  className="rounded-2xl bg-white/[0.04] p-4"
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-display text-xs font-semibold uppercase tracking-wider">
-                      {scenario?.name ?? entry.scenarioId}
+                    <span className="font-display text-sm font-semibold uppercase tracking-wide">
+                      {scenario ? getScenarioName(scenario.id, scenario.name) : entry.scenarioId}
                     </span>
-                    <span className="text-[10px] text-metal-light">
+                    <span className="text-xs text-metal-light">
                       {new Date(entry.timestamp).toLocaleDateString()}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 text-[10px]">
+                  <div className="flex items-center gap-3 text-xs">
                     <span className={getPositionColor(entry.debrief.finalPosition)}>
                       P{entry.debrief.finalPosition}
                     </span>
-                    <span className="text-metal-light">Score: {entry.debrief.totalScore}</span>
+                    <span className="text-metal-light">{t('garage.scorePrefix')}: {entry.debrief.totalScore}</span>
                     {team && (
-                      <span style={{ color: team.color }}>{team.name}</span>
+                      <span style={{ color: team.color }}>{getTeamName(team.id, team.name)}</span>
                     )}
                   </div>
                 </div>
@@ -75,14 +81,14 @@ export function GarageScreen() {
             return (
               <div
                 key={scenario.id}
-                className="rounded-lg border border-metal-light/20 bg-carbon-mid p-3"
+                className="rounded-2xl bg-white/[0.04] p-4"
               >
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-display text-xs font-semibold uppercase tracking-wider">
-                      {scenario.name}
+                      {getScenarioName(scenario.id, scenario.name)}
                     </div>
-                    <div className="text-[9px] text-metal-light">{scenario.circuit}</div>
+                    <div className="text-xs text-metal-light">{getScenarioCircuit(scenario.id, scenario.circuit)}</div>
                   </div>
                   {best ? (
                     <div className="text-right">
@@ -93,13 +99,13 @@ export function GarageScreen() {
                         </span>
                         {medal && (
                           <span className={`font-display text-[10px] font-bold uppercase ${MEDAL_COLORS[medal]}`}>
-                            {medal}
+                            {getMedalLabel(medal, medal)}
                           </span>
                         )}
                       </div>
                     </div>
                   ) : (
-                    <span className="text-[10px] text-metal-light">No runs</span>
+                    <span className="text-xs text-metal-light">{t('garage.noRuns')}</span>
                   )}
                 </div>
               </div>

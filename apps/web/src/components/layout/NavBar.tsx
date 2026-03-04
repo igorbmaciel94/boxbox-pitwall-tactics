@@ -1,34 +1,40 @@
 import { useNavigate, useLocation } from 'react-router';
+import { useI18n } from '../../i18n';
 
 const NAV_ITEMS = [
-  { path: '/', label: 'HOME', icon: '⌂' },
-  { path: '/team', label: 'TEAM', icon: '◆' },
-  { path: '/decks', label: 'DECKS', icon: '▦' },
-  { path: '/garage', label: 'GARAGE', icon: '◈' },
+  { path: '/', labelKey: 'nav.home', icon: 'HM' },
+  { path: '/team', labelKey: 'nav.team', icon: 'TM' },
+  { path: '/decks', labelKey: 'nav.decks', icon: 'DK' },
+  { path: '/garage', labelKey: 'nav.garage', icon: 'GR' },
 ] as const;
 
 export function NavBar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useI18n();
 
-  // Hide nav during active race
   if (location.pathname === '/race') return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-metal-light/20 bg-carbon-mid/95 backdrop-blur-sm safe-area-pb">
-      <div className="mx-auto flex max-w-lg">
+    <nav className="safe-area-pb fixed bottom-0 left-0 right-0 z-40 border-t border-white/8 bg-[#0c1219]/95 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-xl">
         {NAV_ITEMS.map((item) => {
           const active = location.pathname === item.path;
           return (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`flex flex-1 flex-col items-center gap-0.5 py-2 transition-colors
-                ${active ? 'text-hud-blue' : 'text-metal-light hover:text-white'}`}
+              className={`group relative flex flex-1 flex-col items-center gap-1 py-2.5 transition-colors duration-150
+                ${active ? 'text-f1-red' : 'text-metal-light hover:text-white/80'}`}
             >
-              <span className="text-lg">{item.icon}</span>
-              <span className="font-display text-[8px] font-semibold uppercase tracking-widest">
-                {item.label}
+              {active && (
+                <span className="absolute inset-x-4 top-0 h-[2px] rounded-full bg-f1-red" />
+              )}
+              <span className={`font-mono text-[11px] font-semibold tracking-wider ${active ? 'text-f1-red' : ''}`}>
+                {item.icon}
+              </span>
+              <span className="text-[10px] font-medium tracking-wide">
+                {t(item.labelKey)}
               </span>
             </button>
           );

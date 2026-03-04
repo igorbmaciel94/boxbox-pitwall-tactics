@@ -1,22 +1,15 @@
 export const TAG_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  aggressive: { bg: 'bg-red-900/50', text: 'text-red-300', border: 'border-red-500' },
-  defensive: { bg: 'bg-blue-900/50', text: 'text-blue-300', border: 'border-blue-500' },
-  pit: { bg: 'bg-amber-900/50', text: 'text-amber-300', border: 'border-amber-500' },
-  weather: { bg: 'bg-cyan-900/50', text: 'text-cyan-300', border: 'border-cyan-500' },
-};
-
-export const TAG_DISPLAY_NAMES: Record<string, string> = {
-  aggressive: 'Drive',
-  defensive: 'Tactics',
-  pit: 'Pit',
-  weather: 'Tactics',
+  aggressive: { bg: 'bg-red-950/45', text: 'text-red-200', border: 'border-red-400/65' },
+  defensive: { bg: 'bg-blue-950/45', text: 'text-blue-200', border: 'border-blue-400/60' },
+  pit: { bg: 'bg-amber-950/45', text: 'text-amber-200', border: 'border-amber-400/65' },
+  weather: { bg: 'bg-cyan-950/45', text: 'text-cyan-200', border: 'border-cyan-400/65' },
 };
 
 export const FILTER_CATEGORIES = [
-  { key: 'all', label: 'All' },
-  { key: 'drive', label: 'Drive', tags: ['aggressive'] },
-  { key: 'pit', label: 'Pit', tags: ['pit'] },
-  { key: 'tactics', label: 'Tactics', tags: ['defensive', 'weather'] },
+  { key: 'all' },
+  { key: 'drive', tags: ['aggressive'] },
+  { key: 'pit', tags: ['pit'] },
+  { key: 'tactics', tags: ['defensive', 'weather'] },
 ] as const;
 
 export function getPositionColor(position: number): string {
@@ -41,7 +34,7 @@ export function getErsColor(fuel: number): string {
 export function getRainColor(rain: number): string {
   if (rain >= 7) return 'bg-hud-cyan';
   if (rain >= 4) return 'bg-hud-blue';
-  return 'bg-blue-400';
+  return 'bg-blue-500';
 }
 
 export function calculateMedal(score: number): 'gold' | 'silver' | 'bronze' | null {
@@ -60,7 +53,7 @@ export const MEDAL_COLORS = {
 export const EVENT_ICONS: Record<string, string> = {
   'safety-car': 'SC',
   vsc: 'VSC',
-  rain: '🌧',
+  rain: 'RAIN',
   'rival-pits': 'PIT',
   'track-limits': 'TL',
   traffic: 'TFC',
@@ -70,13 +63,13 @@ export const EVENT_ICONS: Record<string, string> = {
 };
 
 export const EVENT_COLORS: Record<string, string> = {
-  'safety-car': 'border-hud-yellow bg-hud-yellow/10',
-  vsc: 'border-hud-yellow bg-hud-yellow/10',
-  rain: 'border-hud-cyan bg-hud-cyan/10',
-  'rival-pits': 'border-hud-amber bg-hud-amber/10',
-  'track-limits': 'border-hud-red bg-hud-red/10',
-  traffic: 'border-metal-light bg-metal/50',
-  'clear-air': 'border-hud-green bg-hud-green/10',
-  'drs-train': 'border-hud-blue bg-hud-blue/10',
-  'mechanical-issue': 'border-hud-red bg-hud-red/10',
+  'safety-car': 'border-hud-yellow/85 bg-hud-yellow/14',
+  vsc: 'border-hud-yellow/85 bg-hud-yellow/14',
+  rain: 'border-hud-cyan/85 bg-hud-cyan/14',
+  'rival-pits': 'border-hud-amber/85 bg-hud-amber/14',
+  'track-limits': 'border-hud-red/85 bg-hud-red/14',
+  traffic: 'border-metal-light/75 bg-metal/50',
+  'clear-air': 'border-hud-green/85 bg-hud-green/14',
+  'drs-train': 'border-hud-blue/85 bg-hud-blue/14',
+  'mechanical-issue': 'border-hud-red/85 bg-hud-red/14',
 };

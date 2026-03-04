@@ -2,9 +2,20 @@ import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { getPositionColor, calculateMedal, MEDAL_COLORS, EVENT_ICONS } from '../lib/constants';
 import { Button } from '../components/shared/Button';
+import { useI18n } from '../i18n';
 
 export function DebriefScreen() {
   const navigate = useNavigate();
+  const {
+    t,
+    getScenarioName,
+    getScenarioCircuit,
+    getTeamName,
+    getObjectiveDescription,
+    getCardName,
+    getEventName,
+    getMedalLabel,
+  } = useI18n();
   const lastDebrief = useGameStore((s) => s.lastDebrief);
   const catalog = useGameStore((s) => s.catalog);
   const mode = useGameStore((s) => s.mode);
@@ -13,8 +24,8 @@ export function DebriefScreen() {
 
   if (!lastDebrief || !catalog) {
     return (
-      <div className="flex items-center justify-center h-64 text-metal-light text-xs">
-        No race data available.
+      <div className="flex h-64 items-center justify-center text-sm text-metal-light">
+        {t('debrief.noData')}
       </div>
     );
   }
@@ -35,74 +46,74 @@ export function DebriefScreen() {
   };
 
   return (
-    <div className="flex flex-col px-4 pt-6">
-      <h1 className="font-display text-lg font-bold uppercase tracking-wider mb-1">Race Debrief</h1>
-      <p className="text-[10px] text-metal-light mb-4">
-        {scenario?.name} — {scenario?.circuit}
+    <div className="flex flex-col px-5 pt-6">
+      <h1 className="mb-1 font-display text-2xl font-bold uppercase tracking-wide">{t('debrief.title')}</h1>
+      <p className="mb-5 text-sm text-metal-light">
+        {scenario ? getScenarioName(scenario.id, scenario.name) : '-'} - {scenario ? getScenarioCircuit(scenario.id, scenario.circuit) : '-'}
       </p>
 
       {/* Position + Score hero */}
-      <div className="rounded-lg border border-metal-light/20 bg-carbon-mid p-4 text-center mb-4">
+      <div className="mb-4 rounded-2xl bg-white/[0.04] p-5 text-center">
         <div className={`font-display text-4xl font-black ${getPositionColor(lastDebrief.finalPosition)}`}>
           P{lastDebrief.finalPosition}
         </div>
-        <div className="mt-2 font-mono text-2xl font-bold">{lastDebrief.totalScore} pts</div>
+        <div className="mt-2 font-mono text-2xl font-bold">{lastDebrief.totalScore} {t('common.scorePts')}</div>
         {medal && (
           <div className={`mt-1 font-display text-sm font-bold uppercase ${MEDAL_COLORS[medal]}`}>
-            {medal} medal
+            {getMedalLabel(medal, medal)} {t('debrief.medalSuffix')}
           </div>
         )}
         {team && (
-          <div className="mt-1 text-[10px]" style={{ color: team.color }}>
-            {team.name}
+          <div className="mt-1 text-sm" style={{ color: team.color }}>
+            {getTeamName(team.id, team.name)}
           </div>
         )}
       </div>
 
       {/* Score breakdown */}
-      <div className="rounded-lg border border-metal-light/20 bg-carbon-mid p-3 mb-4">
-        <div className="text-[10px] font-display uppercase tracking-wider text-metal-light mb-2">
-          Score Breakdown
+      <div className="mb-4 rounded-2xl bg-white/[0.04] p-4">
+        <div className="mb-3 text-xs font-display uppercase tracking-wider text-metal-light">
+          {t('debrief.scoreBreakdown')}
         </div>
-        <div className="space-y-1.5 text-xs">
+        <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-metal-light">Position (P{lastDebrief.finalPosition})</span>
-            <span>{lastDebrief.positionScore} pts</span>
+            <span className="text-metal-light">{t('debrief.positionLine', { position: lastDebrief.finalPosition })}</span>
+            <span>{lastDebrief.positionScore} {t('common.scorePts')}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-metal-light">Objectives</span>
-            <span>{lastDebrief.objectivePoints} pts</span>
+            <span className="text-metal-light">{t('debrief.objectives')}</span>
+            <span>{lastDebrief.objectivePoints} {t('common.scorePts')}</span>
           </div>
           {lastDebrief.styleBonus > 0 && (
             <div className="flex justify-between">
-              <span className="text-metal-light">Style Bonus</span>
-              <span className="text-hud-amber">+{lastDebrief.styleBonus} pts</span>
+              <span className="text-metal-light">{t('debrief.styleBonus')}</span>
+              <span className="text-hud-amber">+{lastDebrief.styleBonus} {t('common.scorePts')}</span>
             </div>
           )}
-          <div className="border-t border-metal-light/20 pt-1.5 flex justify-between font-bold">
-            <span>Total</span>
-            <span>{lastDebrief.totalScore} pts</span>
+          <div className="flex justify-between border-t border-white/8 pt-2 font-bold">
+            <span>{t('debrief.total')}</span>
+            <span>{lastDebrief.totalScore} {t('common.scorePts')}</span>
           </div>
         </div>
       </div>
 
       {/* Objectives */}
-      <div className="rounded-lg border border-metal-light/20 bg-carbon-mid p-3 mb-4">
-        <div className="text-[10px] font-display uppercase tracking-wider text-metal-light mb-2">
-          Objectives
+      <div className="mb-4 rounded-2xl bg-white/[0.04] p-4">
+        <div className="mb-3 text-xs font-display uppercase tracking-wider text-metal-light">
+          {t('debrief.objectives')}
         </div>
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {scenario?.objectives.map((obj) => {
             const completed = lastDebrief.objectivesCompleted.some((o) => o.id === obj.id);
             return (
-              <div key={obj.id} className="flex items-center gap-2 text-xs">
-                <span className={completed ? 'text-hud-green' : 'text-hud-red'}>
-                  {completed ? '[x]' : '[ ]'}
+              <div key={obj.id} className="flex items-center gap-2.5 text-sm">
+                <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${completed ? 'bg-hud-green/20 text-hud-green' : 'bg-white/5 text-white/30'}`}>
+                  {completed ? 'OK' : '--'}
                 </span>
                 <span className={completed ? 'text-white' : 'text-metal-light'}>
-                  {obj.description}
+                  {getObjectiveDescription(obj.id, obj.description)}
                 </span>
-                <span className="text-metal-light ml-auto">{obj.points}pts</span>
+                <span className="ml-auto text-metal-light">{obj.points}{t('common.scorePts')}</span>
               </div>
             );
           })}
@@ -110,28 +121,28 @@ export function DebriefScreen() {
       </div>
 
       {/* Turn timeline */}
-      <div className="rounded-lg border border-metal-light/20 bg-carbon-mid p-3 mb-4">
-        <div className="text-[10px] font-display uppercase tracking-wider text-metal-light mb-2">
-          Lap Summary
+      <div className="mb-4 rounded-2xl bg-white/[0.04] p-4">
+        <div className="mb-3 text-xs font-display uppercase tracking-wider text-metal-light">
+          {t('debrief.lapSummary')}
         </div>
         <div className="space-y-2">
           {lastDebrief.turnLog.map((turn) => {
             const actionCard = catalog.cards.find((c) => c.id === turn.actionCard);
             const qdCard = turn.quickDecisionCard ? catalog.cards.find((c) => c.id === turn.quickDecisionCard) : null;
             return (
-              <div key={turn.turn} className="flex items-start gap-2 text-[10px]">
-                <span className="shrink-0 w-8 font-display font-semibold text-metal-light">
+              <div key={turn.turn} className="flex items-start gap-2 rounded-xl bg-white/[0.04] px-3 py-2 text-xs">
+                <span className="w-8 shrink-0 font-display font-semibold text-metal-light">
                   L{turn.turn}
                 </span>
                 <div className="flex-1">
                   <span className="text-metal-light">
-                    {EVENT_ICONS[turn.event.type] ?? '?'} {turn.event.name}
+                    {EVENT_ICONS[turn.event.type] ?? '?'} {getEventName(turn.event.type, turn.event.name)}
                   </span>
                   {qdCard && (
-                    <span className="text-hud-yellow ml-2">QD: {qdCard.name}</span>
+                    <span className="text-hud-yellow ml-2">{t('debrief.qdPrefix')}: {getCardName(qdCard.id, qdCard.name)}</span>
                   )}
-                  <span className="text-hud-blue ml-2">{actionCard?.name ?? turn.actionCard}</span>
-                  {turn.perkActivated && <span className="text-hud-green ml-2">Perk!</span>}
+                  <span className="ml-2 text-f1-red">{actionCard ? getCardName(actionCard.id, actionCard.name) : turn.actionCard}</span>
+                  {turn.perkActivated && <span className="text-hud-green ml-2">{t('debrief.perkActivated')}</span>}
                 </div>
                 <span className="shrink-0 text-metal-light">
                   P{turn.stateSnapshot.position}
@@ -143,12 +154,12 @@ export function DebriefScreen() {
       </div>
 
       {/* Actions */}
-      <div className="flex gap-2 pb-4">
+      <div className="flex gap-2.5 pb-4">
         <Button variant="ghost" size="md" className="flex-1" onClick={() => { resetRace(); navigate('/'); }}>
-          Home
+          {t('common.home')}
         </Button>
         <Button variant="primary" size="md" className="flex-1" onClick={handleContinue}>
-          {mode === 'season' ? 'Continue Season' : 'Done'}
+          {mode === 'season' ? t('debrief.continueSeason') : t('common.done')}
         </Button>
       </div>
     </div>

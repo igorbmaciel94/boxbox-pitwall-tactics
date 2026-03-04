@@ -15,9 +15,11 @@ import { Button } from '../components/shared/Button';
 import { useAudio } from '../hooks/use-audio';
 import { getCircuitImageUrl, getCircuitFallbackGradient } from '../lib/images';
 import type { CardId } from '@boxbox/engine';
+import { useI18n } from '../i18n';
 
 export function RaceScreen() {
   const navigate = useNavigate();
+  const { t, getScenarioName, getScenarioCircuit, getObjectiveDescription } = useI18n();
   const catalog = useGameStore((s) => s.catalog);
   const raceState = useGameStore((s) => s.raceState);
   const scenario = useGameStore((s) => s.scenario);
@@ -43,14 +45,12 @@ export function RaceScreen() {
 
   const hasTeamAndDeck = !!selectedTeamId && currentDeck.length === 9;
 
-  // Auto-start race if not started yet
   useEffect(() => {
     if (!raceState && catalog && mode !== 'season') {
       setScenarioSelectMode(true);
     }
   }, [raceState, catalog, mode]);
 
-  // Auto-advance through automatic phases
   useEffect(() => {
     if (!raceState || !catalog || !scenario || !team) return;
 
@@ -96,27 +96,35 @@ export function RaceScreen() {
   if (scenarioSelectMode && catalog) {
     if (!hasTeamAndDeck) {
       return (
-        <div className="flex flex-col items-center justify-center h-64 px-4 text-center">
-          <div className="font-display text-sm font-bold uppercase tracking-wider text-metal-light mb-2">
-            Not Ready
+        <div className="flex h-64 flex-col items-center justify-center px-5 text-center">
+          <div className="mb-2 font-display text-base font-bold uppercase tracking-wide text-metal-light">
+            {t('race.notReady')}
           </div>
-          <p className="text-xs text-metal-light mb-4">
-            {!selectedTeamId ? 'Select a team' : 'Build a 9-card deck'} before racing.
+          <p className="mb-4 text-sm text-metal-light">
+            {!selectedTeamId ? t('race.selectTeam') : t('race.buildDeck')} {t('race.beforeRacing')}
           </p>
           <Button variant="primary" size="md" onClick={() => navigate(!selectedTeamId ? '/team' : '/decks')}>
-            {!selectedTeamId ? 'Select Team' : 'Build Deck'}
+            {!selectedTeamId ? t('race.selectTeam') : t('race.buildDeck')}
           </Button>
         </div>
       );
     }
 
     return (
-      <div className="flex flex-col px-4 pt-6">
-        <h1 className="font-display text-lg font-bold uppercase tracking-wider mb-1">Select Circuit</h1>
-        <p className="text-xs text-metal-light mb-4">Choose a circuit for your race.</p>
+      <div className="flex flex-col px-5 pt-6">
+        <h1 className="mb-1 font-display text-2xl font-bold uppercase tracking-wide">{t('race.selectCircuit')}</h1>
+        <p className="mb-5 text-sm text-metal-light">{t('race.chooseCircuit')}</p>
         <div className="flex flex-col gap-3">
           {catalog.scenarios.map((sc) => (
-            <CircuitCard key={sc.id} scenario={sc} onSelect={() => handleStartScenario(sc.id)} />
+            <CircuitCard
+              key={sc.id}
+              scenario={sc}
+              onSelect={() => handleStartScenario(sc.id)}
+              getScenarioName={getScenarioName}
+              getScenarioCircuit={getScenarioCircuit}
+              getObjectiveDescription={getObjectiveDescription}
+              t={t}
+            />
           ))}
         </div>
       </div>
@@ -125,8 +133,8 @@ export function RaceScreen() {
 
   if (!raceState || !scenario || !team || !catalog) {
     return (
-      <div className="flex items-center justify-center h-64 text-metal-light text-xs">
-        Loading race...
+      <div className="flex h-64 items-center justify-center text-sm text-metal-light">
+        {t('race.loadingRace')}
       </div>
     );
   }
@@ -136,10 +144,9 @@ export function RaceScreen() {
   const isRain = currentEvent?.type === 'rain' || raceState.rainMeter >= 7;
 
   return (
-    <div className="relative flex flex-col min-h-dvh">
-      {/* SC/VSC overlay */}
+    <div className="relative flex min-h-dvh flex-col">
       {(isSC || isVSC) && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
-        <div className="pointer-events-none fixed inset-0 z-30 bg-hud-yellow/10 animate-sc-pulse" />
+        <div className="pointer-events-none fixed inset-0 z-30 bg-hud-yellow/8 animate-sc-pulse" />
       )}
       {isRain && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
         <div className="pointer-events-none fixed inset-0 z-30 bg-hud-cyan/5 animate-rain-flash" />
@@ -149,14 +156,14 @@ export function RaceScreen() {
         <ScenarioStrip scenario={scenario} turn={raceState.currentTurn} />
         <button
           onClick={() => setMuted(audio.toggleMute())}
-          className="absolute top-2 right-2 z-10 text-metal-light hover:text-white text-xs px-1.5 py-0.5 rounded bg-carbon-dark/60 transition-colors"
-          title={muted ? 'Unmute' : 'Mute'}
+          className="absolute right-3 top-3 z-10 rounded-full bg-white/10 px-2.5 py-1 font-mono text-[10px] text-white/60 transition-colors hover:bg-white/15 hover:text-white"
+          title={muted ? t('race.unmute') : t('race.mute')}
         >
-          {muted ? 'MUTED' : 'SFX'}
+          {muted ? t('race.muted') : t('race.sfx')}
         </button>
       </div>
 
-      <div className="flex flex-col gap-3 px-4 py-3 pb-6">
+      <div className="flex flex-col gap-3.5 px-5 py-4 pb-6">
         <HUD state={raceState} previousPosition={previousPosition} />
 
         {currentEvent && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
@@ -199,15 +206,15 @@ export function RaceScreen() {
                 }
               }}
             >
-              Play Card
+              {t('race.playCard')}
             </Button>
           </div>
         )}
 
         {turnPhaseUI === 'turn-summary' && (
-          <div className="text-center space-y-3">
-            <div className="font-display text-sm font-bold uppercase tracking-wider text-metal-light">
-              Lap {raceState.currentTurn} Complete
+          <div className="animate-panel-pop space-y-3 rounded-2xl bg-white/[0.04] p-5 text-center">
+            <div className="font-display text-base font-bold uppercase tracking-wide text-metal-light">
+              {t('race.lapComplete', { lap: raceState.currentTurn })}
             </div>
             <Button
               variant="primary"
@@ -218,35 +225,35 @@ export function RaceScreen() {
                 stepper.startNextTurn();
               }}
             >
-              Next Lap
+              {t('race.nextLap')}
             </Button>
           </div>
         )}
 
         {turnPhaseUI === 'idle' && raceState.currentTurn === 0 && (
-          <div className="text-center space-y-3 py-4">
-            <div className="font-display text-sm font-bold uppercase tracking-wider">
-              Lights Out!
+          <div className="animate-panel-pop space-y-3 rounded-2xl bg-white/[0.04] py-6 text-center">
+            <div className="font-display text-xl font-bold uppercase tracking-wide">
+              {t('race.lightsOut')}
             </div>
-            <p className="text-[10px] text-metal-light">
-              Starting P{raceState.position} - {scenario.turns} laps
+            <p className="text-sm text-metal-light">
+              {t('race.startingInfo', { position: raceState.position, laps: scenario.turns })}
             </p>
             <Button variant="primary" size="lg" className="w-full" onClick={() => stepper.startNextTurn()}>
-              Start Race
+              {t('race.startRace')}
             </Button>
           </div>
         )}
 
         {turnPhaseUI === 'race-complete' && (
-          <div className="text-center space-y-3 py-4">
-            <div className="font-display text-lg font-black uppercase tracking-wider">
-              Chequered Flag!
+          <div className="animate-panel-pop space-y-3 rounded-2xl bg-white/[0.04] py-6 text-center">
+            <div className="font-display text-2xl font-black uppercase tracking-wide">
+              {t('race.chequeredFlag')}
             </div>
             <div className="font-display text-3xl font-black text-hud-green">
               P{raceState.position}
             </div>
             <Button variant="primary" size="lg" className="w-full" onClick={() => navigate('/debrief')}>
-              View Debrief
+              {t('race.viewDebrief')}
             </Button>
           </div>
         )}
@@ -257,17 +264,37 @@ export function RaceScreen() {
   );
 }
 
-// --- Circuit selection card with background image ---
-function CircuitCard({ scenario, onSelect }: { scenario: { id: string; name: string; circuit: string; params: { startingPosition: number; baseTireWear: number; baseFuel: number }; turns: number; objectives: { id: string; type: string; description: string; points: number }[] }; onSelect: () => void }) {
+function CircuitCard({
+  scenario,
+  onSelect,
+  getScenarioName,
+  getScenarioCircuit,
+  getObjectiveDescription,
+  t,
+}: {
+  scenario: {
+    id: string;
+    name: string;
+    circuit: string;
+    params: { startingPosition: number; baseTireWear: number; baseFuel: number };
+    turns: number;
+    objectives: { id: string; type: string; description: string; points: number }[];
+  };
+  onSelect: () => void;
+  getScenarioName: (id: string, fallback?: string) => string;
+  getScenarioCircuit: (id: string, fallback?: string) => string;
+  getObjectiveDescription: (id: string, fallback?: string) => string;
+  t: (key: string, vars?: Record<string, string | number>) => string;
+}) {
   const [imgFailed, setImgFailed] = useState(false);
 
   return (
     <button
       onClick={onSelect}
-      className="relative overflow-hidden rounded-lg border border-metal-light/20 text-left hover:border-metal-light/40 transition-all active:scale-[0.98]"
+      className="animate-glow-in relative overflow-hidden rounded-2xl text-left transition-all hover:scale-[1.01] active:scale-[0.98]"
     >
       {/* Circuit background */}
-      <div className="relative h-24 w-full overflow-hidden">
+      <div className="relative h-28 w-full overflow-hidden">
         {!imgFailed ? (
           <img
             src={getCircuitImageUrl(scenario.id)}
@@ -282,29 +309,27 @@ function CircuitCard({ scenario, onSelect }: { scenario: { id: string; name: str
             style={{ background: getCircuitFallbackGradient(scenario.id) }}
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-carbon-dark via-carbon-dark/60 to-transparent" />
-        <div className="absolute bottom-2 left-3">
-          <div className="font-display text-sm font-bold uppercase tracking-wider drop-shadow-lg">{scenario.name}</div>
-          <div className="text-[10px] text-metal-light drop-shadow">{scenario.circuit}</div>
+        <div className="absolute inset-0 bg-gradient-to-t from-carbon via-carbon/50 to-transparent" />
+        <div className="absolute bottom-3 left-4">
+          <div className="font-display text-lg font-bold uppercase tracking-wide drop-shadow-lg">{getScenarioName(scenario.id, scenario.name)}</div>
+          <div className="text-sm text-metal-light drop-shadow">{getScenarioCircuit(scenario.id, scenario.circuit)}</div>
         </div>
       </div>
 
       {/* Info section */}
-      <div className="bg-carbon-mid p-3">
-        <div className="flex gap-3 text-[9px] text-metal-light">
-          <span>Start P{scenario.params.startingPosition}</span>
-          <span>Wear {scenario.params.baseTireWear}</span>
-          <span>ERS {scenario.params.baseFuel}</span>
-          <span>{scenario.turns} laps</span>
+      <div className="bg-white/[0.04] p-3.5">
+        <div className="flex flex-wrap gap-3 text-xs text-metal-light">
+          <span>{t('race.start')} P{scenario.params.startingPosition}</span>
+          <span>{t('race.wear')} {scenario.params.baseTireWear}</span>
+          <span>{t('race.ers')} {scenario.params.baseFuel}</span>
+          <span>{scenario.turns} {t('race.laps')}</span>
         </div>
-        <div className="mt-1.5 text-[9px]">
+        <div className="mt-2 text-[11px]">
           {scenario.objectives.map((obj) => (
-            <span key={obj.id} className="mr-3">
-              <span className={obj.type === 'main' ? 'text-hud-amber' : 'text-metal-light'}>
-                {obj.type === 'main' ? '★' : '·'}
-              </span>{' '}
-              <span className="text-white/70">{obj.description}</span>
-              <span className="text-metal-light"> ({obj.points}pts)</span>
+            <span key={obj.id} className="mr-3 inline-block">
+              <span className={obj.type === 'main' ? 'font-mono text-hud-amber' : 'font-mono text-metal-light'}>{obj.type === 'main' ? 'M>' : 'B>'}</span>{' '}
+              <span className="text-white/60">{getObjectiveDescription(obj.id, obj.description)}</span>
+              <span className="text-metal-light"> ({obj.points}{t('common.scorePts')})</span>
             </span>
           ))}
         </div>
