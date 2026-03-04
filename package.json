@@ -4,14 +4,16 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "scripts": {
     "build": "npm run build --workspaces",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint 'packages/*/src/**/*.ts'",
-    "format": "prettier --write 'packages/*/src/**/*.ts'"
+    "format": "prettier --write 'packages/*/src/**/*.ts'",
+    "dev:web": "npm run dev --workspace=@boxbox/web"
   },
   "devDependencies": {
     "@types/node": "^25.3.3",

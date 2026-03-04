@@ -58,12 +58,25 @@ export function selectEvent(
     weights['vsc'] = 0;
   }
 
+  // Envelope constraint: max 2 rain events per race
+  if (state.rainCount >= 2) {
+    weights['rain'] = 0;
+  }
+
   // Envelope constraint: no consecutive SC/VSC
   if (state.lastEventType === 'safety-car') {
     weights['safety-car'] = 0;
   }
   if (state.lastEventType === 'vsc') {
     weights['vsc'] = 0;
+  }
+
+  // Cooldown: after any dramatic event, halve dramatic weights next turn
+  const dramaticEvents: EventType[] = ['safety-car', 'vsc', 'rain'];
+  if (state.lastEventType && dramaticEvents.includes(state.lastEventType)) {
+    for (const de of dramaticEvents) {
+      weights[de] = Math.floor(weights[de] / 2);
+    }
   }
 
   const eventTypes = Object.keys(weights) as EventType[];
@@ -120,5 +133,6 @@ export function updateEventTracking(state: RaceState, event: RaceEvent): RaceSta
     lastEventType: event.type,
     scUsed: state.scUsed || event.type === 'safety-car',
     vscUsed: state.vscUsed || event.type === 'vsc',
+    rainCount: state.rainCount + (event.type === 'rain' ? 1 : 0),
   };
 }

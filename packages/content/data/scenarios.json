@@ -12,15 +12,15 @@
         "baseFuel": 8,
         "rainChance": 0.15,
         "eventWeights": {
-          "safety-car": 25,
-          "vsc": 15,
-          "rain": 10,
-          "rival-pits": 15,
-          "track-limits": 10,
-          "traffic": 15,
-          "clear-air": 5,
+          "safety-car": 10,
+          "vsc": 8,
+          "rain": 5,
+          "rival-pits": 20,
+          "track-limits": 15,
+          "traffic": 20,
+          "clear-air": 10,
           "drs-train": 0,
-          "mechanical-issue": 5
+          "mechanical-issue": 12
         }
       },
       "objectives": [
@@ -53,15 +53,15 @@
         "baseFuel": 10,
         "rainChance": 0.40,
         "eventWeights": {
-          "safety-car": 15,
-          "vsc": 10,
-          "rain": 30,
-          "rival-pits": 10,
+          "safety-car": 8,
+          "vsc": 5,
+          "rain": 15,
+          "rival-pits": 15,
           "track-limits": 5,
-          "traffic": 5,
-          "clear-air": 10,
-          "drs-train": 10,
-          "mechanical-issue": 5
+          "traffic": 10,
+          "clear-air": 18,
+          "drs-train": 15,
+          "mechanical-issue": 9
         }
       },
       "objectives": [
@@ -94,15 +94,15 @@
         "baseFuel": 12,
         "rainChance": 0.10,
         "eventWeights": {
-          "safety-car": 10,
-          "vsc": 10,
-          "rain": 5,
-          "rival-pits": 15,
-          "track-limits": 5,
-          "traffic": 10,
-          "clear-air": 15,
-          "drs-train": 25,
-          "mechanical-issue": 5
+          "safety-car": 5,
+          "vsc": 5,
+          "rain": 3,
+          "rival-pits": 18,
+          "track-limits": 8,
+          "traffic": 15,
+          "clear-air": 20,
+          "drs-train": 20,
+          "mechanical-issue": 6
         }
       },
       "objectives": [
@@ -135,15 +135,15 @@
         "baseFuel": 9,
         "rainChance": 0.25,
         "eventWeights": {
-          "safety-car": 15,
-          "vsc": 15,
-          "rain": 20,
-          "rival-pits": 15,
-          "track-limits": 10,
-          "traffic": 5,
-          "clear-air": 10,
-          "drs-train": 5,
-          "mechanical-issue": 5
+          "safety-car": 8,
+          "vsc": 8,
+          "rain": 10,
+          "rival-pits": 18,
+          "track-limits": 12,
+          "traffic": 10,
+          "clear-air": 18,
+          "drs-train": 10,
+          "mechanical-issue": 6
         }
       },
       "objectives": [
@@ -176,15 +176,15 @@
         "baseFuel": 8,
         "rainChance": 0.20,
         "eventWeights": {
-          "safety-car": 15,
-          "vsc": 10,
-          "rain": 15,
-          "rival-pits": 15,
+          "safety-car": 8,
+          "vsc": 5,
+          "rain": 8,
+          "rival-pits": 18,
           "track-limits": 15,
-          "traffic": 10,
-          "clear-air": 10,
-          "drs-train": 5,
-          "mechanical-issue": 5
+          "traffic": 15,
+          "clear-air": 15,
+          "drs-train": 10,
+          "mechanical-issue": 6
         }
       },
       "objectives": [
@@ -217,15 +217,15 @@
         "baseFuel": 10,
         "rainChance": 0.35,
         "eventWeights": {
-          "safety-car": 20,
-          "vsc": 15,
-          "rain": 25,
-          "rival-pits": 10,
-          "track-limits": 5,
-          "traffic": 5,
-          "clear-air": 5,
-          "drs-train": 10,
-          "mechanical-issue": 5
+          "safety-car": 10,
+          "vsc": 8,
+          "rain": 12,
+          "rival-pits": 15,
+          "track-limits": 8,
+          "traffic": 10,
+          "clear-air": 12,
+          "drs-train": 15,
+          "mechanical-issue": 10
         }
       },
       "objectives": [

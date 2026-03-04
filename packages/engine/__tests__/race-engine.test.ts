@@ -133,6 +133,10 @@ describe('runRace', () => {
         if (prev === 'safety-car') expect(curr).not.toBe('safety-car');
         if (prev === 'vsc') expect(curr).not.toBe('vsc');
       }
+
+      // Max 2 rain events per race
+      const rainCount = debrief.eventHistory.filter((e) => e.type === 'rain').length;
+      expect(rainCount).toBeLessThanOrEqual(2);
     }
   });
 });
