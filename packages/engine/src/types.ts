@@ -55,6 +55,7 @@ export interface RaceState {
   eventHistory: RaceEvent[];
   scUsed: boolean;
   vscUsed: boolean;
+  rainCount: number;
   lastEventType: EventType | null;
 
   perkUsed: boolean;

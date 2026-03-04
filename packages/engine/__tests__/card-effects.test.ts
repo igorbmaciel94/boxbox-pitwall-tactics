@@ -24,6 +24,7 @@ function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
     eventHistory: [],
     scUsed: false,
     vscUsed: false,
+    rainCount: 0,
     lastEventType: null,
     perkUsed: false,
     objectivesCompleted: [],

@@ -44,6 +44,7 @@ export function initializeRaceState(
     eventHistory: [],
     scUsed: false,
     vscUsed: false,
+    rainCount: 0,
     lastEventType: null,
     perkUsed: false,
     objectivesCompleted: [],

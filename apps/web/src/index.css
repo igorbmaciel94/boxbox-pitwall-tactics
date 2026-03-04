@@ -1,0 +1,95 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-carbon: #0a0a1a;
+  --color-carbon-light: #16213e;
+  --color-carbon-mid: #111827;
+  --color-metal: #2d3748;
+  --color-metal-light: #4a5568;
+  --color-metal-dark: #1a202c;
+  --color-hud-green: #48bb78;
+  --color-hud-red: #f56565;
+  --color-hud-amber: #ed8936;
+  --color-hud-blue: #4299e1;
+  --color-hud-yellow: #ecc94b;
+  --color-hud-cyan: #76e4f7;
+  --color-race-gold: #f6e05e;
+  --color-race-silver: #cbd5e0;
+  --color-race-bronze: #c6956c;
+  --font-family-display: 'Orbitron', sans-serif;
+  --font-family-mono: 'JetBrains Mono', monospace;
+}
+
+/* Base body styles */
+body {
+  font-family: var(--font-family-mono);
+  background-color: var(--color-carbon);
+  min-height: 100dvh;
+}
+
+/* Noise texture overlay for carbon fiber feel */
+.bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* Safety car pulse animation */
+@keyframes sc-pulse {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.15; }
+}
+
+.animate-sc-pulse {
+  animation: sc-pulse 2s ease-in-out infinite;
+}
+
+/* Rain overlay animation */
+@keyframes rain-flash {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.1; }
+}
+
+.animate-rain-flash {
+  animation: rain-flash 1.5s ease-in-out infinite;
+}
+
+/* Card flip animation */
+@keyframes card-flip {
+  0% { transform: rotateY(180deg); }
+  100% { transform: rotateY(0deg); }
+}
+
+.animate-card-flip {
+  animation: card-flip 0.5s ease-out forwards;
+  transform-style: preserve-3d;
+}
+
+/* Slide up animation for modals */
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
+
+/* Fade in */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+/* Lap splash */
+@keyframes lap-splash {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+.animate-lap-splash {
+  animation: lap-splash 1.2s ease-out forwards;
+}

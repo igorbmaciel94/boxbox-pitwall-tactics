@@ -22,6 +22,7 @@ function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
     eventHistory: [],
     scUsed: false,
     vscUsed: false,
+    rainCount: 0,
     lastEventType: null,
     perkUsed: false,
     objectivesCompleted: [],
@@ -74,6 +75,16 @@ describe('selectEvent', () => {
     for (let i = 0; i < 100; i++) {
       const event = selectEvent(state, scenario, rng, catalog);
       expect(event.type).not.toBe('vsc');
+    }
+  });
+
+  it('never selects rain when rainCount >= 2', () => {
+    const state = makeBaseState({ rainCount: 2 });
+    const rng = createRng(42);
+
+    for (let i = 0; i < 100; i++) {
+      const event = selectEvent(state, scenario, rng, catalog);
+      expect(event.type).not.toBe('rain');
     }
   });
 
