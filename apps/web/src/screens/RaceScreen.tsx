@@ -60,6 +60,29 @@ export function RaceScreen() {
 
   const hasTeamAndDeck = !!selectedTeamId && currentDeck.length === 9;
 
+  // Generate 18-position grid (6 teams × 3 pilots), excluding player position
+  // Must be above early returns to satisfy Rules of Hooks
+  const rivalDots: RivalDot[] = useMemo(() => {
+    if (!catalog || !team || !raceState) return [];
+    const teamColors = catalog.teams.map((t) => t.color);
+    // 3 pilots per team = 18 grid slots
+    const allSlots: { color: string }[] = [];
+    for (const color of teamColors) {
+      allSlots.push({ color }, { color }, { color });
+    }
+    // Assign positions 1..18, skip player position
+    const dots: RivalDot[] = [];
+    let slotIdx = 0;
+    for (let pos = 1; pos <= 18; pos++) {
+      if (pos === raceState.position) continue;
+      if (slotIdx < allSlots.length) {
+        dots.push({ position: pos, color: allSlots[slotIdx].color });
+        slotIdx++;
+      }
+    }
+    return dots;
+  }, [catalog, team, raceState?.position]);
+
   // On mount: if quick-race mode has a stale raceState (from previous unfinished race), reset it
   useEffect(() => {
     if (mode !== 'season' && raceState && turnPhaseUI !== 'idle') {
@@ -231,32 +254,6 @@ export function RaceScreen() {
       </div>
     );
   }
-
-  // Generate 18-position grid (6 teams × 3 pilots), excluding player position
-  const rivalDots: RivalDot[] = useMemo(() => {
-    if (!catalog || !team) return [];
-    const teamColors = catalog.teams.map((t) => t.color);
-    // 3 pilots per team = 18 grid slots
-    const allSlots: { color: string }[] = [];
-    for (const color of teamColors) {
-      allSlots.push({ color }, { color }, { color });
-    }
-    // Assign positions 1..18, skip player position
-    const dots: RivalDot[] = [];
-    let slotIdx = 0;
-    for (let pos = 1; pos <= 18; pos++) {
-      if (pos === raceState.position) continue;
-      if (slotIdx < allSlots.length) {
-        // Skip slots matching player's team color (one of the 3 is the player)
-        if (allSlots[slotIdx].color === team.color && pos !== raceState.position) {
-          // Still render — the player's teammates are rivals too
-        }
-        dots.push({ position: pos, color: allSlots[slotIdx].color });
-        slotIdx++;
-      }
-    }
-    return dots;
-  }, [catalog, team, raceState?.position]);
 
   const isSC = currentEvent?.type === 'safety-car';
   const isRain = currentEvent?.type === 'rain';
