@@ -73,6 +73,83 @@ describe('position boundaries — max position is 18', () => {
   });
 });
 
+describe('P0 bug — event effect + clamp prevents invalid position', () => {
+  it('rival-pits at P1 is clamped to P1 (not P0)', () => {
+    const state = makeState({ position: 1 });
+    const event = {
+      type: 'rival-pits' as const,
+      name: 'Rival Pits',
+      flavorIndex: 0,
+      effect: { position: -1 },
+      flavorText: 'Rivals.',
+    };
+    // Simulate the fixed flow: applyEventEffect → clampRaceState
+    const afterEvent = {
+      ...state,
+      position: state.position + (event.effect.position ?? 0),
+    };
+    expect(afterEvent.position).toBe(0); // Bug: unclamped = P0
+    const clamped = clampRaceState(afterEvent);
+    expect(clamped.position).toBe(1); // Fix: clamped = P1
+  });
+
+  it('rival-overtake at P18 is clamped to P18 (not P20)', () => {
+    const state = makeState({ position: 18 });
+    const event = {
+      type: 'rival-overtake' as const,
+      name: 'Rival Overtake',
+      flavorIndex: 0,
+      effect: { position: 2 },
+      flavorText: 'Overtake.',
+    };
+    const afterEvent = {
+      ...state,
+      position: state.position + (event.effect.position ?? 0),
+    };
+    expect(afterEvent.position).toBe(20);
+    const clamped = clampRaceState(afterEvent);
+    expect(clamped.position).toBe(18);
+  });
+
+  it('mechanical-issue at P17 is clamped to P18 (not P19)', () => {
+    const state = makeState({ position: 17 });
+    const event = {
+      type: 'mechanical-issue' as const,
+      name: 'Mechanical Issue',
+      flavorIndex: 0,
+      effect: { position: 2, tireWear: 8 },
+      flavorText: 'Issue.',
+    };
+    const afterEvent = {
+      ...state,
+      position: state.position + (event.effect.position ?? 0),
+      tireWear: state.tireWear + (event.effect.tireWear ?? 0),
+    };
+    expect(afterEvent.position).toBe(19);
+    const clamped = clampRaceState(afterEvent);
+    expect(clamped.position).toBe(18);
+  });
+
+  it('clear-air at P1 stays at P1 (no position effect)', () => {
+    const state = makeState({ position: 1, tireWear: 40 });
+    const event = {
+      type: 'clear-air' as const,
+      name: 'Clear Air',
+      flavorIndex: 0,
+      effect: { tireWear: -5 },
+      flavorText: 'Clear.',
+    };
+    const afterEvent = {
+      ...state,
+      position: state.position + (event.effect.position ?? 0),
+      tireWear: state.tireWear + (event.effect.tireWear ?? 0),
+    };
+    const clamped = clampRaceState(afterEvent);
+    expect(clamped.position).toBe(1);
+    expect(clamped.tireWear).toBe(35);
+  });
+});
+
 describe('P1 boundary — overtake cards at first position', () => {
   it('card with negative position change at P1 stays at P1 after clamp', () => {
     const state = makeState({ position: 1 });
