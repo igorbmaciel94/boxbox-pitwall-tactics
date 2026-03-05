@@ -213,19 +213,19 @@ export function TrackMap({ position, totalPositions = 20, currentEvent, teamColo
         {/* Rival dots — colored by team, with position labels */}
         {rivals && rivals.map((r, i) => {
           const pos = getCarPos(r.position);
-          const labelY = pos.y < 20 ? pos.y + 10 : pos.y - 6;
+          const labelY = pos.y < 20 ? pos.y + 12 : pos.y - 8;
           return (
             <g key={i}>
-              <circle cx={pos.x} cy={pos.y} r={2.5} fill={r.color} opacity={0.45} />
+              <circle cx={pos.x} cy={pos.y} r={3.5} fill={r.color} opacity={0.75} />
               <text
                 x={pos.x}
                 y={labelY}
                 textAnchor="middle"
-                fill={r.color}
-                opacity={0.55}
-                style={{ fontSize: '5px', fontFamily: 'monospace', fontWeight: 'bold' }}
+                fill="white"
+                opacity={0.85}
+                style={{ fontSize: '6px', fontFamily: 'monospace', fontWeight: 'bold' }}
               >
-                {r.position}
+                P{r.position}
               </text>
             </g>
           );

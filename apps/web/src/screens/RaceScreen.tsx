@@ -49,10 +49,12 @@ export function RaceScreen() {
   const { sendRadio, sendEventRadio } = useRadioMessage();
   const audio = useAudio();
 
+  const difficulty = useGameStore((s) => s.difficulty);
   const seasonProgress = useGameStore((s) => s.seasonProgress);
   const deductTireBank = useGameStore((s) => s.deductTireBank);
 
   const [selectedHandIndex, setSelectedHandIndex] = useState<number | null>(null);
+  const [scWarningShown, setScWarningShown] = useState(false);
   const [scenarioSelectMode, setScenarioSelectMode] = useState(false);
   const [pendingScenarioId, setPendingScenarioId] = useState<string | null>(null);
   const [pendingRaceSeed, setPendingRaceSeed] = useState<number | undefined>(undefined);
@@ -83,8 +85,9 @@ export function RaceScreen() {
     return dots;
   }, [catalog, team, raceState?.position]);
 
-  // On mount: if quick-race mode has a stale raceState (from previous unfinished race), reset it
+  // On mount: scroll to top and reset stale race state if needed
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (mode !== 'season' && raceState && turnPhaseUI !== 'idle') {
       // Stale race from a previous session — reset to show circuit selection
       useGameStore.getState().resetRace();
@@ -357,9 +360,13 @@ export function RaceScreen() {
           // SC overtake warning: selected card gains positions (posChange < 0) and is not a pit card
           const selectedCardId = selectedHandIndex !== null ? raceState.hand[selectedHandIndex] : null;
           const selectedCardData = selectedCardId ? catalog.cards.find((c) => c.id === selectedCardId) : null;
-          const isScOvertake = raceState.underSafetyCar && selectedCardData
+          const isScOvertakeCard = raceState.underSafetyCar && selectedCardData
             && (selectedCardData.effect.position ?? 0) < 0
             && !selectedCardData.tags.includes('pit');
+          // Show SC warning based on difficulty: easy=always, normal=once per race, hard=never
+          const showScWarning = isScOvertakeCard && (
+            difficulty === 'easy' || (difficulty === 'normal' && !scWarningShown)
+          );
 
           return (
             <>
@@ -381,26 +388,31 @@ export function RaceScreen() {
               <div className={`fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-carbon via-carbon/95 to-transparent px-5 pb-4 pt-3 ${selectedHandIndex !== null || canEmergencyMulligan || canSkipTurn || showSkipAlways ? 'animate-slide-up' : 'hidden'}`}>
                 {selectedHandIndex !== null && (
                   <>
-                    {/* SC overtake warning */}
-                    {isScOvertake && (
-                      <div className="mb-2 rounded-lg bg-hud-yellow/10 border border-hud-yellow/30 px-3 py-1.5 text-center text-[11px] text-hud-yellow">
-                        {t('race.scOvertakeWarning')}
+                    {/* SC overtake warning — visible on easy (always) and normal (once) */}
+                    {showScWarning && (
+                      <div className="mb-3 rounded-xl border-2 border-hud-yellow bg-hud-yellow/20 px-4 py-3 text-center animate-fade-in">
+                        <div className="font-display text-sm font-bold uppercase tracking-wide text-hud-yellow">
+                          ⚠ {t('race.scOvertakeWarning')}
+                        </div>
                       </div>
                     )}
                     <Button
-                      variant={isScOvertake ? 'secondary' : 'primary'}
+                      variant={isScOvertakeCard ? 'secondary' : 'primary'}
                       size="md"
                       className="w-full"
                       onClick={() => {
                         const cardId = raceState.hand[selectedHandIndex];
                         if (cardId) {
+                          if (isScOvertakeCard && !scWarningShown) {
+                            setScWarningShown(true);
+                          }
                           sendRadio('generic');
                           stepper.submitActionCard(cardId);
                           setSelectedHandIndex(null);
                         }
                       }}
                     >
-                      {isScOvertake ? t('race.scPlayAnyway') : t('race.playCard')}
+                      {isScOvertakeCard ? t('race.scPlayAnyway') : t('race.playCard')}
                     </Button>
                   </>
                 )}
