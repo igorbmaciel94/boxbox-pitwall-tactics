@@ -9,6 +9,7 @@ export type {
   ScenarioParamsData,
   TeamData,
   TeamPerkData,
+  TireCompound,
 } from './types.js';
 
 export {

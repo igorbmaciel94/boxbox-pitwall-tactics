@@ -18,6 +18,7 @@ export type {
   TeamData,
   TeamId,
   TurnPhase,
+  TireCompound,
   TurnSummary,
 } from './types.js';
 
@@ -29,8 +30,8 @@ export { runRace, initializeRaceState, runTurn } from './race-engine.js';
 export { runSeason, initializeSeasonState } from './season-engine.js';
 
 // Subsystems
-export { selectEvent, applyEventEffect, updateEventTracking } from './event-system.js';
-export { applyCardEffect, refillHandWithRng } from './card-effects.js';
+export { selectEvent, applyEventEffect, updateEventTracking, isCurrentlyRaining } from './event-system.js';
+export { applyCardEffect, refillHandWithRng, performMulligan } from './card-effects.js';
 export { maybeApplyTeamPerk } from './team-perks.js';
 export { clampRaceState, applyEffect, applyEndOfTurnPenalties } from './clamp.js';
 export { getPositionScore, evaluateObjective, calculateRaceScore, calculateSeasonScore, POSITION_SCORE_TABLE } from './scoring.js';

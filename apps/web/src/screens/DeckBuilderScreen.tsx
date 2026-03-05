@@ -59,27 +59,22 @@ export function DeckBuilderScreen() {
           {Array.from({ length: 9 }).map((_, i) => {
             const cardId = currentDeck[i];
             const card = cardId ? catalog.cards.find((c) => c.id === cardId) : null;
-            return (
+            return card ? (
+              <div key={i} className="relative">
+                <CardComponent
+                  card={card}
+                  size="sm"
+                  compact
+                  onClick={() => removeCard(i)}
+                />
+              </div>
+            ) : (
               <button
                 key={i}
-                onClick={() => cardId && removeCard(i)}
-                className={`flex aspect-[63/88] flex-col items-center justify-center rounded-xl p-2 text-center transition-all
-                  ${
-                    card
-                      ? 'bg-white/8 hover:bg-hud-red/10'
-                      : 'border border-dashed border-white/10 bg-transparent text-white/20'
-                  }`}
+                disabled
+                className="flex aspect-[63/88] flex-col items-center justify-center rounded-xl border border-dashed border-white/10 bg-transparent text-white/20"
               >
-                {card ? (
-                  <div className="w-full">
-                    <div className="mb-1 font-mono text-[8px] uppercase tracking-wider text-metal-light">Card</div>
-                    <div className="font-display text-[10px] font-semibold uppercase tracking-wide leading-tight">
-                      {getCardName(card.id, card.name)}
-                    </div>
-                  </div>
-                ) : (
-                  <span className="text-[10px] uppercase tracking-wider">{t('common.empty')}</span>
-                )}
+                <span className="text-[10px] uppercase tracking-wider">{t('common.empty')}</span>
               </button>
             );
           })}
@@ -147,7 +142,7 @@ export function DeckBuilderScreen() {
                   onClick={() => canAdd && addCard(card.id)}
                 />
               {count > 0 && (
-                <span className="absolute left-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-f1-red text-[10px] font-bold text-white shadow">
+                <span className="absolute right-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-f1-red text-[10px] font-bold text-white shadow">
                   {count}
                 </span>
               )}

@@ -73,6 +73,9 @@ export interface UIStrings {
     unmute: string;
     mute: string;
     playCard: string;
+    pitRequired: string;
+    mulligan: string;
+    keepHand: string;
     lapComplete: string;
     nextLap: string;
     lightsOut: string;
@@ -83,7 +86,6 @@ export interface UIStrings {
     start: string;
     laps: string;
     wear: string;
-    ers: string;
     pre: string;
     post: string;
     quickDecisionRequired: string;
@@ -208,8 +210,6 @@ export interface UIStrings {
   stats: {
     pos: string;
     wear: string;
-    ers: string;
-    rain: string;
     lap: string;
   };
 }
@@ -255,6 +255,7 @@ function buildEnglishContent(): ContentStrings {
         'safety-car': 'Safety Car',
         rain: 'Rain',
         'rival-pits': 'Rival Pits',
+        'rival-overtake': 'Rival Overtake',
         traffic: 'Traffic',
         'clear-air': 'Clear Air',
         'mechanical-issue': 'Mechanical Issue',
@@ -346,6 +347,9 @@ const EN_UI: UIStrings = {
     unmute: 'Unmute',
     mute: 'Mute',
     playCard: 'Play Card',
+    pitRequired: 'Mandatory pit stop needed!',
+    mulligan: 'Redraw Hand',
+    keepHand: 'Keep Hand',
     lapComplete: 'Lap {{lap}} Complete',
     nextLap: 'Next Lap',
     lightsOut: 'Lights Out!',
@@ -356,7 +360,6 @@ const EN_UI: UIStrings = {
     start: 'Start',
     laps: 'laps',
     wear: 'Wear',
-    ers: 'ERS',
     pre: 'PRE',
     post: 'POST',
     quickDecisionRequired: 'Quick Decision Required',
@@ -440,7 +443,7 @@ const EN_UI: UIStrings = {
       gettingStartedTitle: 'Getting Started',
       start1: '1. Select a Team - Each constructor has a unique perk that activates once per race.',
       start2: '2. Build Your Deck - Choose 9 cards (max 2 copies of each). Balance between drive, pit, and tactics cards.',
-      start3: '3. Race - Pick a circuit and manage 6 laps of strategic decisions.',
+      start3: '3. Race - Pick a circuit and manage 8 laps of strategic decisions.',
       raceFlowTitle: 'Race Flow',
       drawLabel: 'Draw',
       drawText: 'Your hand refills to 3 cards from your shuffled deck.',
@@ -456,7 +459,7 @@ const EN_UI: UIStrings = {
       resultText: 'Card effects and event consequences are applied. Next lap begins.',
       cardTypesTitle: 'Card Types',
       drive: 'Position-focused. Push for overtakes or defend your spot.',
-      pit: 'Manage tires, ERS, and pit strategy.',
+      pit: 'Manage tires and pit strategy.',
       tactics: 'Versatile cards for adapting to changing conditions.',
       hudTitle: 'HUD Gauges',
       pos: 'Your race position (P1 = leading). Lower is better.',
@@ -481,8 +484,6 @@ const EN_UI: UIStrings = {
   stats: {
     pos: 'POS',
     wear: 'WEAR',
-    ers: 'ERS',
-    rain: 'RAIN',
     lap: 'LAP',
   },
 };
@@ -551,6 +552,9 @@ const PT_BR_UI: UIStrings = {
     unmute: 'Ativar som',
     mute: 'Silenciar',
     playCard: 'Jogar Carta',
+    pitRequired: 'Pit stop obrigatorio!',
+    mulligan: 'Trocar Mao',
+    keepHand: 'Manter Mao',
     lapComplete: 'Volta {{lap}} Completa',
     nextLap: 'Proxima Volta',
     lightsOut: 'Largada!',
@@ -561,7 +565,6 @@ const PT_BR_UI: UIStrings = {
     start: 'Largada',
     laps: 'voltas',
     wear: 'Desgaste',
-    ers: 'ERS',
     pre: 'PRE',
     post: 'POS',
     quickDecisionRequired: 'Decisao Rapida Obrigatoria',
@@ -645,7 +648,7 @@ const PT_BR_UI: UIStrings = {
       gettingStartedTitle: 'Primeiros Passos',
       start1: '1. Selecione uma Equipe - Cada construtora tem um perk unico que ativa uma vez por corrida.',
       start2: '2. Monte seu Deck - Escolha 9 cartas (maximo 2 copias de cada). Equilibre entre drive, pit e taticas.',
-      start3: '3. Corra - Escolha um circuito e gerencie 6 voltas de decisoes estrategicas.',
+      start3: '3. Corra - Escolha um circuito e gerencie 8 voltas de decisoes estrategicas.',
       raceFlowTitle: 'Fluxo da Corrida',
       drawLabel: 'Compra',
       drawText: 'Sua mao volta para 3 cartas com base no deck embaralhado.',
@@ -661,7 +664,7 @@ const PT_BR_UI: UIStrings = {
       resultText: 'Efeitos de cartas e consequencias do evento sao aplicados. A proxima volta comeca.',
       cardTypesTitle: 'Tipos de Carta',
       drive: 'Foco em posicao. Ataque para ultrapassar ou defender sua colocacao.',
-      pit: 'Gerencie pneus, ERS e estrategia de pit.',
+      pit: 'Gerencie pneus e estrategia de pit.',
       tactics: 'Cartas versateis para adaptar a corrida as mudancas.',
       hudTitle: 'Indicadores do HUD',
       pos: 'Sua posicao na corrida (P1 = lider). Quanto menor, melhor.',
@@ -686,32 +689,24 @@ const PT_BR_UI: UIStrings = {
   stats: {
     pos: 'POS',
     wear: 'DESG',
-    ers: 'ERS',
-    rain: 'CHUVA',
     lap: 'VOLTA',
   },
 };
 
 const PT_BR_CONTENT: ContentStrings = {
   cards: {
-    'push-hard': { name: 'Push Hard', rulesText: 'Ganhe 2 posicoes, mas aumente o desgaste dos pneus em 15.' },
-    'box-box': { name: 'Box Box', rulesText: 'Pit stop: redefina desgaste para 10, perca 3 posicoes.' },
-    'conserve-tires': { name: 'Conservar Pneus', rulesText: 'Reduz desgaste em 10, mas perde 1 posicao.' },
-    'fuel-save': { name: 'Economia de Combustivel', rulesText: 'Economize 15 de combustivel, perca 1 posicao por ritmo mais lento.' },
-    overtake: { name: 'Ultrapassar', rulesText: 'Movida agressiva: ganhe 3 posicoes, +20 desgaste, +10 combustivel.' },
-    'defend-position': { name: 'Defender Posicao', rulesText: 'Mantenha a posicao. +5 desgaste por pilotagem defensiva.' },
-    'wet-setup': { name: 'Setup de Chuva', rulesText: 'Reduz impacto da chuva: -3 no medidor de chuva, +5 desgaste.' },
-    'dry-setup': { name: 'Setup de Seco', rulesText: 'Otimiza para seco: ganhe 1 posicao, -5 desgaste. +2 risco de chuva.' },
-    undercut: { name: 'Undercut', rulesText: 'Estrategia de pit antecipada: ganhe 2 posicoes, -60 desgaste, +5 combustivel.' },
-    overcut: { name: 'Overcut', rulesText: 'Ficar mais tempo na pista: ganhe 1 posicao, +10 desgaste, -5 combustivel.' },
-    'drs-attack': { name: 'Ataque de DRS', rulesText: 'Use DRS para ganhar 2 posicoes, +10 desgaste.' },
-    slipstream: { name: 'Vacuo', rulesText: 'Pegue vacuo do rival: ganhe 1 posicao, -5 combustivel.' },
-    'engine-mode': { name: 'Modo Motor', rulesText: 'Modo de alta potencia: ganhe 2 posicoes, +15 consumo de combustivel.' },
-    'battery-deploy': { name: 'Deploy da Bateria', rulesText: 'Impulso de ERS: ganhe 1 posicao, +5 combustivel.' },
-    'track-position': { name: 'Posicao de Pista', rulesText: 'Mantenha ar limpo: -10 desgaste, -5 combustivel.' },
-    'gap-management': { name: 'Gestao de Gap', rulesText: 'Gerencie o gap: -5 desgaste. Sem mudanca de posicao.' },
-    'late-brake': { name: 'Frenagem Tardia', rulesText: 'Frenagem tardia arriscada: ganhe 2 posicoes, +15 desgaste.' },
-    'alternate-strategy': { name: 'Estrategia Alternativa', rulesText: 'Troque estrategia: -20 desgaste, -10 combustivel, perca 1 posicao.' },
+    'push-hard': { name: 'Push Hard', rulesText: 'Leve o carro ao limite: ganhe 2 posicoes, +15 desgaste.' },
+    'box-box': { name: 'Box Box', rulesText: 'Pit stop! Pneus novos mas perde posicao: +4 posicoes perdidas, -80 desgaste.' },
+    'conserve-tires': { name: 'Conservar Pneus', rulesText: 'Cuide da borracha: perca 1 posicao, -15 desgaste.' },
+    overtake: { name: 'Ultrapassar', rulesText: 'Manda por dentro! Ganhe 3 posicoes, +25 desgaste.' },
+    'defend-position': { name: 'Defender Posicao', rulesText: 'Segure a linha: mantenha posicao, +5 desgaste por pilotagem defensiva.' },
+    'drs-attack': { name: 'Ataque de DRS', rulesText: 'DRS aberto! Ganhe 2 posicoes, +10 desgaste.' },
+    slipstream: { name: 'Vacuo', rulesText: 'Pegue vacuo do rival: ganhe 1 posicao, sem custo de pneu.' },
+    'late-brake': { name: 'Frenagem Tardia', rulesText: 'Frenagem tardia arriscada! Ganhe 3 posicoes, +20 desgaste.' },
+    'gap-management': { name: 'Gestao de Gap', rulesText: 'Controle o ritmo: mantenha posicao, -10 desgaste.' },
+    undercut: { name: 'Undercut', rulesText: 'Estrategia de pit antecipada: ganhe 1 posicao, -40 desgaste.' },
+    'engine-mode': { name: 'Modo Motor', rulesText: 'Aumente o motor: ganhe 1 posicao, +10 desgaste.' },
+    'alternate-strategy': { name: 'Estrategia Alternativa', rulesText: 'Estrategia oposta aos rivais: perca 2 posicoes, -30 desgaste.' },
   },
   teams: {
     crimson: { name: 'Crimson Racing' },
@@ -745,7 +740,7 @@ const PT_BR_CONTENT: ContentStrings = {
     'monza-main': 'Termine no top 6',
     'monza-bonus': 'Jogue pelo menos 2 cartas agressivas',
     'silverstone-main': 'Termine no top 4',
-    'silverstone-bonus': 'Termine com combustivel acima de 20',
+    'silverstone-bonus': 'Nunca ultrapasse 80 de desgaste',
     'suzuka-main': 'Termine no top 5',
     'suzuka-bonus': 'Nunca passe de 80 de desgaste',
     'interlagos-main': 'Termine no top 3',
@@ -756,6 +751,7 @@ const PT_BR_CONTENT: ContentStrings = {
       'safety-car': 'Safety Car',
       rain: 'Chuva',
       'rival-pits': 'Pit dos Rivais',
+      'rival-overtake': 'Ultrapassagem Rival',
       traffic: 'Trafego',
       'clear-air': 'Ar Limpo',
       'mechanical-issue': 'Problema Mecanico',
@@ -775,6 +771,11 @@ const PT_BR_CONTENT: ContentStrings = {
         'Seus rivais vao para o pit! Pressao total.',
         'Varios carros a frente estao parando. Voce responde?',
         'Pit stops dos rivais em andamento. Gap mudando.',
+      ],
+      'rival-overtake': [
+        'Um rival te ultrapassou! Reagir e crucial.',
+        'O carro de tras fez a manobra! Voce foi ultrapassado.',
+        'Perdeu uma posicao! O carro de tras achou uma brecha.',
       ],
       traffic: [
         'Trafego a frente! Retardatarios atrapalham a linha.',

@@ -104,6 +104,7 @@ export function calculateRaceScore(
     eventHistory: state.eventHistory,
     cardsPlayed: state.cardsPlayedTotal,
     perkUsed: state.perkUsed,
+    hasPitted: state.hasPitted,
     turnLog,
   };
 }

@@ -19,7 +19,7 @@ describe('runRace', () => {
     const team = catalog.teams[0];
     const debrief = runRace(scenario, team, catalog, deterministicAgent, 12345, config);
 
-    expect(debrief.turnLog).toHaveLength(6);
+    expect(debrief.turnLog).toHaveLength(8);
     expect(debrief.scenarioId).toBe(scenario.id);
     expect(debrief.teamId).toBe(team.id);
   });
@@ -57,7 +57,7 @@ describe('runRace', () => {
     const team = catalog.teams[0];
     const debrief = runRace(scenario, team, catalog, deterministicAgent, 42, config);
 
-    expect(debrief.eventHistory).toHaveLength(6);
+    expect(debrief.eventHistory).toHaveLength(8);
     for (const event of debrief.eventHistory) {
       expect(event.type).toBeTruthy();
       expect(event.name).toBeTruthy();
@@ -71,7 +71,7 @@ describe('runRace', () => {
     const team = catalog.teams[0];
     const debrief = runRace(scenario, team, catalog, deterministicAgent, 42, config);
 
-    expect(debrief.cardsPlayed.length).toBe(6);
+    expect(debrief.cardsPlayed.length).toBe(8);
   });
 
   it('final position is within valid range', () => {
@@ -90,7 +90,7 @@ describe('runRace', () => {
 
     for (const scenario of catalog.scenarios) {
       const debrief = runRace(scenario, team, catalog, deterministicAgent, 42, config);
-      expect(debrief.turnLog).toHaveLength(6);
+      expect(debrief.turnLog).toHaveLength(8);
       expect(debrief.scenarioId).toBe(scenario.id);
     }
   });
@@ -100,7 +100,7 @@ describe('runRace', () => {
 
     for (const team of catalog.teams) {
       const debrief = runRace(scenario, team, catalog, deterministicAgent, 42, config);
-      expect(debrief.turnLog).toHaveLength(6);
+      expect(debrief.turnLog).toHaveLength(8);
       expect(debrief.teamId).toBe(team.id);
     }
   });
@@ -134,7 +134,7 @@ describe('initializeRaceState', () => {
     expect(state.position).toBe(scenario.params.startingPosition);
     expect(state.tireWear).toBe(scenario.params.baseTireWear);
     expect(state.currentTurn).toBe(0);
-    expect(state.totalTurns).toBe(6);
+    expect(state.totalTurns).toBe(scenario.turns);
     expect(state.deck).toHaveLength(12);
     expect(state.hand).toHaveLength(0);
     expect(state.perkUsed).toBe(false);

@@ -10,6 +10,8 @@ import { EventCard } from '../components/race/EventCard';
 import { HandDisplay } from '../components/race/HandDisplay';
 import { PerkButton } from '../components/race/PerkButton';
 import { RadioFeed } from '../components/race/RadioFeed';
+import { TrackMap } from '../components/race/TrackMap';
+import { CompoundSelector } from '../components/race/CompoundSelector';
 import { Button } from '../components/shared/Button';
 import { useAudio } from '../hooks/use-audio';
 import { getCircuitImageUrl, getCircuitFallbackGradient } from '../lib/images';
@@ -56,13 +58,23 @@ export function RaceScreen() {
 
     switch (turnPhaseUI) {
       case 'refill-hand':
-        timer = setTimeout(() => stepper.advanceToRevealEvent(), 400);
+        if (!raceState.mulliganUsed) {
+          timer = setTimeout(() => useGameStore.getState().setTurnPhaseUI('await-mulligan'), 400);
+        } else {
+          timer = setTimeout(() => stepper.advanceToRevealEvent(), 400);
+        }
+        break;
+      case 'await-mulligan':
+        // Wait for user input
         break;
       case 'reveal-event':
         if (currentEvent) {
           sendEventRadio(currentEvent.type);
         }
         timer = setTimeout(() => stepper.advanceToPerkOrAction(), 800);
+        break;
+      case 'await-compound':
+        // Wait for user input
         break;
       case 'resolving':
         timer = setTimeout(() => stepper.advanceToResult(), 500);
@@ -154,11 +166,51 @@ export function RaceScreen() {
         </button>
       </div>
 
+      <div className="px-5 py-2">
+        <TrackMap
+          position={raceState.position}
+          currentEvent={currentEvent}
+          teamColor={team.color}
+        />
+      </div>
+
       <div className="flex flex-col gap-3.5 px-5 py-4 pb-6">
         <HUD state={raceState} previousPosition={previousPosition} />
 
         {currentEvent && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
           <EventCard event={currentEvent} animated={turnPhaseUI === 'reveal-event'} />
+        )}
+
+        {turnPhaseUI === 'await-mulligan' && (
+          <div className="space-y-3">
+            <HandDisplay
+              hand={raceState.hand}
+              catalog={catalog}
+              selectedCard={null}
+              onSelect={() => {}}
+            />
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                size="md"
+                className="flex-1"
+                onClick={() => {
+                  stepper.submitMulligan();
+                  stepper.advanceToRevealEvent();
+                }}
+              >
+                {t('race.mulligan')}
+              </Button>
+              <Button
+                variant="primary"
+                size="md"
+                className="flex-1"
+                onClick={() => stepper.advanceToRevealEvent()}
+              >
+                {t('race.keepHand')}
+              </Button>
+            </div>
+          </div>
         )}
 
         <PerkButton
@@ -193,6 +245,13 @@ export function RaceScreen() {
               {t('race.playCard')}
             </Button>
           </div>
+        )}
+
+        {turnPhaseUI === 'await-compound' && (
+          <CompoundSelector
+            raceState={raceState}
+            onSelect={(compound) => stepper.submitCompoundChoice(compound)}
+          />
         )}
 
         {turnPhaseUI === 'turn-summary' && (

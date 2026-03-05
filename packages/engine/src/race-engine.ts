@@ -2,7 +2,6 @@ import type {
   GameCatalogData,
   PlayerAgent,
   RaceDebrief,
-  RaceEvent,
   RaceState,
   ScenarioData,
   ScoringConfig,
@@ -11,8 +10,8 @@ import type {
   TurnSummary,
 } from './types.js';
 import { createRng } from './rng.js';
-import { refillHandWithRng, applyCardEffect } from './card-effects.js';
-import { selectEvent, applyEventEffect, updateEventTracking } from './event-system.js';
+import { refillHandWithRng, applyCardEffect, performMulligan } from './card-effects.js';
+import { selectEvent, applyEventEffect, updateEventTracking, isCurrentlyRaining } from './event-system.js';
 import { maybeApplyTeamPerk } from './team-perks.js';
 import { clampRaceState, applyEndOfTurnPenalties } from './clamp.js';
 import { calculateRaceScore } from './scoring.js';
@@ -33,6 +32,9 @@ export function initializeRaceState(
     seed,
     position: scenario.params.startingPosition,
     tireWear: scenario.params.baseTireWear,
+    tireCompound: 'soft',
+    hasPitted: false,
+    pitStopsMade: 0,
     currentTurn: 0,
     totalTurns: scenario.turns,
     deck: shuffledDeck,
@@ -43,6 +45,7 @@ export function initializeRaceState(
     scUsed: false,
     lastEventType: null,
     perkUsed: false,
+    mulliganUsed: false,
     objectivesCompleted: [],
     cardsPlayedTotal: [],
     turnPhase: 'start',
@@ -65,6 +68,13 @@ export function runTurn(
   const handRng = rng.fork(s.currentTurn * 100 + 1);
   s = refillHandWithRng(s, catalog, handRng);
 
+  // Phase 1.5: Mulligan (optional, once per race)
+  s = { ...s, turnPhase: 'await-mulligan' };
+  if (!s.mulliganUsed && agent.chooseMulligan?.(s)) {
+    const mulliganRng = rng.fork(s.currentTurn * 100 + 10);
+    s = performMulligan(s, catalog, mulliganRng);
+  }
+
   // Phase 2: Reveal event & apply effect
   s = { ...s, turnPhase: 'reveal-event' };
   const eventRng = rng.fork(s.currentTurn * 100 + 2);
@@ -86,15 +96,23 @@ export function runTurn(
     if (!s.hand.includes(actionCard)) {
       actionCard = s.hand[0];
     }
-    s = applyCardEffect(s, actionCard, catalog);
+    s = applyCardEffect(s, actionCard, catalog, agent);
   } else {
     actionCard = '';
   }
 
   // Phase 5: Resolve - apply penalties & clamp
   s = { ...s, turnPhase: 'resolve' };
-  s = applyEndOfTurnPenalties(s);
+  const raining = isCurrentlyRaining(s);
+  s = applyEndOfTurnPenalties(s, raining);
   s = clampRaceState(s);
+
+  // Mandatory pit stop warning: if final turn and no pit, apply penalty
+  if (s.currentTurn >= s.totalTurns && !s.hasPitted) {
+    s = { ...s, position: s.position + 10 };
+    s = clampRaceState(s);
+  }
+
   s = { ...s, turnPhase: 'end' };
 
   const summary: TurnSummary = {
@@ -102,6 +120,7 @@ export function runTurn(
     event,
     actionCard,
     perkActivated,
+    tireCompound: s.tireCompound,
     stateSnapshot: {
       position: s.position,
       tireWear: s.tireWear,

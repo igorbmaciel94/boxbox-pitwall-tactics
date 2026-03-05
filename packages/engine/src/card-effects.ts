@@ -1,7 +1,19 @@
-import type { CardId, GameCatalogData, RaceState } from './types.js';
+import type { CardId, GameCatalogData, PlayerAgent, RaceState, TireCompound } from './types.js';
 import { applyEffect } from './clamp.js';
 
-export function applyCardEffect(state: RaceState, cardId: CardId, catalog: GameCatalogData): RaceState {
+/** Check if a card triggers a pit stop (has pit tag and reduces tire wear) */
+function isPitStopCard(cardId: CardId, catalog: GameCatalogData): boolean {
+  const card = catalog.cards.find((c) => c.id === cardId);
+  if (!card) return false;
+  return card.tags.includes('pit') && (card.effect.tireWear ?? 0) < 0;
+}
+
+export function applyCardEffect(
+  state: RaceState,
+  cardId: CardId,
+  catalog: GameCatalogData,
+  agent?: PlayerAgent,
+): RaceState {
   const card = catalog.cards.find((c) => c.id === cardId);
   if (!card) {
     throw new Error(`Card not found: ${cardId}`);
@@ -22,6 +34,18 @@ export function applyCardEffect(state: RaceState, cardId: CardId, catalog: GameC
     discard: [...state.discard, cardId],
     cardsPlayedTotal: [...state.cardsPlayedTotal, cardId],
   };
+
+  // Pit stop: reset tire wear and change compound
+  if (isPitStopCard(cardId, catalog)) {
+    const newCompound = agent?.chooseCompound?.(updated) ?? 'medium';
+    updated = {
+      ...updated,
+      tireWear: 0,
+      tireCompound: newCompound,
+      hasPitted: true,
+      pitStopsMade: updated.pitStopsMade + 1,
+    };
+  }
 
   return updated;
 }
@@ -72,4 +96,14 @@ export function refillHandWithRng(
     hand,
     discard,
   };
+}
+
+/** Mulligan: discard entire hand and draw 3 new cards (once per race) */
+export function performMulligan(
+  state: RaceState,
+  catalog: GameCatalogData,
+  rng: { shuffle<T>(arr: readonly T[]): T[] },
+): RaceState {
+  const discarded = { ...state, discard: [...state.discard, ...state.hand], hand: [] as string[], mulliganUsed: true };
+  return refillHandWithRng(discarded, catalog, rng);
 }

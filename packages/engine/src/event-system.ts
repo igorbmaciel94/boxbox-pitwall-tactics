@@ -4,9 +4,10 @@ const EVENT_EFFECTS: Record<EventType, CardEffect> = {
   'safety-car': { tireWear: -5 },
   'rain': { tireWear: 10 },
   'rival-pits': { position: -1 },
-  'traffic': { position: 1, tireWear: 5 },
+  'rival-overtake': { position: 2 },
+  'traffic': { position: 2, tireWear: 8 },
   'clear-air': { tireWear: -5 },
-  'mechanical-issue': { position: 2, tireWear: 5 },
+  'mechanical-issue': { position: 3, tireWear: 10 },
 };
 
 export function selectEvent(
@@ -70,4 +71,10 @@ export function updateEventTracking(state: RaceState, event: RaceEvent): RaceSta
     lastEventType: event.type,
     scUsed: state.scUsed || event.type === 'safety-car',
   };
+}
+
+/** Check if it's currently raining based on recent event history */
+export function isCurrentlyRaining(state: RaceState): boolean {
+  const recentEvents = state.eventHistory.slice(-2);
+  return recentEvents.some((e) => e.type === 'rain');
 }

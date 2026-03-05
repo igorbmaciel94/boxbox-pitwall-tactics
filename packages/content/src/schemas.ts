@@ -4,6 +4,7 @@ const eventTypes = [
   'safety-car',
   'rain',
   'rival-pits',
+  'rival-overtake',
   'traffic',
   'clear-air',
   'mechanical-issue',

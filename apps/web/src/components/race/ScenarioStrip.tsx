@@ -34,14 +34,14 @@ export function ScenarioStrip({ scenario, turn }: ScenarioStripProps) {
       </div>
 
       {/* Content */}
-      <div className="relative flex items-center justify-between px-5 py-3.5">
-        <div>
-          <div className="font-display text-base font-bold uppercase leading-none tracking-wide">
+      <div className="relative flex items-center justify-between gap-3 px-5 py-3.5">
+        <div className="min-w-0 flex-1">
+          <div className="truncate font-display text-base font-bold uppercase leading-none tracking-wide">
             {getScenarioName(scenario.id, scenario.name)}
           </div>
-          <div className="mt-1 text-sm text-metal-light">{getScenarioCircuit(scenario.id, scenario.circuit)}</div>
+          <div className="mt-1 truncate text-sm text-metal-light">{getScenarioCircuit(scenario.id, scenario.circuit)}</div>
         </div>
-        <div className="flex gap-1">
+        <div className="flex flex-shrink-0 gap-1">
           {Array.from({ length: scenario.turns }).map((_, i) => (
             <div
               key={i}

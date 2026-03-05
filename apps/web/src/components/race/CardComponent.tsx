@@ -59,7 +59,7 @@ export function CardComponent({ card, selected = false, disabled = false, compac
       `}
     >
       {selected && isSmall && (
-        <span className="absolute left-1.5 top-1.5 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-f1-red text-[11px] font-black text-white shadow">
+        <span className="absolute right-1.5 top-1.5 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-f1-red text-[11px] font-black text-white shadow">
           ✓
         </span>
       )}

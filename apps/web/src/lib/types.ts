@@ -3,9 +3,11 @@ import type { CardId, RaceDebrief, TeamId } from '@boxbox/engine';
 export type TurnPhaseUI =
   | 'idle'
   | 'refill-hand'
+  | 'await-mulligan'
   | 'reveal-event'
   | 'await-perk'
   | 'await-action-card'
+  | 'await-compound'
   | 'resolving'
   | 'turn-summary'
   | 'race-complete';

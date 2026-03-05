@@ -73,11 +73,11 @@ describe('runSeason', () => {
     ).toThrow('Team not found');
   });
 
-  it('each race has 6 turns', () => {
+  it('each race has 8 turns', () => {
     const result = runSeason(catalog, 'crimson', deterministicAgent, 42, config);
 
     for (const race of result.races) {
-      expect(race.turnLog).toHaveLength(6);
+      expect(race.turnLog).toHaveLength(8);
     }
   });
 

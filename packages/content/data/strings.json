@@ -11,6 +11,11 @@
       "Rain is starting to fall! The track is getting slippery.",
       "Wet patches appearing. Rain intensifying."
     ],
+    "rival-overtake": [
+      "A rival has overtaken you! Fighting back is crucial.",
+      "Car behind made the move! You've been passed.",
+      "Lost a position! The car behind found a gap."
+    ],
     "rival-pits": [
       "Your rivals are pitting! The pressure is on.",
       "Multiple cars ahead are boxing. Do you respond?",

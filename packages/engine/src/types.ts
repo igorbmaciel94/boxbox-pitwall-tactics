@@ -6,9 +6,10 @@ import type {
   ObjectiveData,
   ScenarioData,
   TeamData,
+  TireCompound,
 } from '@boxbox/content';
 
-export type { CardData, CardEffect, EventType, GameCatalogData, ObjectiveData, ScenarioData, TeamData };
+export type { CardData, CardEffect, EventType, GameCatalogData, ObjectiveData, ScenarioData, TeamData, TireCompound };
 
 export type CardId = string;
 export type TeamId = string;
@@ -16,8 +17,10 @@ export type TeamId = string;
 export type TurnPhase =
   | 'start'
   | 'refill-hand'
+  | 'await-mulligan'
   | 'reveal-event'
   | 'await-perk'
+  | 'await-compound'
   | 'play-card'
   | 'resolve'
   | 'end';
@@ -37,6 +40,9 @@ export interface RaceState {
 
   position: number;
   tireWear: number;
+  tireCompound: TireCompound;
+  hasPitted: boolean;
+  pitStopsMade: number;
 
   currentTurn: number;
   totalTurns: number;
@@ -51,6 +57,7 @@ export interface RaceState {
   lastEventType: EventType | null;
 
   perkUsed: boolean;
+  mulliganUsed: boolean;
 
   objectivesCompleted: string[];
   cardsPlayedTotal: CardId[];
@@ -65,6 +72,7 @@ export interface TurnSummary {
   event: RaceEvent;
   actionCard: CardId;
   perkActivated: boolean;
+  tireCompound: TireCompound;
   stateSnapshot: {
     position: number;
     tireWear: number;
@@ -83,6 +91,7 @@ export interface RaceDebrief {
   eventHistory: RaceEvent[];
   cardsPlayed: CardId[];
   perkUsed: boolean;
+  hasPitted: boolean;
   turnLog: TurnSummary[];
 }
 
@@ -111,6 +120,8 @@ export interface PlayerAgent {
   chooseTeamPerk(state: RaceState): boolean;
   chooseActionCard(state: RaceState): CardId;
   chooseCardSwap?(availableCards: CardId[], currentDeck: CardId[]): CardId[];
+  chooseMulligan?(state: RaceState): boolean;
+  chooseCompound?(state: RaceState): TireCompound;
 }
 
 export interface SeededRng {

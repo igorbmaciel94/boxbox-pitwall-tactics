@@ -10,12 +10,15 @@ import {
   clampRaceState,
   applyEffect,
   calculateRaceScore,
+  isCurrentlyRaining,
+  performMulligan,
 } from '@boxbox/engine';
 import type {
   CardId,
   RaceState,
   SeededRng,
   TurnSummary,
+  TireCompound,
 } from '@boxbox/engine';
 import { useGameStore } from '../stores/game-store';
 
@@ -101,6 +104,16 @@ export function useTurnStepper() {
     store.getState().setTurnPhaseUI('await-action-card');
   }, []);
 
+  const submitMulligan = useCallback(() => {
+    const { raceState: state, catalog } = store.getState();
+    const rng = rngRef.current;
+    if (!state || !rng || !catalog) return;
+
+    const mulliganRng = rng.fork(state.currentTurn * 100 + 10);
+    const s = performMulligan(state, catalog, mulliganRng);
+    store.getState().setRaceState(s);
+  }, []);
+
   const submitActionCard = useCallback((cardId: CardId) => {
     const { raceState: state, catalog, team, scenario } = store.getState();
     const event = currentEventRef.current;
@@ -118,6 +131,20 @@ export function useTurnStepper() {
     }
     actionCardRef.current = usedCard;
 
+    // Check if this was a pit stop card — if so, show compound selector
+    const card = catalog.cards.find((c) => c.id === usedCard);
+    const isPit = card && card.tags.includes('pit') && (card.effect.tireWear ?? 0) < 0;
+
+    store.getState().setRaceState(s);
+    store.getState().setTurnPhaseUI(isPit ? 'await-compound' : 'resolving');
+  }, []);
+
+  const submitCompoundChoice = useCallback((compound: TireCompound) => {
+    const { raceState: state } = store.getState();
+    if (!state) return;
+
+    // Only update compound — tireWear/hasPitted/pitStopsMade already set by applyCardEffect
+    const s: RaceState = { ...state, tireCompound: compound };
     store.getState().setRaceState(s);
     store.getState().setTurnPhaseUI('resolving');
   }, []);
@@ -127,8 +154,16 @@ export function useTurnStepper() {
     if (!state || !team || !scenario || !catalog) return;
 
     // Phase 5: Apply penalties & clamp
-    let s = applyEndOfTurnPenalties(state);
+    const raining = isCurrentlyRaining(state);
+    let s = applyEndOfTurnPenalties(state, raining);
     s = clampRaceState(s);
+
+    // Mandatory pit stop penalty on final turn
+    if (s.currentTurn >= s.totalTurns && !s.hasPitted) {
+      s = { ...s, position: s.position + 10 };
+      s = clampRaceState(s);
+    }
+
     s = { ...s, turnPhase: 'end' };
 
     // Record turn summary
@@ -137,6 +172,7 @@ export function useTurnStepper() {
       event: currentEventRef.current!,
       actionCard: actionCardRef.current,
       perkActivated: perkActivatedRef.current,
+      tireCompound: s.tireCompound,
       stateSnapshot: {
         position: s.position,
         tireWear: s.tireWear,
@@ -164,7 +200,9 @@ export function useTurnStepper() {
     advanceToRevealEvent,
     advanceToPerkOrAction,
     submitPerkChoice,
+    submitMulligan,
     submitActionCard,
+    submitCompoundChoice,
     advanceToResult,
   };
 }

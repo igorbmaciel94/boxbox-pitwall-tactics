@@ -5,17 +5,18 @@
       "id": "monaco",
       "name": "Monaco Grand Prix",
       "circuit": "Circuit de Monaco",
-      "turns": 6,
+      "turns": 8,
       "params": {
         "startingPosition": 10,
         "baseTireWear": 5,
         "eventWeights": {
           "safety-car": 15,
           "rain": 10,
-          "rival-pits": 20,
-          "traffic": 25,
+          "rival-pits": 15,
+          "rival-overtake": 15,
+          "traffic": 20,
           "clear-air": 15,
-          "mechanical-issue": 15
+          "mechanical-issue": 10
         }
       },
       "objectives": [
@@ -41,16 +42,17 @@
       "id": "spa",
       "name": "Belgian Grand Prix",
       "circuit": "Circuit de Spa-Francorchamps",
-      "turns": 6,
+      "turns": 8,
       "params": {
         "startingPosition": 8,
         "baseTireWear": 8,
         "eventWeights": {
           "safety-car": 10,
           "rain": 20,
-          "rival-pits": 15,
-          "traffic": 15,
-          "clear-air": 25,
+          "rival-pits": 10,
+          "rival-overtake": 15,
+          "traffic": 10,
+          "clear-air": 20,
           "mechanical-issue": 15
         }
       },
@@ -77,17 +79,18 @@
       "id": "monza",
       "name": "Italian Grand Prix",
       "circuit": "Autodromo Nazionale Monza",
-      "turns": 6,
+      "turns": 8,
       "params": {
         "startingPosition": 12,
         "baseTireWear": 6,
         "eventWeights": {
           "safety-car": 5,
           "rain": 5,
-          "rival-pits": 20,
-          "traffic": 15,
-          "clear-air": 35,
-          "mechanical-issue": 20
+          "rival-pits": 15,
+          "rival-overtake": 20,
+          "traffic": 10,
+          "clear-air": 30,
+          "mechanical-issue": 15
         }
       },
       "objectives": [
@@ -101,10 +104,10 @@
         },
         {
           "id": "monza-bonus",
-          "description": "Play at least 2 aggressive cards",
+          "description": "Play at least 3 aggressive cards",
           "type": "bonus",
           "evaluate": "min-cards-with-tag",
-          "params": { "tag": "aggressive", "count": 2 },
+          "params": { "tag": "aggressive", "count": 3 },
           "points": 4
         }
       ]
@@ -113,16 +116,17 @@
       "id": "silverstone",
       "name": "British Grand Prix",
       "circuit": "Silverstone Circuit",
-      "turns": 6,
+      "turns": 8,
       "params": {
         "startingPosition": 9,
         "baseTireWear": 10,
         "eventWeights": {
           "safety-car": 10,
           "rain": 15,
-          "rival-pits": 20,
-          "traffic": 15,
-          "clear-air": 25,
+          "rival-pits": 15,
+          "rival-overtake": 15,
+          "traffic": 10,
+          "clear-air": 20,
           "mechanical-issue": 15
         }
       },
@@ -149,16 +153,17 @@
       "id": "suzuka",
       "name": "Japanese Grand Prix",
       "circuit": "Suzuka International Racing Course",
-      "turns": 6,
+      "turns": 8,
       "params": {
         "startingPosition": 11,
         "baseTireWear": 12,
         "eventWeights": {
           "safety-car": 10,
           "rain": 10,
-          "rival-pits": 20,
-          "traffic": 20,
-          "clear-air": 20,
+          "rival-pits": 15,
+          "rival-overtake": 15,
+          "traffic": 15,
+          "clear-air": 15,
           "mechanical-issue": 20
         }
       },
@@ -185,16 +190,17 @@
       "id": "interlagos",
       "name": "Brazilian Grand Prix",
       "circuit": "Autodromo Jose Carlos Pace",
-      "turns": 6,
+      "turns": 8,
       "params": {
         "startingPosition": 10,
         "baseTireWear": 8,
         "eventWeights": {
           "safety-car": 15,
           "rain": 20,
-          "rival-pits": 15,
-          "traffic": 15,
-          "clear-air": 20,
+          "rival-pits": 10,
+          "rival-overtake": 15,
+          "traffic": 10,
+          "clear-air": 15,
           "mechanical-issue": 15
         }
       },
