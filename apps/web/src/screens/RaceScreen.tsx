@@ -280,7 +280,7 @@ export function RaceScreen() {
         </button>
       </div>
 
-      <div className="flex flex-col gap-2.5 px-5 py-3 pb-6">
+      <div className="flex flex-col gap-2 px-5 py-2 pb-4">
         <HUD state={raceState} previousPosition={previousPosition} />
 
         {currentEvent && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
@@ -288,7 +288,7 @@ export function RaceScreen() {
         )}
 
         {turnPhaseUI === 'await-mulligan' && (
-          <div className="space-y-3">
+          <div className="space-y-2">
             <HandDisplay
               hand={raceState.hand}
               catalog={catalog}
@@ -328,7 +328,7 @@ export function RaceScreen() {
         />
 
         {turnPhaseUI === 'await-action-card' && (
-          <div className="space-y-3">
+          <div className="space-y-2">
             <HandDisplay
               hand={raceState.hand}
               catalog={catalog}
@@ -337,7 +337,7 @@ export function RaceScreen() {
             />
             <Button
               variant="primary"
-              size="lg"
+              size="md"
               className="w-full"
               disabled={!selectedActionCard}
               onClick={() => {

@@ -36,80 +36,112 @@ export function CardComponent({ card, selected = false, disabled = false, compac
   const [imgFailed, setImgFailed] = useState(false);
 
   const fallbackGradient = getCardFallbackGradient(card.tags);
-
   const isSmall = size === 'sm';
-  const showArt = !compact;
-  const artHeight = isSmall ? 'h-16' : 'h-28';
-  const infoPadding = isSmall ? 'p-2' : 'p-3';
-  const nameSize = isSmall ? 'text-xs' : 'text-sm';
-  const rulesSize = isSmall ? 'mb-1 text-[11px] leading-snug' : 'mb-2 text-xs leading-relaxed';
-  const cardStyle = isSmall ? { aspectRatio: '63 / 88' } : undefined;
-  const showRules = !compact && !isSmall;
 
-  // Use fallback gradient as card background only for compact small cards (deck slots)
-  const cardBgStyle = (compact && isSmall) ? { ...cardStyle, background: fallbackGradient } : cardStyle;
+  // Small cards: image as full background, text overlay at bottom
+  if (isSmall) {
+    return (
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        style={{ aspectRatio: '3 / 4' }}
+        className={`group relative w-full overflow-hidden rounded-xl text-left transition-all duration-150
+          ${selected ? 'ring-2 ring-f1-red/60 ring-offset-2 ring-offset-carbon' : ''}
+          ${disabled ? 'pointer-events-none opacity-40' : 'hover:brightness-110 active:scale-[0.98]'}
+          ${selected ? 'z-10 -translate-y-1 scale-[1.02]' : ''}
+        `}
+      >
+        {/* Full background image or gradient */}
+        {!imgFailed ? (
+          <img
+            src={getCardImageUrl(card.id)}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+            onError={() => setImgFailed(true)}
+            loading="lazy"
+          />
+        ) : (
+          <div className="absolute inset-0" style={{ background: fallbackGradient }} />
+        )}
 
+        {/* Gradient overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+
+        {/* Text content at bottom */}
+        <div className="absolute inset-x-0 bottom-0 p-2">
+          <div className="mb-0.5 font-display text-xs font-semibold uppercase tracking-wide drop-shadow">
+            {getCardName(card.id, card.name)}
+          </div>
+          <div className="flex flex-wrap gap-x-2 gap-y-0.5 mb-1">
+            {card.effect.position !== undefined && card.effect.position !== 0 && (
+              <EffectDelta label={t('stats.pos')} value={card.effect.position} positive="bad" small />
+            )}
+            {card.effect.tireWear !== undefined && card.effect.tireWear !== 0 && (
+              <EffectDelta label={t('stats.wear')} value={card.effect.tireWear} positive="bad" small />
+            )}
+          </div>
+          {!compact && (
+            <div className="flex gap-1 overflow-hidden">
+              {card.tags.map((tag) => (
+                <Badge key={tag} tag={tag} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {selected && <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 rounded-b-xl bg-f1-red" />}
+      </button>
+    );
+  }
+
+  // Medium cards: separate art area + info area (original layout)
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      style={cardBgStyle}
       className={`group relative w-full overflow-hidden rounded-2xl text-left transition-all duration-150
-        ${selected ? 'ring-2 ring-f1-red/60 ring-offset-2 ring-offset-carbon' : isSmall ? '' : 'bg-white/[0.04]'}
+        ${selected ? 'ring-2 ring-f1-red/60 ring-offset-2 ring-offset-carbon' : 'bg-white/[0.04]'}
         ${disabled ? 'pointer-events-none opacity-40' : 'hover:brightness-110 active:scale-[0.98]'}
-        ${isSmall ? 'flex flex-col origin-bottom' : ''}
-        ${selected && isSmall ? 'z-10 -translate-y-1 scale-[1.02]' : ''}
       `}
     >
       {/* Card art area */}
-      {showArt && (
-        <div className={`relative w-full ${artHeight} overflow-hidden`}>
-          {!imgFailed ? (
-            <img
-              src={getCardImageUrl(card.id)}
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              onError={() => setImgFailed(true)}
-              loading="lazy"
-            />
-          ) : (
-            <div
-              className="absolute inset-0"
-              style={{ background: fallbackGradient }}
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-carbon/90 via-carbon/30 to-transparent" />
-        </div>
-      )}
+      <div className="relative w-full h-28 overflow-hidden">
+        {!imgFailed ? (
+          <img
+            src={getCardImageUrl(card.id)}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={() => setImgFailed(true)}
+            loading="lazy"
+          />
+        ) : (
+          <div className="absolute inset-0" style={{ background: fallbackGradient }} />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-carbon/90 via-carbon/30 to-transparent" />
+      </div>
 
       {/* Card info area */}
-      <div className={`${infoPadding} ${isSmall ? 'mt-auto' : ''}`}>
-        <div className={`mb-0.5 font-display ${nameSize} font-semibold uppercase tracking-wide`}>
+      <div className="p-3">
+        <div className="mb-0.5 font-display text-sm font-semibold uppercase tracking-wide">
           {getCardName(card.id, card.name)}
         </div>
-
-        {showRules && (
-          <p className={`${rulesSize} text-metal-light`}>
-            {getCardRulesText(card.id, card.rulesText)}
-          </p>
-        )}
-
-        <div className={`flex flex-wrap gap-x-2 gap-y-0.5 ${isSmall ? 'mb-1' : 'mb-1.5'}`}>
+        <p className="mb-2 text-xs leading-relaxed text-metal-light">
+          {getCardRulesText(card.id, card.rulesText)}
+        </p>
+        <div className="flex flex-wrap gap-x-2 gap-y-0.5 mb-1.5">
           {card.effect.position !== undefined && card.effect.position !== 0 && (
-            <EffectDelta label={t('stats.pos')} value={card.effect.position} positive="bad" small={isSmall} />
+            <EffectDelta label={t('stats.pos')} value={card.effect.position} positive="bad" />
           )}
           {card.effect.tireWear !== undefined && card.effect.tireWear !== 0 && (
-            <EffectDelta label={t('stats.wear')} value={card.effect.tireWear} positive="bad" small={isSmall} />
+            <EffectDelta label={t('stats.wear')} value={card.effect.tireWear} positive="bad" />
           )}
         </div>
-
-        <div className={`flex gap-1 ${isSmall ? 'overflow-hidden' : ''}`}>
+        <div className="flex gap-1">
           {card.tags.map((tag) => (
             <Badge key={tag} tag={tag} />
           ))}
         </div>
       </div>
-      {selected && isSmall && <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 rounded-b-2xl bg-f1-red" />}
     </button>
   );
 }

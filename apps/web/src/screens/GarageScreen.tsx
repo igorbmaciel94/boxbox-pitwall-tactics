@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { calculateMedal, MEDAL_COLORS, getPositionColor } from '../lib/constants';
 import { useI18n } from '../i18n';
@@ -6,6 +7,7 @@ import { useI18n } from '../i18n';
 type Tab = 'history' | 'best';
 
 export function GarageScreen() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('history');
   const { t, getScenarioName, getScenarioCircuit, getTeamName, getMedalLabel } = useI18n();
   const runHistory = useGameStore((s) => s.runHistory);
@@ -14,6 +16,12 @@ export function GarageScreen() {
 
   return (
     <div className="flex flex-col px-5 pt-6">
+      <button
+        onClick={() => navigate('/')}
+        className="mb-4 text-left text-xs uppercase tracking-wider text-metal-light transition-colors hover:text-white"
+      >
+        &larr; {t('common.back')}
+      </button>
       <h1 className="mb-5 font-display text-2xl font-bold uppercase tracking-wide">{t('garage.title')}</h1>
 
       {/* Tabs */}
