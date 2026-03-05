@@ -9,7 +9,6 @@ describe('cardSchema', () => {
       rulesText: 'Does something.',
       effect: { position: -1, tireWear: 5 },
       tags: ['aggressive'],
-      quickDecisionEligible: false,
     };
     expect(() => cardSchema.parse(valid)).not.toThrow();
   });
@@ -20,7 +19,6 @@ describe('cardSchema', () => {
       rulesText: 'Does something.',
       effect: {},
       tags: [],
-      quickDecisionEligible: false,
     };
     expect(() => cardSchema.parse(invalid)).toThrow();
   });
@@ -32,7 +30,6 @@ describe('cardSchema', () => {
       rulesText: 'Does something.',
       effect: {},
       tags: [],
-      quickDecisionEligible: false,
     };
     expect(() => cardSchema.parse(invalid)).toThrow();
   });
@@ -44,7 +41,6 @@ describe('cardSchema', () => {
       rulesText: 'Does nothing.',
       effect: {},
       tags: [],
-      quickDecisionEligible: false,
     };
     expect(() => cardSchema.parse(valid)).not.toThrow();
   });
@@ -58,32 +54,29 @@ describe('teamSchema', () => {
       color: '#DC2626',
       perk: {
         id: 'crimson-perk',
-        name: 'Late Charge',
-        description: 'End-of-turn perk.',
-        timing: 'end-of-turn' as const,
-        effect: { position: -1 },
+        name: 'Turbo Boost',
+        description: 'Gain positions.',
+        effect: { position: -2, tireWear: 10 },
       },
     };
     expect(() => teamSchema.parse(valid)).not.toThrow();
   });
 
-  it('rejects invalid perk timing', () => {
+  it('rejects team with missing perk id', () => {
     const invalid = {
       id: 'test',
       name: 'Test',
       color: '#000',
       perk: {
-        id: 'perk',
         name: 'Perk',
         description: 'Desc.',
-        timing: 'invalid',
         effect: {},
       },
     };
     expect(() => teamSchema.parse(invalid)).toThrow();
   });
 
-  it('accepts team with conditional perk', () => {
+  it('accepts team with effect-only perk', () => {
     const valid = {
       id: 'test',
       name: 'Test',
@@ -92,9 +85,7 @@ describe('teamSchema', () => {
         id: 'perk',
         name: 'Perk',
         description: 'Desc.',
-        timing: 'standard' as const,
         effect: { tireWear: -10 },
-        condition: 'some-condition',
       },
     };
     expect(() => teamSchema.parse(valid)).not.toThrow();
@@ -111,17 +102,12 @@ describe('scenarioSchema', () => {
       params: {
         startingPosition: 10,
         baseTireWear: 5,
-        baseFuel: 8,
-        rainChance: 0.2,
         eventWeights: {
           'safety-car': 15,
-          'vsc': 10,
           'rain': 10,
           'rival-pits': 15,
-          'track-limits': 10,
           'traffic': 10,
           'clear-air': 15,
-          'drs-train': 10,
           'mechanical-issue': 5,
         },
       },
@@ -148,17 +134,12 @@ describe('scenarioSchema', () => {
       params: {
         startingPosition: 10,
         baseTireWear: 5,
-        baseFuel: 8,
-        rainChance: 0.2,
         eventWeights: {
           'safety-car': -1,
-          'vsc': 10,
           'rain': 10,
           'rival-pits': 10,
-          'track-limits': 10,
           'traffic': 10,
           'clear-air': 10,
-          'drs-train': 10,
           'mechanical-issue': 10,
         },
       },
@@ -185,17 +166,12 @@ describe('scenarioSchema', () => {
       params: {
         startingPosition: 25,
         baseTireWear: 5,
-        baseFuel: 8,
-        rainChance: 0.2,
         eventWeights: {
           'safety-car': 10,
-          'vsc': 10,
           'rain': 10,
           'rival-pits': 10,
-          'track-limits': 10,
           'traffic': 10,
           'clear-air': 10,
-          'drs-train': 10,
           'mechanical-issue': 10,
         },
       },

@@ -31,23 +31,12 @@ export function EventCard({ event, animated = false }: EventCardProps) {
           </p>
 
           <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
-            {event.preEffect && (
+            {event.effect && (
               <span className="rounded-full bg-white/8 px-2 py-0.5 text-metal-light">
-                {t('race.pre')}: {formatEffect(event.preEffect, t)}
-              </span>
-            )}
-            {event.postEffect && (
-              <span className="rounded-full bg-white/8 px-2 py-0.5 text-metal-light">
-                {t('race.post')}: {formatEffect(event.postEffect, t)}
+                {formatEffect(event.effect, t)}
               </span>
             )}
           </div>
-
-          {event.requiresQuickDecision && (
-            <div className="mt-1.5 font-display text-xs font-bold uppercase tracking-wider text-hud-yellow">
-              {t('race.quickDecisionRequired')}
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -55,7 +44,7 @@ export function EventCard({ event, animated = false }: EventCardProps) {
 }
 
 function formatEffect(
-  effect: { position?: number; tireWear?: number; fuel?: number; rainMeter?: number },
+  effect: { position?: number; tireWear?: number },
   t: (key: string, vars?: Record<string, string | number>) => string,
 ): string {
   const parts: string[] = [];
@@ -64,12 +53,6 @@ function formatEffect(
   }
   if (effect.tireWear !== undefined && effect.tireWear !== 0) {
     parts.push(`${t('stats.wear')} ${effect.tireWear > 0 ? '+' : ''}${effect.tireWear}`);
-  }
-  if (effect.fuel !== undefined && effect.fuel !== 0) {
-    parts.push(`${t('stats.ers')} ${effect.fuel > 0 ? '+' : ''}${effect.fuel}`);
-  }
-  if (effect.rainMeter !== undefined && effect.rainMeter !== 0) {
-    parts.push(`${t('stats.rain')} ${effect.rainMeter > 0 ? '+' : ''}${effect.rainMeter}`);
   }
   return parts.join(', ') || t('race.noEffect');
 }

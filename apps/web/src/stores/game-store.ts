@@ -49,7 +49,6 @@ interface GameState {
   // Turn UI
   turnPhaseUI: TurnPhaseUI;
   currentEvent: RaceEvent | null;
-  needsQuickDecision: boolean;
 
   // Debrief
   lastDebrief: RaceDebrief | null;
@@ -68,7 +67,6 @@ interface GameState {
   setRaceState: (state: RaceState) => void;
   setTurnPhaseUI: (phase: TurnPhaseUI) => void;
   setCurrentEvent: (event: RaceEvent | null) => void;
-  setNeedsQuickDecision: (v: boolean) => void;
   addTurnSummary: (summary: TurnSummary) => void;
   setPreviousPosition: (pos: number | null) => void;
   setLastDebrief: (debrief: RaceDebrief) => void;
@@ -111,7 +109,6 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   turnPhaseUI: 'idle',
   currentEvent: null,
-  needsQuickDecision: false,
 
   lastDebrief: null,
 
@@ -151,7 +148,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       previousPosition: null,
       turnPhaseUI: 'idle',
       currentEvent: null,
-      needsQuickDecision: false,
       lastDebrief: null,
     });
   },
@@ -159,7 +155,6 @@ export const useGameStore = create<GameState>((set, get) => ({
   setRaceState: (state) => set({ raceState: state }),
   setTurnPhaseUI: (phase) => set({ turnPhaseUI: phase }),
   setCurrentEvent: (event) => set({ currentEvent: event }),
-  setNeedsQuickDecision: (v) => set({ needsQuickDecision: v }),
   addTurnSummary: (summary) => set((s) => ({ turnSummaries: [...s.turnSummaries, summary] })),
   setPreviousPosition: (pos) => set({ previousPosition: pos }),
   setLastDebrief: (debrief) => set({ lastDebrief: debrief }),
@@ -226,7 +221,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       previousPosition: null,
       turnPhaseUI: 'idle',
       currentEvent: null,
-      needsQuickDecision: false,
     }),
 
   resetAll: () =>
@@ -240,7 +234,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       previousPosition: null,
       turnPhaseUI: 'idle',
       currentEvent: null,
-      needsQuickDecision: false,
       lastDebrief: null,
       seasonProgress: null,
     }),

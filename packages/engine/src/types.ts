@@ -17,21 +17,16 @@ export type TurnPhase =
   | 'start'
   | 'refill-hand'
   | 'reveal-event'
-  | 'pre-effects'
-  | 'quick-decision'
-  | 'team-perk'
+  | 'await-perk'
   | 'play-card'
-  | 'post-effects'
-  | 'clamp-and-hooks'
+  | 'resolve'
   | 'end';
 
 export interface RaceEvent {
   type: EventType;
   name: string;
   flavorIndex: number;
-  preEffect?: CardEffect;
-  postEffect?: CardEffect;
-  requiresQuickDecision: boolean;
+  effect: CardEffect;
   flavorText: string;
 }
 
@@ -42,8 +37,6 @@ export interface RaceState {
 
   position: number;
   tireWear: number;
-  fuel: number;
-  rainMeter: number;
 
   currentTurn: number;
   totalTurns: number;
@@ -55,8 +48,6 @@ export interface RaceState {
   currentEvent: RaceEvent | null;
   eventHistory: RaceEvent[];
   scUsed: boolean;
-  vscUsed: boolean;
-  rainCount: number;
   lastEventType: EventType | null;
 
   perkUsed: boolean;
@@ -64,7 +55,6 @@ export interface RaceState {
   objectivesCompleted: string[];
   cardsPlayedTotal: CardId[];
 
-  quickDecisionMade: boolean;
   turnPhase: TurnPhase;
 
   maxTireWearReached: number;
@@ -73,14 +63,11 @@ export interface RaceState {
 export interface TurnSummary {
   turn: number;
   event: RaceEvent;
-  quickDecisionCard: CardId | null;
   actionCard: CardId;
   perkActivated: boolean;
   stateSnapshot: {
     position: number;
     tireWear: number;
-    fuel: number;
-    rainMeter: number;
   };
 }
 
@@ -121,7 +108,6 @@ export interface ScoringConfig {
 }
 
 export interface PlayerAgent {
-  chooseQuickDecisionCard(state: RaceState): CardId | null;
   chooseTeamPerk(state: RaceState): boolean;
   chooseActionCard(state: RaceState): CardId;
   chooseCardSwap?(availableCards: CardId[], currentDeck: CardId[]): CardId[];

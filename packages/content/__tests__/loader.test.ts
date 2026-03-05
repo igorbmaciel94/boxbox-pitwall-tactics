@@ -5,8 +5,8 @@ describe('loadCatalog', () => {
   it('loads full catalog with correct counts', () => {
     const catalog = loadCatalog();
 
-    expect(catalog.version).toBe('1.0.0');
-    expect(catalog.cards).toHaveLength(18);
+    expect(catalog.version).toBe('2.0.0');
+    expect(catalog.cards).toHaveLength(12);
     expect(catalog.scenarios).toHaveLength(6);
     expect(catalog.teams).toHaveLength(6);
   });
@@ -20,7 +20,6 @@ describe('loadCatalog', () => {
       expect(card.rulesText).toBeTruthy();
       expect(card.effect).toBeDefined();
       expect(Array.isArray(card.tags)).toBe(true);
-      expect(typeof card.quickDecisionEligible).toBe('boolean');
     }
   });
 
@@ -61,13 +60,10 @@ describe('loadCatalog', () => {
     const catalog = loadCatalog();
     const eventTypes = [
       'safety-car',
-      'vsc',
       'rain',
       'rival-pits',
-      'track-limits',
       'traffic',
       'clear-air',
-      'drs-train',
       'mechanical-issue',
     ] as const;
 
@@ -87,25 +83,25 @@ describe('loadCatalog', () => {
 describe('individual loaders', () => {
   it('loadCards returns versioned cards', () => {
     const result = loadCards();
-    expect(result.version).toBe('1.0.0');
-    expect(result.cards).toHaveLength(18);
+    expect(result.version).toBe('2.0.0');
+    expect(result.cards).toHaveLength(12);
   });
 
   it('loadScenarios returns versioned scenarios', () => {
     const result = loadScenarios();
-    expect(result.version).toBe('1.0.0');
+    expect(result.version).toBe('2.0.0');
     expect(result.scenarios).toHaveLength(6);
   });
 
   it('loadTeams returns versioned teams', () => {
     const result = loadTeams();
-    expect(result.version).toBe('1.0.0');
+    expect(result.version).toBe('2.0.0');
     expect(result.teams).toHaveLength(6);
   });
 
   it('loadStrings returns versioned strings', () => {
     const result = loadStrings();
-    expect(result.version).toBe('1.0.0');
+    expect(result.version).toBe('2.0.0');
     expect(result.events).toBeDefined();
     expect(result.radio).toBeDefined();
   });

@@ -1,21 +1,14 @@
 export type EventType =
   | 'safety-car'
-  | 'vsc'
   | 'rain'
   | 'rival-pits'
-  | 'track-limits'
   | 'traffic'
   | 'clear-air'
-  | 'drs-train'
   | 'mechanical-issue';
-
-export type PerkTiming = 'standard' | 'end-of-turn';
 
 export interface CardEffect {
   position?: number;
   tireWear?: number;
-  fuel?: number;
-  rainMeter?: number;
 }
 
 export interface CardData {
@@ -24,16 +17,13 @@ export interface CardData {
   rulesText: string;
   effect: CardEffect;
   tags: string[];
-  quickDecisionEligible: boolean;
 }
 
 export interface TeamPerkData {
   id: string;
   name: string;
   description: string;
-  timing: PerkTiming;
   effect: CardEffect;
-  condition?: string;
 }
 
 export interface TeamData {
@@ -55,8 +45,6 @@ export interface ObjectiveData {
 export interface ScenarioParamsData {
   startingPosition: number;
   baseTireWear: number;
-  baseFuel: number;
-  rainChance: number;
   eventWeights: Record<EventType, number>;
 }
 

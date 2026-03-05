@@ -8,7 +8,6 @@ import { HUD } from '../components/race/HUD';
 import { ScenarioStrip } from '../components/race/ScenarioStrip';
 import { EventCard } from '../components/race/EventCard';
 import { HandDisplay } from '../components/race/HandDisplay';
-import { QuickDecisionModal } from '../components/race/QuickDecisionModal';
 import { PerkButton } from '../components/race/PerkButton';
 import { RadioFeed } from '../components/race/RadioFeed';
 import { Button } from '../components/shared/Button';
@@ -26,7 +25,6 @@ export function RaceScreen() {
   const team = useGameStore((s) => s.team);
   const turnPhaseUI = useGameStore((s) => s.turnPhaseUI);
   const currentEvent = useGameStore((s) => s.currentEvent);
-  const needsQuickDecision = useGameStore((s) => s.needsQuickDecision);
   const previousPosition = useGameStore((s) => s.previousPosition);
   const mode = useGameStore((s) => s.mode);
   const startRace = useGameStore((s) => s.startRace);
@@ -64,16 +62,10 @@ export function RaceScreen() {
         if (currentEvent) {
           sendEventRadio(currentEvent.type);
         }
-        timer = setTimeout(() => stepper.advanceToPreEffects(), 800);
-        break;
-      case 'pre-effects':
-        timer = setTimeout(() => stepper.advanceToQuickDecisionOrPerk(), 600);
+        timer = setTimeout(() => stepper.advanceToPerkOrAction(), 800);
         break;
       case 'resolving':
-        timer = setTimeout(() => stepper.advanceToPostEffects(), 500);
-        break;
-      case 'post-effects':
-        timer = setTimeout(() => stepper.advanceToClampAndHooks(), 500);
+        timer = setTimeout(() => stepper.advanceToResult(), 500);
         break;
       case 'race-complete':
         sendRadio('generic');
@@ -140,12 +132,11 @@ export function RaceScreen() {
   }
 
   const isSC = currentEvent?.type === 'safety-car';
-  const isVSC = currentEvent?.type === 'vsc';
-  const isRain = currentEvent?.type === 'rain' || raceState.rainMeter >= 7;
+  const isRain = currentEvent?.type === 'rain';
 
   return (
     <div className="relative flex min-h-dvh flex-col">
-      {(isSC || isVSC) && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
+      {isSC && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
         <div className="pointer-events-none fixed inset-0 z-30 bg-hud-yellow/8 animate-sc-pulse" />
       )}
       {isRain && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
@@ -169,13 +160,6 @@ export function RaceScreen() {
         {currentEvent && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
           <EventCard event={currentEvent} animated={turnPhaseUI === 'reveal-event'} />
         )}
-
-        <QuickDecisionModal
-          open={turnPhaseUI === 'await-quick-decision' && needsQuickDecision}
-          state={raceState}
-          catalog={catalog}
-          onSubmit={stepper.submitQuickDecision}
-        />
 
         <PerkButton
           team={team}
@@ -276,7 +260,7 @@ function CircuitCard({
     id: string;
     name: string;
     circuit: string;
-    params: { startingPosition: number; baseTireWear: number; baseFuel: number };
+    params: { startingPosition: number; baseTireWear: number };
     turns: number;
     objectives: { id: string; type: string; description: string; points: number }[];
   };
@@ -321,7 +305,6 @@ function CircuitCard({
         <div className="flex flex-wrap gap-3 text-xs text-metal-light">
           <span>{t('race.start')} P{scenario.params.startingPosition}</span>
           <span>{t('race.wear')} {scenario.params.baseTireWear}</span>
-          <span>{t('race.ers')} {scenario.params.baseFuel}</span>
           <span>{scenario.turns} {t('race.laps')}</span>
         </div>
         <div className="mt-2 text-[11px]">

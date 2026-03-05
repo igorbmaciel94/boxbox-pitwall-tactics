@@ -81,22 +81,11 @@ export function CardComponent({ card, selected = false, disabled = false, compac
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-carbon/90 via-carbon/30 to-transparent" />
-          {card.quickDecisionEligible && (
-            <span className={`absolute right-1.5 top-1.5 rounded-full bg-hud-yellow/90 font-black text-carbon ${isSmall ? 'px-1.5 py-0 text-[8px]' : 'px-2 py-0.5 text-[10px]'}`}>
-              QD
-            </span>
-          )}
         </div>
       )}
 
       {/* Card info area */}
       <div className={`${infoPadding}`}>
-        {compact && card.quickDecisionEligible && (
-          <span className="absolute right-1.5 top-1.5 text-xs font-bold text-hud-yellow" title={t('race.qdEligibleTitle')}>
-            QD
-          </span>
-        )}
-
         <div className={`mb-0.5 font-display ${nameSize} font-semibold uppercase tracking-wide`}>
           {getCardName(card.id, card.name)}
         </div>
@@ -113,12 +102,6 @@ export function CardComponent({ card, selected = false, disabled = false, compac
           )}
           {card.effect.tireWear !== undefined && card.effect.tireWear !== 0 && (
             <EffectDelta label={t('stats.wear')} value={card.effect.tireWear} positive="bad" small={isSmall} />
-          )}
-          {card.effect.fuel !== undefined && card.effect.fuel !== 0 && (
-            <EffectDelta label={t('stats.ers')} value={card.effect.fuel} positive="bad" small={isSmall} />
-          )}
-          {card.effect.rainMeter !== undefined && card.effect.rainMeter !== 0 && (
-            <EffectDelta label={t('stats.rain')} value={card.effect.rainMeter} positive="bad" small={isSmall} />
           )}
         </div>
 

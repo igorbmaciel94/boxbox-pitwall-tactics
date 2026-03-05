@@ -12,8 +12,6 @@ function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
     seed: 42,
     position: 10,
     tireWear: 30,
-    fuel: 50,
-    rainMeter: 0,
     currentTurn: 6,
     totalTurns: 6,
     deck: [],
@@ -22,13 +20,10 @@ function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
     currentEvent: null,
     eventHistory: [],
     scUsed: false,
-    vscUsed: false,
-    rainCount: 0,
     lastEventType: null,
     perkUsed: false,
     objectivesCompleted: [],
     cardsPlayedTotal: [],
-    quickDecisionMade: false,
     turnPhase: 'end',
     maxTireWearReached: 30,
     ...overrides,
@@ -85,19 +80,6 @@ describe('evaluateObjective', () => {
       type: 'bonus' as const,
       evaluate: 'tire-wear-below',
       params: { threshold: 50 },
-      points: 3,
-    };
-    expect(evaluateObjective(objective, state, catalog)).toBe(true);
-  });
-
-  it('fuel-above: true when fuel >= threshold', () => {
-    const state = makeBaseState({ fuel: 30 });
-    const objective = {
-      id: 'test',
-      description: 'Fuel good',
-      type: 'bonus' as const,
-      evaluate: 'fuel-above',
-      params: { threshold: 20 },
       points: 3,
     };
     expect(evaluateObjective(objective, state, catalog)).toBe(true);
@@ -163,7 +145,6 @@ describe('calculateRaceScore', () => {
   const scenario = catalog.scenarios.find((s) => s.id === 'monaco')!;
 
   it('calculates position score + objective points', () => {
-    // Position 3 = 15 points; Monaco main objective = finish top 5 (10 pts)
     const state = makeBaseState({ position: 3, tireWear: 40 });
     const debrief = calculateRaceScore(state, scenario, catalog, [], config);
 
@@ -174,14 +155,14 @@ describe('calculateRaceScore', () => {
 
   it('includes style bonus when enabled', () => {
     const configWithStyle: ScoringConfig = { styleBonusesEnabled: true };
-    const state = makeBaseState({ position: 1, tireWear: 85, fuel: 35 });
+    const state = makeBaseState({ position: 1, tireWear: 85 });
     const debrief = calculateRaceScore(state, scenario, catalog, [], configWithStyle);
 
     expect(debrief.styleBonus).toBeGreaterThan(0);
   });
 
   it('has zero style bonus when disabled', () => {
-    const state = makeBaseState({ position: 1, tireWear: 85, fuel: 35 });
+    const state = makeBaseState({ position: 1, tireWear: 85 });
     const debrief = calculateRaceScore(state, scenario, catalog, [], config);
 
     expect(debrief.styleBonus).toBe(0);

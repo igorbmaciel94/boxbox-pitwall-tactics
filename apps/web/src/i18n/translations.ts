@@ -185,15 +185,11 @@ export interface UIStrings {
       drive: string;
       pit: string;
       tactics: string;
-      qdHint: string;
       hudTitle: string;
       pos: string;
       wear: string;
-      ers: string;
-      rain: string;
       eventsTitle: string;
       sc: string;
-      vsc: string;
       rainEvent: string;
       others: string;
       scoringTitle: string;
@@ -257,13 +253,10 @@ function buildEnglishContent(): ContentStrings {
     events: {
       names: {
         'safety-car': 'Safety Car',
-        vsc: 'VSC',
         rain: 'Rain',
         'rival-pits': 'Rival Pits',
-        'track-limits': 'Track Limits',
         traffic: 'Traffic',
         'clear-air': 'Clear Air',
-        'drs-train': 'DRS Train',
         'mechanical-issue': 'Mechanical Issue',
       },
       flavors: stringsData.events,
@@ -465,28 +458,24 @@ const EN_UI: UIStrings = {
       drive: 'Position-focused. Push for overtakes or defend your spot.',
       pit: 'Manage tires, ERS, and pit strategy.',
       tactics: 'Versatile cards for adapting to changing conditions.',
-      qdHint: 'Cards marked with QD can be played during Quick Decision moments for an immediate tactical advantage.',
       hudTitle: 'HUD Gauges',
       pos: 'Your race position (P1 = leading). Lower is better.',
       wear: 'Tire degradation (0-100). High wear hurts performance and worsens position.',
-      ers: 'Energy Recovery System (0-100). Used for overtakes and defending.',
-      rain: 'Rain intensity meter (0-10). At 7+ a rain spike triggers a Quick Decision.',
       eventsTitle: 'Events',
-      sc: 'Safety Car - field bunches up. Triggers QD. Max 1 per race.',
-      vsc: 'Virtual Safety Car - saves fuel but freezes gaps. Triggers QD. Max 1 per race.',
-      rainEvent: 'Rain increases the rain meter. No QD unless rain spike (>=7).',
-      others: 'Traffic, rivals pitting, track limits, DRS trains, clear air, and mechanical issues each affect position, wear, or ERS.',
+      sc: 'Safety Car - field bunches up. Max 1 per race.',
+      rainEvent: 'Rain affects tire wear and track conditions.',
+      others: 'Traffic, rivals pitting, clear air, and mechanical issues each affect position or wear.',
       scoringTitle: 'Scoring',
       finish: 'Points based on your final position (P1 = 25 pts, like real F1).',
       main: 'Complete the circuit\'s main objective for bonus points.',
       bonus: 'Optional secondary objectives for extra points.',
       tipsTitle: 'Strategy Tips',
       tip1: 'Balance your deck - do not go all-in on one card type.',
-      tip2: 'Keep at least 2-3 QD-eligible cards to react to Safety Cars and rain spikes.',
-      tip3: 'Watch your tire wear - high wear compounds position loss each lap.',
+      tip2: 'Watch your tire wear - at 100 you get a tire blowout penalty.',
+      tip3: 'Use your team perk at the right moment - you only get one per race.',
       tip4: 'Save your team perk for a critical moment, not the first opportunity.',
       tip5: 'Study the circuit objectives before building your deck.',
-      tip6: 'Weather-heavy circuits (Spa, Interlagos) reward weather cards in your deck.',
+      tip6: 'Some circuits have tougher tire wear - plan your pit stops accordingly.',
     },
   },
   stats: {
@@ -674,25 +663,21 @@ const PT_BR_UI: UIStrings = {
       drive: 'Foco em posicao. Ataque para ultrapassar ou defender sua colocacao.',
       pit: 'Gerencie pneus, ERS e estrategia de pit.',
       tactics: 'Cartas versateis para adaptar a corrida as mudancas.',
-      qdHint: 'Cartas com QD podem ser jogadas em momentos de decisao rapida para uma vantagem tatica imediata.',
       hudTitle: 'Indicadores do HUD',
       pos: 'Sua posicao na corrida (P1 = lider). Quanto menor, melhor.',
       wear: 'Desgaste de pneus (0-100). Desgaste alto piora desempenho e posicao.',
-      ers: 'Energy Recovery System (0-100). Usado em ataques e defesa.',
-      rain: 'Medidor de chuva (0-10). Em 7+ ocorre pico de chuva e aciona decisao rapida.',
       eventsTitle: 'Eventos',
-      sc: 'Safety Car - pelotao junta. Aciona DR. Maximo 1 por corrida.',
-      vsc: 'Virtual Safety Car - economiza combustivel mas congela gaps. Aciona DR. Maximo 1 por corrida.',
-      rainEvent: 'Chuva aumenta o medidor. Nao ha DR, exceto em pico de chuva (>=7).',
-      others: 'Trafego, rivais parando, track limits, trens de DRS, ar limpo e problemas mecanicos afetam posicao, desgaste ou ERS.',
+      sc: 'Safety Car - pelotao junta. Maximo 1 por corrida.',
+      rainEvent: 'Chuva afeta desgaste de pneus e condicoes da pista.',
+      others: 'Trafego, rivais parando, ar limpo e problemas mecanicos afetam posicao ou desgaste.',
       scoringTitle: 'Pontuacao',
       finish: 'Pontos por posicao final (P1 = 25 pts, como na F1 real).',
       main: 'Complete o objetivo principal do circuito para ganhar pontos extras.',
       bonus: 'Objetivos secundarios opcionais valem pontos adicionais.',
       tipsTitle: 'Dicas de Estrategia',
       tip1: 'Equilibre o deck - nao aposte tudo em um unico tipo de carta.',
-      tip2: 'Mantenha pelo menos 2-3 cartas elegiveis para DR para reagir a Safety Car e chuva.',
-      tip3: 'Fique de olho no desgaste - desgaste alto aumenta a perda de posicao por volta.',
+      tip2: 'Fique de olho no desgaste - ao chegar a 100 voce sofre penalidade por estouro de pneu.',
+      tip3: 'Use o perk da equipe no momento certo - voce so tem um por corrida.',
       tip4: 'Guarde o perk da equipe para um momento critico, nao na primeira chance.',
       tip5: 'Estude os objetivos do circuito antes de montar o deck.',
       tip6: 'Circuitos com muita chuva (Spa, Interlagos) favorecem cartas de clima.',
@@ -737,12 +722,12 @@ const PT_BR_CONTENT: ContentStrings = {
     onyx: { name: 'Onyx Engineering' },
   },
   perks: {
-    'crimson-late-charge': { name: 'Carga Final', description: 'No fim da volta, ganhe 1 posicao se o desgaste estiver acima de 60.' },
-    'azure-cool-head': { name: 'Cabeca Fria', description: 'Reduza desgaste de pneus em 15 nesta volta.' },
-    'emerald-fuel-efficiency': { name: 'Eficiencia de Combustivel', description: 'Recupere 20 de combustivel nesta volta.' },
-    'amber-rain-master': { name: 'Mestre da Chuva', description: 'Reduza o medidor de chuva em 4 e ganhe 1 posicao.' },
-    'violet-power-surge': { name: 'Surto de Potencia', description: 'Ganhe 3 posicoes, mas adicione 10 de desgaste.' },
-    'onyx-fortify': { name: 'Fortificar', description: 'Reduza desgaste em 10 e combustivel em 10.' },
+    'crimson-turbo-boost': { name: 'Turbo Boost', description: 'Explosao de potencia: ganhe 2 posicoes, +10 desgaste.' },
+    'azure-cool-head': { name: 'Cabeca Fria', description: 'Gestao de pneus: reduza desgaste em 20.' },
+    'emerald-balanced-drive': { name: 'Pilotagem Equilibrada', description: 'Equilibrio perfeito: ganhe 1 posicao, -10 desgaste.' },
+    'amber-adaptability': { name: 'Adaptabilidade', description: 'Adaptacao rapida: ganhe 1 posicao, -5 desgaste.' },
+    'violet-power-surge': { name: 'Surto de Potencia', description: 'Ataque total: ganhe 3 posicoes, +15 desgaste.' },
+    'onyx-fortify': { name: 'Fortificar', description: 'Excelencia de engenharia: reduza desgaste em 15.' },
   },
   scenarios: {
     monaco: { name: 'Grande Premio de Monaco', circuit: 'Circuit de Monaco' },
@@ -769,13 +754,10 @@ const PT_BR_CONTENT: ContentStrings = {
   events: {
     names: {
       'safety-car': 'Safety Car',
-      vsc: 'VSC',
       rain: 'Chuva',
       'rival-pits': 'Pit dos Rivais',
-      'track-limits': 'Track Limits',
       traffic: 'Trafego',
       'clear-air': 'Ar Limpo',
-      'drs-train': 'Trem de DRS',
       'mechanical-issue': 'Problema Mecanico',
     },
     flavors: {
@@ -783,11 +765,6 @@ const PT_BR_CONTENT: ContentStrings = {
         'Safety car na pista! O pelotao se aproxima.',
         'Bandeira amarela! Safety car em acao.',
         'Incidente a frente! Safety car ativado.',
-      ],
-      vsc: [
-        'Virtual safety car ativado. Deltas congelados.',
-        'VSC! Respeite o delta.',
-        'Virtual safety car. Mantenha seu tempo delta.',
       ],
       rain: [
         'Primeiras gotas no visor... condicoes mudando.',
@@ -799,11 +776,6 @@ const PT_BR_CONTENT: ContentStrings = {
         'Varios carros a frente estao parando. Voce responde?',
         'Pit stops dos rivais em andamento. Gap mudando.',
       ],
-      'track-limits': [
-        'Aviso de track limits! Fique dentro das linhas.',
-        'Voce foi sinalizado por track limits. Cuidado nas curvas.',
-        'Comissarios monitoram track limits de perto.',
-      ],
       traffic: [
         'Trafego a frente! Retardatarios atrapalham a linha.',
         'Bandeiras azuis! Mas os retardatarios demoram a sair.',
@@ -813,11 +785,6 @@ const PT_BR_CONTENT: ContentStrings = {
         'Ar limpo a frente. Condicao ideal para atacar.',
         'Pista aberta! Sem trafego no horizonte.',
         'Ar limpo. A pista e sua.',
-      ],
-      'drs-train': [
-        'Trem de DRS formado. Todo mundo com DRS, ninguem passa.',
-        'Preso num trem de DRS. Precisa achar outra forma de passar.',
-        'Fila de carros com DRS. Ultrapassar esta dificil.',
       ],
       'mechanical-issue': [
         'Luz de alerta no painel! Algo nao parece certo.',

@@ -2,21 +2,16 @@ import { z } from 'zod';
 
 const eventTypes = [
   'safety-car',
-  'vsc',
   'rain',
   'rival-pits',
-  'track-limits',
   'traffic',
   'clear-air',
-  'drs-train',
   'mechanical-issue',
 ] as const;
 
 export const cardEffectSchema = z.object({
   position: z.number().optional(),
   tireWear: z.number().optional(),
-  fuel: z.number().optional(),
-  rainMeter: z.number().optional(),
 });
 
 export const cardSchema = z.object({
@@ -25,7 +20,6 @@ export const cardSchema = z.object({
   rulesText: z.string().min(1),
   effect: cardEffectSchema,
   tags: z.array(z.string()),
-  quickDecisionEligible: z.boolean(),
 });
 
 export const cardsFileSchema = z.object({
@@ -52,8 +46,6 @@ const eventWeightsSchema = z.object(
 export const scenarioParamsSchema = z.object({
   startingPosition: z.number().int().min(1).max(20),
   baseTireWear: z.number().min(0),
-  baseFuel: z.number().min(0),
-  rainChance: z.number().min(0).max(1),
   eventWeights: eventWeightsSchema,
 });
 
@@ -75,9 +67,7 @@ export const teamPerkSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   description: z.string().min(1),
-  timing: z.enum(['standard', 'end-of-turn']),
   effect: cardEffectSchema,
-  condition: z.string().optional(),
 });
 
 export const teamSchema = z.object({

@@ -29,9 +29,9 @@ export { runRace, initializeRaceState, runTurn } from './race-engine.js';
 export { runSeason, initializeSeasonState } from './season-engine.js';
 
 // Subsystems
-export { selectEvent, applyPreEffects, applyPostEffects, checkRainSpike, updateEventTracking } from './event-system.js';
-export { applyCardEffect, consumeQuickDecisionCard, refillHandWithRng } from './card-effects.js';
-export { maybeApplyTeamPerk, applyEndOfTurnPerk } from './team-perks.js';
-export { clampRaceState, applyEffect, applyEndOfTurnHooks } from './clamp.js';
+export { selectEvent, applyEventEffect, updateEventTracking } from './event-system.js';
+export { applyCardEffect, refillHandWithRng } from './card-effects.js';
+export { maybeApplyTeamPerk } from './team-perks.js';
+export { clampRaceState, applyEffect, applyEndOfTurnPenalties } from './clamp.js';
 export { getPositionScore, evaluateObjective, calculateRaceScore, calculateSeasonScore, POSITION_SCORE_TABLE } from './scoring.js';
 export { validateRaceState, validateCatalog } from './validators.js';

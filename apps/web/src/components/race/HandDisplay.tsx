@@ -8,10 +8,9 @@ interface HandDisplayProps {
   selectedCard: CardId | null;
   onSelect: (cardId: CardId) => void;
   disabled?: boolean;
-  quickDecisionMode?: boolean;
 }
 
-export function HandDisplay({ hand, catalog, selectedCard, onSelect, disabled = false, quickDecisionMode = false }: HandDisplayProps) {
+export function HandDisplay({ hand, catalog, selectedCard, onSelect, disabled = false }: HandDisplayProps) {
   const { t, getCardName } = useI18n();
   const selectedCardData = selectedCard ? catalog.cards.find((c) => c.id === selectedCard) : null;
 
@@ -19,7 +18,7 @@ export function HandDisplay({ hand, catalog, selectedCard, onSelect, disabled = 
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">
         <div className="text-xs font-display uppercase tracking-wider text-metal-light">
-          {quickDecisionMode ? t('race.quickDecisionSelect') : t('race.yourHand')}
+          {t('race.yourHand')}
         </div>
         {selectedCardData && (
           <div className="rounded-full bg-white/8 px-3 py-1 text-[11px] font-medium text-white/80">
@@ -32,15 +31,14 @@ export function HandDisplay({ hand, catalog, selectedCard, onSelect, disabled = 
           const card = catalog.cards.find((c) => c.id === cardId);
           if (!card) return null;
 
-          const isEligible = !quickDecisionMode || card.quickDecisionEligible;
           return (
             <CardComponent
               key={`${cardId}-${i}`}
               card={card}
               selected={selectedCard === cardId}
-              disabled={disabled || !isEligible}
+              disabled={disabled}
               size="sm"
-              onClick={() => isEligible && onSelect(cardId)}
+              onClick={() => onSelect(cardId)}
             />
           );
         })}

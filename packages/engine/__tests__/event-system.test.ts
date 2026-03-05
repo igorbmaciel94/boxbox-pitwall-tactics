@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { loadCatalog } from '@boxbox/content';
 import { createRng } from '../src/rng.js';
-import { applyPreEffects, applyPostEffects, checkRainSpike, selectEvent, updateEventTracking } from '../src/event-system.js';
+import { applyEventEffect, selectEvent, updateEventTracking } from '../src/event-system.js';
 import type { RaceState } from '../src/types.js';
 
 function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
@@ -11,8 +11,6 @@ function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
     seed: 42,
     position: 10,
     tireWear: 30,
-    fuel: 50,
-    rainMeter: 0,
     currentTurn: 1,
     totalTurns: 6,
     deck: [],
@@ -21,13 +19,10 @@ function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
     currentEvent: null,
     eventHistory: [],
     scUsed: false,
-    vscUsed: false,
-    rainCount: 0,
     lastEventType: null,
     perkUsed: false,
     objectivesCompleted: [],
     cardsPlayedTotal: [],
-    quickDecisionMade: false,
     turnPhase: 'start',
     maxTireWearReached: 30,
     ...overrides,
@@ -48,16 +43,6 @@ describe('selectEvent', () => {
     }
   });
 
-  it('never selects vsc when vscUsed is true', () => {
-    const state = makeBaseState({ vscUsed: true });
-    const rng = createRng(42);
-
-    for (let i = 0; i < 100; i++) {
-      const event = selectEvent(state, scenario, rng, catalog);
-      expect(event.type).not.toBe('vsc');
-    }
-  });
-
   it('never selects safety-car consecutively', () => {
     const state = makeBaseState({ lastEventType: 'safety-car' });
     const rng = createRng(42);
@@ -65,26 +50,6 @@ describe('selectEvent', () => {
     for (let i = 0; i < 100; i++) {
       const event = selectEvent(state, scenario, rng, catalog);
       expect(event.type).not.toBe('safety-car');
-    }
-  });
-
-  it('never selects vsc consecutively', () => {
-    const state = makeBaseState({ lastEventType: 'vsc' });
-    const rng = createRng(42);
-
-    for (let i = 0; i < 100; i++) {
-      const event = selectEvent(state, scenario, rng, catalog);
-      expect(event.type).not.toBe('vsc');
-    }
-  });
-
-  it('never selects rain when rainCount >= 2', () => {
-    const state = makeBaseState({ rainCount: 2 });
-    const rng = createRng(42);
-
-    for (let i = 0; i < 100; i++) {
-      const event = selectEvent(state, scenario, rng, catalog);
-      expect(event.type).not.toBe('rain');
     }
   });
 
@@ -98,7 +63,7 @@ describe('selectEvent', () => {
     expect(event.flavorIndex).toBeGreaterThanOrEqual(0);
     expect(event.flavorIndex).toBeLessThan(catalog.strings.events[event.type].length);
     expect(event.flavorText).toBeTruthy();
-    expect(typeof event.requiresQuickDecision).toBe('boolean');
+    expect(event.effect).toBeDefined();
   });
 
   it('produces deterministic events with same seed', () => {
@@ -113,75 +78,45 @@ describe('selectEvent', () => {
   });
 });
 
-describe('applyPreEffects', () => {
-  it('applies rain pre-effect to rain meter', () => {
-    const state = makeBaseState({ rainMeter: 3 });
+describe('applyEventEffect', () => {
+  it('applies rain effect (tire wear increase)', () => {
+    const state = makeBaseState({ tireWear: 30 });
     const event = {
       type: 'rain' as const,
       name: 'Rain',
       flavorIndex: 0,
-      preEffect: { rainMeter: 2 },
-      requiresQuickDecision: false,
+      effect: { tireWear: 10 },
       flavorText: 'Rain.',
     };
-    const updated = applyPreEffects(state, event);
-    expect(updated.rainMeter).toBe(5);
+    const updated = applyEventEffect(state, event);
+    expect(updated.tireWear).toBe(40);
   });
 
-  it('does nothing when no preEffect', () => {
-    const state = makeBaseState();
-    const event = {
-      type: 'rival-pits' as const,
-      name: 'Rival Pits',
-      flavorIndex: 0,
-      requiresQuickDecision: false,
-      flavorText: 'Rivals.',
-    };
-    const updated = applyPreEffects(state, event);
-    expect(updated).toEqual(state);
-  });
-});
-
-describe('applyPostEffects', () => {
-  it('applies rival-pits post-effect (position pressure)', () => {
+  it('applies rival-pits effect (position gain)', () => {
     const state = makeBaseState({ position: 5 });
     const event = {
       type: 'rival-pits' as const,
       name: 'Rival Pits',
       flavorIndex: 0,
-      postEffect: { position: 1 },
-      requiresQuickDecision: false,
+      effect: { position: -1 },
       flavorText: 'Rivals.',
     };
-    const updated = applyPostEffects(state, event);
-    expect(updated.position).toBe(6);
+    const updated = applyEventEffect(state, event);
+    expect(updated.position).toBe(4);
   });
 
-  it('applies traffic post-effect (position + tire wear)', () => {
+  it('applies traffic effect (position + tire wear)', () => {
     const state = makeBaseState({ position: 5, tireWear: 30 });
     const event = {
       type: 'traffic' as const,
       name: 'Traffic',
       flavorIndex: 0,
-      postEffect: { position: 1, tireWear: 5 },
-      requiresQuickDecision: false,
+      effect: { position: 1, tireWear: 5 },
       flavorText: 'Traffic.',
     };
-    const updated = applyPostEffects(state, event);
+    const updated = applyEventEffect(state, event);
     expect(updated.position).toBe(6);
     expect(updated.tireWear).toBe(35);
-  });
-});
-
-describe('checkRainSpike', () => {
-  it('returns true when rainMeter >= 7', () => {
-    expect(checkRainSpike(makeBaseState({ rainMeter: 7 }))).toBe(true);
-    expect(checkRainSpike(makeBaseState({ rainMeter: 10 }))).toBe(true);
-  });
-
-  it('returns false when rainMeter < 7', () => {
-    expect(checkRainSpike(makeBaseState({ rainMeter: 6 }))).toBe(false);
-    expect(checkRainSpike(makeBaseState({ rainMeter: 0 }))).toBe(false);
   });
 });
 
@@ -192,7 +127,7 @@ describe('updateEventTracking', () => {
       type: 'safety-car' as const,
       name: 'Safety Car',
       flavorIndex: 0,
-      requiresQuickDecision: true,
+      effect: { tireWear: -5 },
       flavorText: 'SC.',
     };
     const updated = updateEventTracking(state, event);
@@ -201,16 +136,17 @@ describe('updateEventTracking', () => {
     expect(updated.eventHistory).toHaveLength(1);
   });
 
-  it('records vsc usage', () => {
+  it('records non-SC event without marking scUsed', () => {
     const state = makeBaseState();
     const event = {
-      type: 'vsc' as const,
-      name: 'VSC',
+      type: 'rain' as const,
+      name: 'Rain',
       flavorIndex: 0,
-      requiresQuickDecision: true,
-      flavorText: 'VSC.',
+      effect: { tireWear: 10 },
+      flavorText: 'Rain.',
     };
     const updated = updateEventTracking(state, event);
-    expect(updated.vscUsed).toBe(true);
+    expect(updated.scUsed).toBe(false);
+    expect(updated.lastEventType).toBe('rain');
   });
 });

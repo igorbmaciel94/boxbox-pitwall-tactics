@@ -7,14 +7,6 @@ import type { PlayerAgent, ScoringConfig } from '../src/types.js';
 const catalog = loadCatalog();
 
 const deterministicAgent: PlayerAgent = {
-  chooseQuickDecisionCard: (state) => {
-    // Pick the first quick-decision eligible card in hand
-    for (const cardId of state.hand) {
-      const card = catalog.cards.find((c) => c.id === cardId);
-      if (card?.quickDecisionEligible) return cardId;
-    }
-    return null;
-  },
   chooseTeamPerk: () => true,
   chooseActionCard: (state) => state.hand[0],
 };
@@ -55,10 +47,8 @@ describe('runRace', () => {
     const debrief1 = runRace(scenario, team, catalog, deterministicAgent, 111, config);
     const debrief2 = runRace(scenario, team, catalog, deterministicAgent, 999, config);
 
-    // Very unlikely to produce identical event sequences
     const events1 = debrief1.turnLog.map((t) => t.event.type);
     const events2 = debrief2.turnLog.map((t) => t.event.type);
-    // At least some events should differ (with high probability)
     expect(events1.join(',') === events2.join(',')).toBe(false);
   });
 
@@ -76,13 +66,12 @@ describe('runRace', () => {
     }
   });
 
-  it('records cards played', () => {
+  it('records cards played (1 per turn)', () => {
     const scenario = catalog.scenarios[0];
     const team = catalog.teams[0];
     const debrief = runRace(scenario, team, catalog, deterministicAgent, 42, config);
 
-    // At least 6 cards played (1 action card per turn), possibly more with quick decisions
-    expect(debrief.cardsPlayed.length).toBeGreaterThanOrEqual(6);
+    expect(debrief.cardsPlayed.length).toBe(6);
   });
 
   it('final position is within valid range', () => {
@@ -116,29 +105,21 @@ describe('runRace', () => {
     }
   });
 
-  it('respects SC/VSC envelope constraints across a race', () => {
+  it('respects SC envelope constraint (max 1 per race)', () => {
     const scenario = catalog.scenarios[0];
     const team = catalog.teams[0];
 
     for (let seed = 0; seed < 50; seed++) {
       const debrief = runRace(scenario, team, catalog, deterministicAgent, seed, config);
       const scCount = debrief.eventHistory.filter((e) => e.type === 'safety-car').length;
-      const vscCount = debrief.eventHistory.filter((e) => e.type === 'vsc').length;
-
       expect(scCount).toBeLessThanOrEqual(1);
-      expect(vscCount).toBeLessThanOrEqual(1);
 
-      // No consecutive SC/VSC
+      // No consecutive safety cars
       for (let i = 1; i < debrief.eventHistory.length; i++) {
         const prev = debrief.eventHistory[i - 1].type;
         const curr = debrief.eventHistory[i].type;
         if (prev === 'safety-car') expect(curr).not.toBe('safety-car');
-        if (prev === 'vsc') expect(curr).not.toBe('vsc');
       }
-
-      // Max 2 rain events per race
-      const rainCount = debrief.eventHistory.filter((e) => e.type === 'rain').length;
-      expect(rainCount).toBeLessThanOrEqual(2);
     }
   });
 });
@@ -152,15 +133,12 @@ describe('initializeRaceState', () => {
 
     expect(state.position).toBe(scenario.params.startingPosition);
     expect(state.tireWear).toBe(scenario.params.baseTireWear);
-    expect(state.fuel).toBe(scenario.params.baseFuel);
-    expect(state.rainMeter).toBe(0);
     expect(state.currentTurn).toBe(0);
     expect(state.totalTurns).toBe(6);
-    expect(state.deck).toHaveLength(18);
+    expect(state.deck).toHaveLength(12);
     expect(state.hand).toHaveLength(0);
     expect(state.perkUsed).toBe(false);
     expect(state.scUsed).toBe(false);
-    expect(state.vscUsed).toBe(false);
   });
 
   it('shuffles deck deterministically', () => {
@@ -187,18 +165,6 @@ describe('runTurn', () => {
     expect(updated.currentTurn).toBe(1);
   });
 
-  it('refills hand to 3', () => {
-    const scenario = catalog.scenarios[0];
-    const team = catalog.teams[0];
-    const rng = createRng(42);
-    let state = initializeRaceState(scenario, team, catalog, 42, rng);
-
-    const { state: updated } = runTurn(state, scenario, team, catalog, deterministicAgent, rng);
-    // Hand should have some cards (at least started with 3, minus cards played)
-    // After playing cards, hand may be smaller but the turn started with 3
-    expect(updated.turnPhase).toBe('end');
-  });
-
   it('produces a turn summary with event info', () => {
     const scenario = catalog.scenarios[0];
     const team = catalog.teams[0];
@@ -209,5 +175,15 @@ describe('runTurn', () => {
     expect(summary.turn).toBe(1);
     expect(summary.event.type).toBeTruthy();
     expect(summary.actionCard).toBeTruthy();
+  });
+
+  it('ends in end phase', () => {
+    const scenario = catalog.scenarios[0];
+    const team = catalog.teams[0];
+    const rng = createRng(42);
+    const state = initializeRaceState(scenario, team, catalog, 42, rng);
+
+    const { state: updated } = runTurn(state, scenario, team, catalog, deterministicAgent, rng);
+    expect(updated.turnPhase).toBe('end');
   });
 });

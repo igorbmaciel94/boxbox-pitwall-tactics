@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "scenarios": [
     {
       "id": "monaco",
@@ -9,18 +9,13 @@
       "params": {
         "startingPosition": 10,
         "baseTireWear": 5,
-        "baseFuel": 8,
-        "rainChance": 0.15,
         "eventWeights": {
-          "safety-car": 10,
-          "vsc": 8,
-          "rain": 5,
+          "safety-car": 15,
+          "rain": 10,
           "rival-pits": 20,
-          "track-limits": 15,
-          "traffic": 20,
-          "clear-air": 10,
-          "drs-train": 0,
-          "mechanical-issue": 12
+          "traffic": 25,
+          "clear-air": 15,
+          "mechanical-issue": 15
         }
       },
       "objectives": [
@@ -50,18 +45,13 @@
       "params": {
         "startingPosition": 8,
         "baseTireWear": 8,
-        "baseFuel": 10,
-        "rainChance": 0.40,
         "eventWeights": {
-          "safety-car": 8,
-          "vsc": 5,
-          "rain": 15,
+          "safety-car": 10,
+          "rain": 20,
           "rival-pits": 15,
-          "track-limits": 5,
-          "traffic": 10,
-          "clear-air": 18,
-          "drs-train": 15,
-          "mechanical-issue": 9
+          "traffic": 15,
+          "clear-air": 25,
+          "mechanical-issue": 15
         }
       },
       "objectives": [
@@ -91,18 +81,13 @@
       "params": {
         "startingPosition": 12,
         "baseTireWear": 6,
-        "baseFuel": 12,
-        "rainChance": 0.10,
         "eventWeights": {
           "safety-car": 5,
-          "vsc": 5,
-          "rain": 3,
-          "rival-pits": 18,
-          "track-limits": 8,
+          "rain": 5,
+          "rival-pits": 20,
           "traffic": 15,
-          "clear-air": 20,
-          "drs-train": 20,
-          "mechanical-issue": 6
+          "clear-air": 35,
+          "mechanical-issue": 20
         }
       },
       "objectives": [
@@ -132,18 +117,13 @@
       "params": {
         "startingPosition": 9,
         "baseTireWear": 10,
-        "baseFuel": 9,
-        "rainChance": 0.25,
         "eventWeights": {
-          "safety-car": 8,
-          "vsc": 8,
-          "rain": 10,
-          "rival-pits": 18,
-          "track-limits": 12,
-          "traffic": 10,
-          "clear-air": 18,
-          "drs-train": 10,
-          "mechanical-issue": 6
+          "safety-car": 10,
+          "rain": 15,
+          "rival-pits": 20,
+          "traffic": 15,
+          "clear-air": 25,
+          "mechanical-issue": 15
         }
       },
       "objectives": [
@@ -157,11 +137,11 @@
         },
         {
           "id": "silverstone-bonus",
-          "description": "Finish with fuel above 20",
+          "description": "Never exceed 80 tire wear",
           "type": "bonus",
-          "evaluate": "fuel-above",
-          "params": { "threshold": 20 },
-          "points": 3
+          "evaluate": "max-tire-wear-below",
+          "params": { "threshold": 80 },
+          "points": 4
         }
       ]
     },
@@ -173,18 +153,13 @@
       "params": {
         "startingPosition": 11,
         "baseTireWear": 12,
-        "baseFuel": 8,
-        "rainChance": 0.20,
         "eventWeights": {
-          "safety-car": 8,
-          "vsc": 5,
-          "rain": 8,
-          "rival-pits": 18,
-          "track-limits": 15,
-          "traffic": 15,
-          "clear-air": 15,
-          "drs-train": 10,
-          "mechanical-issue": 6
+          "safety-car": 10,
+          "rain": 10,
+          "rival-pits": 20,
+          "traffic": 20,
+          "clear-air": 20,
+          "mechanical-issue": 20
         }
       },
       "objectives": [
@@ -214,18 +189,13 @@
       "params": {
         "startingPosition": 10,
         "baseTireWear": 8,
-        "baseFuel": 10,
-        "rainChance": 0.35,
         "eventWeights": {
-          "safety-car": 10,
-          "vsc": 8,
-          "rain": 12,
+          "safety-car": 15,
+          "rain": 20,
           "rival-pits": 15,
-          "track-limits": 8,
-          "traffic": 10,
-          "clear-air": 12,
-          "drs-train": 15,
-          "mechanical-issue": 10
+          "traffic": 15,
+          "clear-air": 20,
+          "mechanical-issue": 15
         }
       },
       "objectives": [
@@ -239,10 +209,10 @@
         },
         {
           "id": "interlagos-bonus",
-          "description": "Play at least 1 weather card",
+          "description": "Play at least 2 pit strategy cards",
           "type": "bonus",
           "evaluate": "min-cards-with-tag",
-          "params": { "tag": "weather", "count": 1 },
+          "params": { "tag": "pit", "count": 2 },
           "points": 3
         }
       ]

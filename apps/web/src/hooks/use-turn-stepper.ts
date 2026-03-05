@@ -4,12 +4,9 @@ import {
   refillHandWithRng,
   selectEvent,
   updateEventTracking,
-  applyPreEffects,
-  applyPostEffects,
-  checkRainSpike,
-  consumeQuickDecisionCard,
+  applyEventEffect,
   applyCardEffect,
-  applyEndOfTurnPerk,
+  applyEndOfTurnPenalties,
   clampRaceState,
   applyEffect,
   calculateRaceScore,
@@ -26,7 +23,6 @@ export function useTurnStepper() {
   const rngRef = useRef<SeededRng | null>(null);
   const turnLogRef = useRef<TurnSummary[]>([]);
   const currentEventRef = useRef<ReturnType<typeof selectEvent> | null>(null);
-  const quickDecisionCardRef = useRef<CardId | null>(null);
   const perkActivatedRef = useRef(false);
   const actionCardRef = useRef<CardId>('');
 
@@ -35,7 +31,6 @@ export function useTurnStepper() {
   const startNextTurn = useCallback(() => {
     const { raceState: state, catalog, scenario, seed } = store.getState();
 
-    // Lazy-init RNG on first turn (picks up the seed from the store's startRace)
     if (!rngRef.current && seed) {
       rngRef.current = createRng(seed);
       turnLogRef.current = [];
@@ -43,7 +38,6 @@ export function useTurnStepper() {
     const rng = rngRef.current;
     if (!state || !rng || !catalog || !scenario) return;
 
-    // Save previous position for gap display
     store.getState().setPreviousPosition(state.position);
 
     // Increment turn
@@ -57,7 +51,6 @@ export function useTurnStepper() {
     store.getState().setTurnPhaseUI('refill-hand');
 
     // Reset refs
-    quickDecisionCardRef.current = null;
     perkActivatedRef.current = false;
     actionCardRef.current = '';
   }, []);
@@ -67,10 +60,11 @@ export function useTurnStepper() {
     const rng = rngRef.current;
     if (!state || !rng || !catalog || !scenario) return;
 
-    // Phase 2: Reveal event
+    // Phase 2: Reveal event & apply its effect
     const eventRng = rng.fork(state.currentTurn * 100 + 2);
     const event = selectEvent(state, scenario, eventRng, catalog);
     let s = updateEventTracking(state, event);
+    s = applyEventEffect(s, event);
     s = { ...s, turnPhase: 'reveal-event' };
     currentEventRef.current = event;
 
@@ -79,64 +73,12 @@ export function useTurnStepper() {
     store.getState().setTurnPhaseUI('reveal-event');
   }, []);
 
-  const advanceToPreEffects = useCallback(() => {
-    const { raceState: state } = store.getState();
-    const event = currentEventRef.current;
-    if (!state || !event) return;
-
-    // Phase 3: Pre-effects
-    let s = applyPreEffects(state, event);
-    s = { ...s, turnPhase: 'pre-effects' };
-    store.getState().setRaceState(s);
-    store.getState().setTurnPhaseUI('pre-effects');
-  }, []);
-
-  const advanceToQuickDecisionOrPerk = useCallback(() => {
-    const { raceState: state, catalog } = store.getState();
-    const event = currentEventRef.current;
-    if (!state || !event || !catalog) return;
-
-    // Phase 4: Check if quick decision needed
-    const needsQD = event.requiresQuickDecision || checkRainSpike(state);
-    const hasEligible = needsQD && state.hand.some((id) => {
-      const card = catalog.cards.find((c) => c.id === id);
-      return card?.quickDecisionEligible;
-    });
-
-    if (hasEligible) {
-      store.getState().setNeedsQuickDecision(true);
-      store.getState().setTurnPhaseUI('await-quick-decision');
-    } else {
-      store.getState().setNeedsQuickDecision(false);
-      advanceToPerkOrAction();
-    }
-  }, []);
-
-  const submitQuickDecision = useCallback((cardId: CardId | null) => {
-    const { raceState: state, catalog } = store.getState();
-    if (!state || !catalog) return;
-
-    let s: RaceState = { ...state, quickDecisionMade: false, turnPhase: 'quick-decision' };
-
-    if (cardId !== null) {
-      const card = catalog.cards.find((c) => c.id === cardId);
-      if (card && card.quickDecisionEligible && s.hand.includes(cardId)) {
-        s = consumeQuickDecisionCard(s, cardId, catalog);
-        quickDecisionCardRef.current = cardId;
-      }
-    }
-
-    store.getState().setRaceState(s);
-    store.getState().setNeedsQuickDecision(false);
-    advanceToPerkOrAction();
-  }, []);
-
   const advanceToPerkOrAction = useCallback(() => {
     const { raceState: state, team } = store.getState();
     if (!state || !team) return;
 
-    // Phase 5: Team perk (standard timing only)
-    if (!state.perkUsed && team.perk.timing === 'standard') {
+    // Phase 3: Team perk (if available)
+    if (!state.perkUsed) {
       store.getState().setTurnPhaseUI('await-perk');
     } else {
       store.getState().setTurnPhaseUI('await-action-card');
@@ -147,9 +89,9 @@ export function useTurnStepper() {
     const { raceState: state, team } = store.getState();
     if (!state || !team) return;
 
-    let s: RaceState = { ...state, turnPhase: 'team-perk' };
+    let s: RaceState = { ...state, turnPhase: 'await-perk' };
 
-    if (usePerk && !state.perkUsed && team.perk.timing === 'standard') {
+    if (usePerk && !state.perkUsed) {
       s = applyEffect(s, team.perk.effect);
       s = { ...s, perkUsed: true };
       perkActivatedRef.current = true;
@@ -164,7 +106,7 @@ export function useTurnStepper() {
     const event = currentEventRef.current;
     if (!state || !catalog || !team || !scenario || !event) return;
 
-    // Phase 6: Play action card
+    // Phase 4: Play action card
     let s: RaceState = { ...state, turnPhase: 'play-card' };
     let usedCard = cardId;
 
@@ -180,26 +122,12 @@ export function useTurnStepper() {
     store.getState().setTurnPhaseUI('resolving');
   }, []);
 
-  const advanceToPostEffects = useCallback(() => {
-    const { raceState: state } = store.getState();
-    const event = currentEventRef.current;
-    if (!state || !event) return;
-
-    // Phase 7: Post effects
-    let s = applyPostEffects(state, event);
-    s = { ...s, turnPhase: 'post-effects' };
-    store.getState().setRaceState(s);
-    store.getState().setTurnPhaseUI('post-effects');
-  }, []);
-
-  const advanceToClampAndHooks = useCallback(() => {
+  const advanceToResult = useCallback(() => {
     const { raceState: state, team, scenario, catalog } = store.getState();
     if (!state || !team || !scenario || !catalog) return;
 
-    // Phase 8: Clamp + end-of-turn hooks
-    const perkBefore = state.perkUsed;
-    let s = applyEndOfTurnPerk(state, team);
-    const perkEOT = !perkBefore && s.perkUsed;
+    // Phase 5: Apply penalties & clamp
+    let s = applyEndOfTurnPenalties(state);
     s = clampRaceState(s);
     s = { ...s, turnPhase: 'end' };
 
@@ -207,14 +135,11 @@ export function useTurnStepper() {
     const summary: TurnSummary = {
       turn: s.currentTurn,
       event: currentEventRef.current!,
-      quickDecisionCard: quickDecisionCardRef.current,
       actionCard: actionCardRef.current,
-      perkActivated: perkActivatedRef.current || perkEOT,
+      perkActivated: perkActivatedRef.current,
       stateSnapshot: {
         position: s.position,
         tireWear: s.tireWear,
-        fuel: s.fuel,
-        rainMeter: s.rainMeter,
       },
     };
     turnLogRef.current.push(summary);
@@ -237,12 +162,9 @@ export function useTurnStepper() {
   return {
     startNextTurn,
     advanceToRevealEvent,
-    advanceToPreEffects,
-    advanceToQuickDecisionOrPerk,
-    submitQuickDecision,
+    advanceToPerkOrAction,
     submitPerkChoice,
     submitActionCard,
-    advanceToPostEffects,
-    advanceToClampAndHooks,
+    advanceToResult,
   };
 }

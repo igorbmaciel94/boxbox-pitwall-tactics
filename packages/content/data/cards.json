@@ -1,149 +1,89 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "cards": [
     {
       "id": "push-hard",
       "name": "Push Hard",
-      "rulesText": "Gain 2 positions but increase tire wear by 15.",
+      "rulesText": "Push the car to its limits: gain 2 positions, +15 tire wear.",
       "effect": { "position": -2, "tireWear": 15 },
-      "tags": ["aggressive"],
-      "quickDecisionEligible": false
+      "tags": ["aggressive"]
     },
     {
       "id": "box-box",
       "name": "Box Box",
-      "rulesText": "Pit stop: reset tire wear to 10, lose 3 positions.",
-      "effect": { "position": 3, "tireWear": -80 },
-      "tags": ["pit"],
-      "quickDecisionEligible": true
+      "rulesText": "Pit stop! Fresh tires but lose track position: +4 pos loss, -80 tire wear.",
+      "effect": { "position": 4, "tireWear": -80 },
+      "tags": ["pit"]
     },
     {
       "id": "conserve-tires",
       "name": "Conserve Tires",
-      "rulesText": "Reduce tire wear by 10 but lose 1 position.",
-      "effect": { "position": 1, "tireWear": -10 },
-      "tags": ["defensive"],
-      "quickDecisionEligible": false
-    },
-    {
-      "id": "fuel-save",
-      "name": "Fuel Save",
-      "rulesText": "Save fuel by 15, lose 1 position from slower pace.",
-      "effect": { "position": 1, "fuel": -15 },
-      "tags": ["defensive"],
-      "quickDecisionEligible": false
+      "rulesText": "Manage the rubber: lose 1 position, -15 tire wear.",
+      "effect": { "position": 1, "tireWear": -15 },
+      "tags": ["defensive"]
     },
     {
       "id": "overtake",
       "name": "Overtake",
-      "rulesText": "Aggressive move: gain 3 positions, +20 tire wear, +10 fuel.",
-      "effect": { "position": -3, "tireWear": 20, "fuel": 10 },
-      "tags": ["aggressive"],
-      "quickDecisionEligible": false
+      "rulesText": "Send it down the inside! Gain 3 positions, +25 tire wear.",
+      "effect": { "position": -3, "tireWear": 25 },
+      "tags": ["aggressive"]
     },
     {
       "id": "defend-position",
       "name": "Defend Position",
-      "rulesText": "Hold position. +5 tire wear from defensive driving.",
-      "effect": { "tireWear": 5 },
-      "tags": ["defensive"],
-      "quickDecisionEligible": false
-    },
-    {
-      "id": "wet-setup",
-      "name": "Wet Setup",
-      "rulesText": "Reduce rain impact: -3 rain meter, +5 tire wear.",
-      "effect": { "rainMeter": -3, "tireWear": 5 },
-      "tags": ["weather"],
-      "quickDecisionEligible": true
-    },
-    {
-      "id": "dry-setup",
-      "name": "Dry Setup",
-      "rulesText": "Optimize for dry: gain 1 position, -5 tire wear. +2 rain meter risk.",
-      "effect": { "position": -1, "tireWear": -5, "rainMeter": 2 },
-      "tags": ["weather"],
-      "quickDecisionEligible": false
-    },
-    {
-      "id": "undercut",
-      "name": "Undercut",
-      "rulesText": "Early pit strategy: gain 2 positions, -60 tire wear, +5 fuel.",
-      "effect": { "position": -2, "tireWear": -60, "fuel": 5 },
-      "tags": ["pit", "aggressive"],
-      "quickDecisionEligible": true
-    },
-    {
-      "id": "overcut",
-      "name": "Overcut",
-      "rulesText": "Stay out longer: gain 1 position, +10 tire wear, -5 fuel.",
-      "effect": { "position": -1, "tireWear": 10, "fuel": -5 },
-      "tags": ["pit", "defensive"],
-      "quickDecisionEligible": true
+      "rulesText": "Hold the racing line: keep position, +5 tire wear from defensive driving.",
+      "effect": { "position": 0, "tireWear": 5 },
+      "tags": ["defensive"]
     },
     {
       "id": "drs-attack",
       "name": "DRS Attack",
-      "rulesText": "Use DRS to gain 2 positions, +10 tire wear.",
+      "rulesText": "DRS open! Gain 2 positions, +10 tire wear.",
       "effect": { "position": -2, "tireWear": 10 },
-      "tags": ["aggressive"],
-      "quickDecisionEligible": false
+      "tags": ["aggressive"]
     },
     {
       "id": "slipstream",
       "name": "Slipstream",
-      "rulesText": "Draft behind rival: gain 1 position, -5 fuel.",
-      "effect": { "position": -1, "fuel": -5 },
-      "tags": ["aggressive"],
-      "quickDecisionEligible": false
-    },
-    {
-      "id": "engine-mode",
-      "name": "Engine Mode",
-      "rulesText": "High power mode: gain 2 positions, +15 fuel consumption.",
-      "effect": { "position": -2, "fuel": 15 },
-      "tags": ["aggressive"],
-      "quickDecisionEligible": false
-    },
-    {
-      "id": "battery-deploy",
-      "name": "Battery Deploy",
-      "rulesText": "ERS boost: gain 1 position, +5 fuel.",
-      "effect": { "position": -1, "fuel": 5 },
-      "tags": ["aggressive"],
-      "quickDecisionEligible": false
-    },
-    {
-      "id": "track-position",
-      "name": "Track Position",
-      "rulesText": "Maintain clean air: -10 tire wear, -5 fuel.",
-      "effect": { "tireWear": -10, "fuel": -5 },
-      "tags": ["defensive"],
-      "quickDecisionEligible": false
-    },
-    {
-      "id": "gap-management",
-      "name": "Gap Management",
-      "rulesText": "Manage the gap: -5 tire wear. No position change.",
-      "effect": { "tireWear": -5 },
-      "tags": ["defensive"],
-      "quickDecisionEligible": false
+      "rulesText": "Tow from the car ahead: gain 1 position, no tire cost.",
+      "effect": { "position": -1, "tireWear": 0 },
+      "tags": ["aggressive"]
     },
     {
       "id": "late-brake",
       "name": "Late Brake",
-      "rulesText": "Risky late braking: gain 2 positions, +15 tire wear.",
-      "effect": { "position": -2, "tireWear": 15 },
-      "tags": ["aggressive"],
-      "quickDecisionEligible": false
+      "rulesText": "Brake late into the corner! Gain 3 positions, +20 tire wear.",
+      "effect": { "position": -3, "tireWear": 20 },
+      "tags": ["aggressive"]
+    },
+    {
+      "id": "gap-management",
+      "name": "Gap Management",
+      "rulesText": "Control the pace: hold position, -10 tire wear.",
+      "effect": { "position": 0, "tireWear": -10 },
+      "tags": ["defensive"]
+    },
+    {
+      "id": "undercut",
+      "name": "Undercut",
+      "rulesText": "Early pit strategy: gain 1 position, -40 tire wear.",
+      "effect": { "position": -1, "tireWear": -40 },
+      "tags": ["pit", "aggressive"]
+    },
+    {
+      "id": "engine-mode",
+      "name": "Engine Mode",
+      "rulesText": "Turn up the engine: gain 1 position, +10 tire wear.",
+      "effect": { "position": -1, "tireWear": 10 },
+      "tags": ["aggressive"]
     },
     {
       "id": "alternate-strategy",
       "name": "Alternate Strategy",
-      "rulesText": "Switch strategy: -20 tire wear, -10 fuel, lose 1 position.",
-      "effect": { "position": 1, "tireWear": -20, "fuel": -10 },
-      "tags": ["pit", "defensive"],
-      "quickDecisionEligible": true
+      "rulesText": "Opposite strategy to rivals: lose 2 positions, -30 tire wear.",
+      "effect": { "position": 2, "tireWear": -30 },
+      "tags": ["pit", "defensive"]
     }
   ]
 }

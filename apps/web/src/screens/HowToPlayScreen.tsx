@@ -49,9 +49,7 @@ export function HowToPlayScreen() {
 
       <Section title={t('howToPlay.sections.raceFlowTitle')}>
         <div className="space-y-2 rounded-xl bg-white/[0.04] p-3">
-          <Term label={t('howToPlay.sections.drawLabel')}>{t('howToPlay.sections.drawText')}</Term>
           <Term label={t('howToPlay.sections.eventLabel')}>{t('howToPlay.sections.eventText')}</Term>
-          <Term label={t('howToPlay.sections.qdLabel')}>{t('howToPlay.sections.qdText')}</Term>
           <Term label={t('howToPlay.sections.perkLabel')}>{t('howToPlay.sections.perkText')}</Term>
           <Term label={t('howToPlay.sections.playLabel')}>{t('howToPlay.sections.playText')}</Term>
           <Term label={t('howToPlay.sections.resultLabel')}>{t('howToPlay.sections.resultText')}</Term>
@@ -73,23 +71,19 @@ export function HowToPlayScreen() {
             <span className="ml-2 text-sm text-metal-light">{t('howToPlay.sections.tactics')}</span>
           </div>
         </div>
-        <p className="mt-2">{t('howToPlay.sections.qdHint')}</p>
       </Section>
 
       <Section title={t('howToPlay.sections.hudTitle')}>
         <div className="space-y-2 rounded-xl bg-white/[0.04] p-3">
           <Term label={t('stats.pos')}>{t('howToPlay.sections.pos')}</Term>
           <Term label={t('stats.wear')}>{t('howToPlay.sections.wear')}</Term>
-          <Term label={t('stats.ers')}>{t('howToPlay.sections.ers')}</Term>
-          <Term label={t('stats.rain')}>{t('howToPlay.sections.rain')}</Term>
         </div>
       </Section>
 
       <Section title={t('howToPlay.sections.eventsTitle')}>
         <div className="space-y-2 rounded-xl bg-white/[0.04] p-3">
           <Term label="SC">{t('howToPlay.sections.sc')}</Term>
-          <Term label="VSC">{t('howToPlay.sections.vsc')}</Term>
-          <Term label={t('stats.rain')}>{t('howToPlay.sections.rainEvent')}</Term>
+          <Term label="RAIN">{t('howToPlay.sections.rainEvent')}</Term>
           <Term label="ETC">{t('howToPlay.sections.others')}</Term>
         </div>
       </Section>

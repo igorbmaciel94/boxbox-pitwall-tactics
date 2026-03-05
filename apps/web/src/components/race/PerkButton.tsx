@@ -12,7 +12,7 @@ interface PerkButtonProps {
 
 export function PerkButton({ team, used, visible, onActivate, onSkip }: PerkButtonProps) {
   const { t, getPerkName, getPerkDescription } = useI18n();
-  if (!visible || used || team.perk.timing !== 'standard') return null;
+  if (!visible || used) return null;
 
   return (
     <div className="rounded-2xl bg-white/[0.04] p-4">

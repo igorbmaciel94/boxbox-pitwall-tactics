@@ -9,12 +9,6 @@ export function validateRaceState(state: RaceState): string[] {
   if (state.tireWear < 0 || state.tireWear > 100) {
     errors.push(`Tire wear ${state.tireWear} out of range [0, 100]`);
   }
-  if (state.fuel < 0 || state.fuel > 100) {
-    errors.push(`Fuel ${state.fuel} out of range [0, 100]`);
-  }
-  if (state.rainMeter < 0 || state.rainMeter > 10) {
-    errors.push(`Rain meter ${state.rainMeter} out of range [0, 10]`);
-  }
   if (state.hand.length > 3) {
     errors.push(`Hand size ${state.hand.length} exceeds max of 3`);
   }
