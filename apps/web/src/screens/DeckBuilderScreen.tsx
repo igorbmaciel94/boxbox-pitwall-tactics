@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { CardComponent } from '../components/race/CardComponent';
 import { Button } from '../components/shared/Button';
@@ -8,6 +9,7 @@ import type { CardId } from '@boxbox/engine';
 import { useI18n } from '../i18n';
 
 export function DeckBuilderScreen() {
+  const navigate = useNavigate();
   const { t, getFilterLabel, getCardName } = useI18n();
   const catalog = useGameStore((s) => s.catalog);
   const currentDeck = useGameStore((s) => s.currentDeck);
@@ -42,6 +44,12 @@ export function DeckBuilderScreen() {
 
   return (
     <div className="flex flex-col px-5 pt-6">
+      <button
+        onClick={() => navigate('/')}
+        className="mb-4 text-left text-xs uppercase tracking-wider text-metal-light transition-colors hover:text-white"
+      >
+        &larr; {t('common.back')}
+      </button>
       <div className="flex items-center justify-between mb-1">
         <h1 className="font-display text-2xl font-bold uppercase tracking-wide">{t('deck.title')}</h1>
         <span className={`font-mono text-sm ${isValid ? 'text-hud-green' : 'text-hud-amber'}`}>

@@ -152,6 +152,12 @@ export function RaceScreen() {
 
     return (
       <div className="flex flex-col px-5 pt-6">
+        <button
+          onClick={() => navigate('/')}
+          className="mb-4 text-left text-xs uppercase tracking-wider text-metal-light transition-colors hover:text-white"
+        >
+          &larr; {t('common.back')}
+        </button>
         <h1 className="mb-1 font-display text-2xl font-bold uppercase tracking-wide">{t('race.selectCircuit')}</h1>
         <p className="mb-5 text-sm text-metal-light">{t('race.chooseCircuit')}</p>
         <div className="flex flex-col gap-3">
@@ -176,6 +182,19 @@ export function RaceScreen() {
     const pendingScenario = catalog.scenarios.find((s) => s.id === pendingScenarioId);
     return (
       <div className="flex flex-col px-5 pt-6">
+        <button
+          onClick={() => {
+            setPendingScenarioId(null);
+            if (mode !== 'season') {
+              setScenarioSelectMode(true);
+            } else {
+              navigate('/');
+            }
+          }}
+          className="mb-4 text-left text-xs uppercase tracking-wider text-metal-light transition-colors hover:text-white"
+        >
+          &larr; {t('common.back')}
+        </button>
         {pendingScenario && (
           <div className="mb-4">
             <h1 className="mb-1 font-display text-xl font-bold uppercase tracking-wide">
@@ -214,29 +233,9 @@ export function RaceScreen() {
         <div className="pointer-events-none fixed inset-0 z-30 bg-hud-cyan/5 animate-rain-flash" />
       )}
 
-      <div className="relative">
-        <ScenarioStrip scenario={scenario} turn={raceState.currentTurn} />
-        <button
-          onClick={() => setMuted(audio.toggleMute())}
-          className="absolute right-3 top-3 z-10 rounded-full bg-white/10 p-2 text-white/60 transition-colors hover:bg-white/15 hover:text-white"
-          title={muted ? t('race.unmute') : t('race.mute')}
-        >
-          {muted ? (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <line x1="23" y1="9" x2="17" y2="15" />
-              <line x1="17" y1="9" x2="23" y2="15" />
-            </svg>
-          ) : (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
-            </svg>
-          )}
-        </button>
-      </div>
+      <ScenarioStrip scenario={scenario} turn={raceState.currentTurn} />
 
-      <div className="px-5 py-2">
+      <div className="relative px-5 py-1">
         <TrackMap
           position={raceState.position}
           currentEvent={currentEvent}
@@ -244,9 +243,44 @@ export function RaceScreen() {
           circuitId={scenario.id}
           tireCompound={raceState.tireCompound}
         />
+        {/* Quit race button */}
+        <button
+          onClick={() => {
+            if (window.confirm(t('race.abandonConfirm'))) {
+              useGameStore.getState().resetRace();
+              navigate('/');
+            }
+          }}
+          className="absolute bottom-2 left-6 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white/40 transition-colors hover:bg-white/15 hover:text-hud-red"
+          title={t('race.abandon')}
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+        {/* Mute button */}
+        <button
+          onClick={() => setMuted(audio.toggleMute())}
+          className="absolute bottom-2 right-6 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white/40 transition-colors hover:bg-white/15 hover:text-white"
+          title={muted ? t('race.unmute') : t('race.mute')}
+        >
+          {muted ? (
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <line x1="23" y1="9" x2="17" y2="15" />
+              <line x1="17" y1="9" x2="23" y2="15" />
+            </svg>
+          ) : (
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+            </svg>
+          )}
+        </button>
       </div>
 
-      <div className="flex flex-col gap-3.5 px-5 py-4 pb-6">
+      <div className="flex flex-col gap-2.5 px-5 py-3 pb-6">
         <HUD state={raceState} previousPosition={previousPosition} />
 
         {currentEvent && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (

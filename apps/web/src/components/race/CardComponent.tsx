@@ -38,16 +38,16 @@ export function CardComponent({ card, selected = false, disabled = false, compac
   const fallbackGradient = getCardFallbackGradient(card.tags);
 
   const isSmall = size === 'sm';
-  const showArt = !compact && !isSmall;
-  const artHeight = 'h-28';
+  const showArt = !compact;
+  const artHeight = isSmall ? 'h-16' : 'h-28';
   const infoPadding = isSmall ? 'p-2' : 'p-3';
   const nameSize = isSmall ? 'text-xs' : 'text-sm';
   const rulesSize = isSmall ? 'mb-1 text-[11px] leading-snug' : 'mb-2 text-xs leading-relaxed';
   const cardStyle = isSmall ? { aspectRatio: '63 / 88' } : undefined;
   const showRules = !compact && !isSmall;
 
-  // Use fallback gradient as card background for small cards
-  const cardBgStyle = isSmall ? { ...cardStyle, background: fallbackGradient } : cardStyle;
+  // Use fallback gradient as card background only for compact small cards (deck slots)
+  const cardBgStyle = (compact && isSmall) ? { ...cardStyle, background: fallbackGradient } : cardStyle;
 
   return (
     <button

@@ -29,12 +29,12 @@ export function HUD({ state, previousPosition }: HUDProps) {
   const needsPit = !state.hasPitted && state.currentTurn >= state.totalTurns - 2 && state.currentTurn > 0;
 
   return (
-    <div className="animate-panel-pop space-y-2.5 rounded-2xl bg-white/[0.04] p-4">
+    <div className="animate-panel-pop space-y-1.5 rounded-2xl bg-white/[0.04] p-3">
       {/* Position row */}
       <div className="flex items-center justify-between">
         <div className="flex items-baseline gap-2">
           <span className="text-xs uppercase tracking-wider text-metal-light">{t('stats.pos')}</span>
-          <span className={`font-display text-3xl font-black ${getPositionColor(state.position)}`}>
+          <span className={`font-display text-2xl font-black ${getPositionColor(state.position)}`}>
             P{state.position}
           </span>
           {gapStr && (
