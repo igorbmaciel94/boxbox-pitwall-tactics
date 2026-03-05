@@ -62,17 +62,25 @@ export function RaceScreen() {
 
   const hasTeamAndDeck = !!selectedTeamId && currentDeck.length === 9;
 
-  // Generate 18-position grid (6 teams × 3 pilots), excluding player position
+  // Generate 18-position grid with shuffled rival positions each turn
   // Player's team gets 2 rival slots (+ player dot = 3 total), other teams get 3
   // Must be above early returns to satisfy Rules of Hooks
   const rivalDots: RivalDot[] = useMemo(() => {
     if (!catalog || !team || !raceState) return [];
     const allSlots: { color: string }[] = [];
     for (const t of catalog.teams) {
-      const count = t.id === team.id ? 2 : 3; // player occupies 1 slot
+      const count = t.id === team.id ? 2 : 3;
       for (let i = 0; i < count; i++) {
         allSlots.push({ color: t.color });
       }
+    }
+    // Shuffle slots using seed + turn so rivals move around each lap
+    const seed = (raceState.seed ?? 42) + raceState.currentTurn * 7919;
+    let h = seed >>> 0;
+    for (let i = allSlots.length - 1; i > 0; i--) {
+      h = Math.imul(h ^ (h >>> 16), 0x45d9f3b) >>> 0;
+      const j = h % (i + 1);
+      [allSlots[i], allSlots[j]] = [allSlots[j], allSlots[i]];
     }
     // Assign positions 1..18, skip player position
     const dots: RivalDot[] = [];
@@ -85,7 +93,7 @@ export function RaceScreen() {
       }
     }
     return dots;
-  }, [catalog, team, raceState?.position]);
+  }, [catalog, team, raceState?.position, raceState?.currentTurn, raceState?.seed]);
 
   // On mount: scroll to top and reset stale race state if needed
   useEffect(() => {
@@ -388,54 +396,9 @@ export function RaceScreen() {
               />
               {/* Fixed bottom buttons */}
               <div className={`fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-carbon via-carbon/95 to-transparent px-5 pb-4 pt-3 ${selectedHandIndex !== null || canEmergencyMulligan || canSkipTurn || showSkipAlways ? 'animate-slide-up' : 'hidden'}`}>
-                {selectedHandIndex !== null && (() => {
-                  const posChange = selectedCardData?.effect.position ?? 0;
-                  const atP1 = raceState.position === 1 && posChange < 0;
-                  const atPLast = raceState.position >= 18 && posChange > 0;
-                  return (
-                  <>
-                    {/* Position boundary hint */}
-                    {atP1 && (
-                      <div className="mb-2 rounded-lg bg-hud-cyan/10 border border-hud-cyan/30 px-3 py-2 text-center text-xs text-hud-cyan">
-                        {t('race.p1NoOvertake')}
-                      </div>
-                    )}
-                    {atPLast && !atP1 && (
-                      <div className="mb-2 rounded-lg bg-metal-light/10 border border-metal-light/30 px-3 py-2 text-center text-xs text-metal-light">
-                        {t('race.pLastNoLose')}
-                      </div>
-                    )}
-                    {/* SC overtake warning — visible on easy (always) and normal (once) */}
-                    {showScWarning && (
-                      <div className="mb-3 rounded-xl border-2 border-hud-yellow bg-hud-yellow/20 px-4 py-3 text-center animate-fade-in">
-                        <div className="font-display text-sm font-bold uppercase tracking-wide text-hud-yellow">
-                          ⚠ {t('race.scOvertakeWarning')}
-                        </div>
-                      </div>
-                    )}
-                    <Button
-                      variant={isScOvertakeCard ? 'secondary' : 'primary'}
-                      size="md"
-                      className="w-full"
-                      onClick={() => {
-                        const cardId = raceState.hand[selectedHandIndex];
-                        if (cardId) {
-                          if (isScOvertakeCard && !scWarningShown) {
-                            setScWarningShown(true);
-                          }
-                          sendRadio('generic');
-                          stepper.submitActionCard(cardId);
-                          setSelectedHandIndex(null);
-                        }
-                      }}
-                    >
-                      {isScOvertakeCard ? t('race.scPlayAnyway') : t('race.playCard')}
-                    </Button>
-                  </>
-                  );
-                })()}
-                {selectedHandIndex === null && (canEmergencyMulligan || canSkipTurn || showSkipAlways) && (
-                  <div className="flex gap-2">
+                {/* Skip / Emergency mulligan — always visible when available */}
+                {(canEmergencyMulligan || canSkipTurn || showSkipAlways) && (
+                  <div className="flex gap-2 mb-2">
                     {canEmergencyMulligan && (
                       <Button
                         variant="secondary"
@@ -464,6 +427,52 @@ export function RaceScreen() {
                     )}
                   </div>
                 )}
+                {selectedHandIndex !== null && (() => {
+                  const posChange = selectedCardData?.effect.position ?? 0;
+                  const atP1 = raceState.position === 1 && posChange < 0;
+                  const atPLast = raceState.position >= 18 && posChange > 0;
+                  return (
+                  <>
+                    {/* Position boundary hint */}
+                    {atP1 && (
+                      <div className="mb-2 rounded-lg bg-hud-cyan/10 border border-hud-cyan/30 px-3 py-2 text-center text-xs text-hud-cyan">
+                        {t('race.p1NoOvertake')}
+                      </div>
+                    )}
+                    {atPLast && !atP1 && (
+                      <div className="mb-2 rounded-lg bg-metal-light/10 border border-metal-light/30 px-3 py-2 text-center text-xs text-metal-light">
+                        {t('race.pLastNoLose')}
+                      </div>
+                    )}
+                    {/* SC overtake warning — visible on easy (always) and normal (once) */}
+                    {showScWarning && (
+                      <div className="mb-3 rounded-xl border-2 border-hud-yellow bg-hud-yellow/20 px-4 py-3 text-center animate-fade-in">
+                        <div className="font-display text-base font-bold uppercase tracking-wide text-hud-yellow">
+                          {t('race.scOvertakeWarning')}
+                        </div>
+                      </div>
+                    )}
+                    <Button
+                      variant={isScOvertakeCard ? 'secondary' : 'primary'}
+                      size="md"
+                      className="w-full"
+                      onClick={() => {
+                        const cardId = raceState.hand[selectedHandIndex];
+                        if (cardId) {
+                          if (isScOvertakeCard && !scWarningShown) {
+                            setScWarningShown(true);
+                          }
+                          sendRadio('generic');
+                          stepper.submitActionCard(cardId);
+                          setSelectedHandIndex(null);
+                        }
+                      }}
+                    >
+                      {isScOvertakeCard ? t('race.scPlayAnyway') : t('race.playCard')}
+                    </Button>
+                  </>
+                  );
+                })()}
               </div>
             </>
           );

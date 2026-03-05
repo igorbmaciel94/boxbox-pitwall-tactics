@@ -19,22 +19,22 @@ export function EventCard({ event, animated = false }: EventCardProps) {
       className={`rounded-xl border px-3 py-2 ${colors} ${animated ? 'animate-card-flip' : 'animate-panel-pop'}`}
     >
       <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/10 text-sm">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-lg">
           {icon}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-display text-[11px] font-bold uppercase tracking-wide text-white leading-tight">
+          <div className="font-display text-sm font-bold uppercase tracking-wide text-white leading-tight">
             {eventName}
           </div>
         </div>
         <div className="flex flex-wrap gap-1 shrink-0">
           {event.effect && (
-            <span className="rounded-full bg-white/8 px-2 py-0.5 text-[10px] text-metal-light">
+            <span className="rounded-full bg-white/12 px-2.5 py-1 text-xs font-bold text-white/80">
               {formatEffect(event.effect, t)}
             </span>
           )}
           {event.type === 'safety-car' && (
-            <span className="rounded-full bg-hud-green/15 px-2 py-0.5 text-[10px] text-hud-green whitespace-nowrap">
+            <span className="rounded-full bg-hud-green/20 px-2.5 py-1 text-xs font-bold text-hud-green whitespace-nowrap">
               {t('race.scFreePit')}
             </span>
           )}

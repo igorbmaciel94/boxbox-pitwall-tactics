@@ -70,6 +70,7 @@ export function useTurnStepper() {
     const event = selectEvent(state, scenario, eventRng, catalog);
     let s = updateEventTracking(state, event);
     s = applyEventEffect(s, event);
+    s = clampRaceState(s);
     s = { ...s, turnPhase: 'reveal-event' };
     currentEventRef.current = event;
 
