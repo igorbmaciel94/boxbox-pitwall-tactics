@@ -243,6 +243,30 @@ export function RaceScreen() {
           circuitId={scenario.id}
           tireCompound={raceState.tireCompound}
         />
+        {/* Mulligan overlay on track map */}
+        {turnPhaseUI === 'await-mulligan' && (
+          <div className="absolute inset-0 z-10 flex items-end justify-center gap-2 bg-gradient-to-t from-carbon via-carbon/80 to-transparent px-8 pb-3 animate-fade-in">
+            <Button
+              variant="secondary"
+              size="md"
+              className="flex-1"
+              onClick={() => {
+                stepper.submitMulligan();
+                stepper.advanceToRevealEvent();
+              }}
+            >
+              {t('race.mulligan')}
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              className="flex-1"
+              onClick={() => stepper.advanceToRevealEvent()}
+            >
+              {t('race.keepHand')}
+            </Button>
+          </div>
+        )}
         {/* Quit race button */}
         <button
           onClick={() => {
@@ -290,35 +314,12 @@ export function RaceScreen() {
         )}
 
         {turnPhaseUI === 'await-mulligan' && (
-          <>
-            <HandDisplay
-              hand={raceState.hand}
-              catalog={catalog}
-              selectedCard={null}
-              onSelect={() => {}}
-            />
-            <div className="flex gap-2 pt-2">
-              <Button
-                variant="secondary"
-                size="md"
-                className="flex-1"
-                onClick={() => {
-                  stepper.submitMulligan();
-                  stepper.advanceToRevealEvent();
-                }}
-              >
-                {t('race.mulligan')}
-              </Button>
-              <Button
-                variant="primary"
-                size="md"
-                className="flex-1"
-                onClick={() => stepper.advanceToRevealEvent()}
-              >
-                {t('race.keepHand')}
-              </Button>
-            </div>
-          </>
+          <HandDisplay
+            hand={raceState.hand}
+            catalog={catalog}
+            selectedCard={null}
+            onSelect={() => {}}
+          />
         )}
 
         <PerkButton

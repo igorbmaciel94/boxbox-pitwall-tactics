@@ -44,7 +44,7 @@ export function CardComponent({ card, selected = false, disabled = false, compac
       <button
         onClick={onClick}
         disabled={disabled}
-        style={{ aspectRatio: '3 / 4' }}
+        style={{ aspectRatio: '3 / 4.2' }}
         className={`group relative w-full overflow-hidden rounded-xl text-left transition-all duration-150
           ${selected ? 'ring-2 ring-f1-red/60 ring-offset-2 ring-offset-carbon' : ''}
           ${disabled ? 'pointer-events-none opacity-40' : 'hover:brightness-110 active:scale-[0.98]'}
