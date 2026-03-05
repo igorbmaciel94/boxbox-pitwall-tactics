@@ -38,13 +38,13 @@ export const MEDAL_COLORS = {
 };
 
 export const EVENT_ICONS: Record<string, string> = {
-  'safety-car': 'SC',
-  rain: '\u{1F327}\u{FE0F}',
-  'rival-pits': 'PIT',
-  'rival-overtake': 'OVT',
-  traffic: 'TFC',
-  'clear-air': 'AIR',
-  'mechanical-issue': 'MECH',
+  'safety-car': '\u{1F6A8}',        // 🚨
+  rain: '\u{1F327}\u{FE0F}',        // 🌧️
+  'rival-pits': '\u{1F527}',        // 🔧
+  'rival-overtake': '\u{1F3CE}\u{FE0F}', // 🏎️
+  traffic: '\u{1F6A7}',             // 🚧
+  'clear-air': '\u{1F4A8}',         // 💨
+  'mechanical-issue': '\u{26A0}\u{FE0F}', // ⚠️
 };
 
 export const EVENT_COLORS: Record<string, string> = {

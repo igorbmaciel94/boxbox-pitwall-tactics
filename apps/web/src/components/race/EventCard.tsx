@@ -19,7 +19,7 @@ export function EventCard({ event, animated = false }: EventCardProps) {
       className={`rounded-xl border px-3 py-2 ${colors} ${animated ? 'animate-card-flip' : 'animate-panel-pop'}`}
     >
       <div className="flex items-center gap-2">
-        <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/10 font-bold tracking-wider text-white/90 ${event.type === 'rain' ? 'text-sm' : 'font-mono text-[9px]'}`}>
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/10 text-sm">
           {icon}
         </div>
         <div className="flex-1 min-w-0">

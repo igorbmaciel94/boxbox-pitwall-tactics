@@ -63,14 +63,16 @@ export function RaceScreen() {
   const hasTeamAndDeck = !!selectedTeamId && currentDeck.length === 9;
 
   // Generate 18-position grid (6 teams × 3 pilots), excluding player position
+  // Player's team gets 2 rival slots (+ player dot = 3 total), other teams get 3
   // Must be above early returns to satisfy Rules of Hooks
   const rivalDots: RivalDot[] = useMemo(() => {
     if (!catalog || !team || !raceState) return [];
-    const teamColors = catalog.teams.map((t) => t.color);
-    // 3 pilots per team = 18 grid slots
     const allSlots: { color: string }[] = [];
-    for (const color of teamColors) {
-      allSlots.push({ color }, { color }, { color });
+    for (const t of catalog.teams) {
+      const count = t.id === team.id ? 2 : 3; // player occupies 1 slot
+      for (let i = 0; i < count; i++) {
+        allSlots.push({ color: t.color });
+      }
     }
     // Assign positions 1..18, skip player position
     const dots: RivalDot[] = [];

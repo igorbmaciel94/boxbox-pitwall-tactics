@@ -294,12 +294,13 @@ export function TrackMap({ position, totalPositions = 20, currentEvent, teamColo
 
 function getEventIcon(type: string): string | null {
   switch (type) {
-    case 'safety-car': return 'SC';
-    case 'rain': return '\u{1F327}'; // 🌧 rain cloud emoji
-    case 'rival-overtake': return 'OVT';
-    case 'traffic': return 'TFC';
-    case 'mechanical-issue': return '\u{26A0}'; // ⚠ warning
-    case 'clear-air': return '\u{2600}'; // ☀ sun
+    case 'safety-car': return '\u{1F6A8}';        // 🚨
+    case 'rain': return '\u{1F327}\u{FE0F}';      // 🌧️
+    case 'rival-pits': return '\u{1F527}';         // 🔧
+    case 'rival-overtake': return '\u{1F3CE}\u{FE0F}'; // 🏎️
+    case 'traffic': return '\u{1F6A7}';            // 🚧
+    case 'clear-air': return '\u{1F4A8}';          // 💨
+    case 'mechanical-issue': return '\u{26A0}\u{FE0F}'; // ⚠️
     default: return null;
   }
 }
