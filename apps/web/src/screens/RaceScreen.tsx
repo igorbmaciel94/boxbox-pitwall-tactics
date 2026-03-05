@@ -280,7 +280,9 @@ export function RaceScreen() {
         </button>
       </div>
 
-      <div className="flex flex-col gap-2 px-5 py-2 pb-4">
+      <div className={`flex flex-col gap-2 px-5 py-2 ${
+        turnPhaseUI === 'await-action-card' || turnPhaseUI === 'await-mulligan' ? 'pb-20' : 'pb-4'
+      }`}>
         <HUD state={raceState} previousPosition={previousPosition} />
 
         {currentEvent && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
