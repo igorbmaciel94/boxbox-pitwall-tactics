@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { CardComponent } from '../components/race/CardComponent';
 import { Button } from '../components/shared/Button';
@@ -8,6 +9,7 @@ import type { CardId } from '@boxbox/engine';
 import { useI18n } from '../i18n';
 
 export function DeckBuilderScreen() {
+  const navigate = useNavigate();
   const { t, getFilterLabel, getCardName } = useI18n();
   const catalog = useGameStore((s) => s.catalog);
   const currentDeck = useGameStore((s) => s.currentDeck);
@@ -42,6 +44,12 @@ export function DeckBuilderScreen() {
 
   return (
     <div className="flex flex-col px-5 pt-6">
+      <button
+        onClick={() => navigate('/')}
+        className="mb-4 text-left text-xs uppercase tracking-wider text-metal-light transition-colors hover:text-white"
+      >
+        &larr; {t('common.back')}
+      </button>
       <div className="flex items-center justify-between mb-1">
         <h1 className="font-display text-2xl font-bold uppercase tracking-wide">{t('deck.title')}</h1>
         <span className={`font-mono text-sm ${isValid ? 'text-hud-green' : 'text-hud-amber'}`}>
@@ -59,27 +67,22 @@ export function DeckBuilderScreen() {
           {Array.from({ length: 9 }).map((_, i) => {
             const cardId = currentDeck[i];
             const card = cardId ? catalog.cards.find((c) => c.id === cardId) : null;
-            return (
+            return card ? (
+              <div key={i} className="relative">
+                <CardComponent
+                  card={card}
+                  size="sm"
+                  compact
+                  onClick={() => removeCard(i)}
+                />
+              </div>
+            ) : (
               <button
                 key={i}
-                onClick={() => cardId && removeCard(i)}
-                className={`flex aspect-[63/88] flex-col items-center justify-center rounded-xl p-2 text-center transition-all
-                  ${
-                    card
-                      ? 'bg-white/8 hover:bg-hud-red/10'
-                      : 'border border-dashed border-white/10 bg-transparent text-white/20'
-                  }`}
+                disabled
+                className="flex aspect-[63/88] flex-col items-center justify-center rounded-xl border border-dashed border-white/10 bg-transparent text-white/20"
               >
-                {card ? (
-                  <div className="w-full">
-                    <div className="mb-1 font-mono text-[8px] uppercase tracking-wider text-metal-light">Card</div>
-                    <div className="font-display text-[10px] font-semibold uppercase tracking-wide leading-tight">
-                      {getCardName(card.id, card.name)}
-                    </div>
-                  </div>
-                ) : (
-                  <span className="text-[10px] uppercase tracking-wider">{t('common.empty')}</span>
-                )}
+                <span className="text-[10px] uppercase tracking-wider">{t('common.empty')}</span>
               </button>
             );
           })}

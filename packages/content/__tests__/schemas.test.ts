@@ -106,6 +106,7 @@ describe('scenarioSchema', () => {
           'safety-car': 15,
           'rain': 10,
           'rival-pits': 15,
+          'rival-overtake': 15,
           'traffic': 10,
           'clear-air': 15,
           'mechanical-issue': 5,

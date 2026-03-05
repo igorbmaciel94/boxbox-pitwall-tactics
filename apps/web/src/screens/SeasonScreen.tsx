@@ -23,28 +23,57 @@ export function SeasonScreen() {
   const selectedTeamId = useGameStore((s) => s.selectedTeamId);
   const seasonProgress = useGameStore((s) => s.seasonProgress);
   const currentDeck = useGameStore((s) => s.currentDeck);
-  const startSeason = useGameStore((s) => s.startSeason);
-  const startRace = useGameStore((s) => s.startRace);
   const setDeck = useGameStore((s) => s.setDeck);
   const setSeasonCardSwapDone = useGameStore((s) => s.setSeasonCardSwapDone);
 
   const [showCardSwap, setShowCardSwap] = useState(false);
   const [swapDeck, setSwapDeck] = useState<CardId[]>([]);
+  const [initialized, setInitialized] = useState(false);
 
+  const isComplete = seasonProgress ? seasonProgress.currentRaceIndex >= (seasonProgress.raceOrder?.length ?? 0) : false;
+
+  // Initialize season on mount (only once)
   useEffect(() => {
-    if (!seasonProgress) {
-      startSeason();
+    if (!initialized) {
+      setInitialized(true);
+      if (!useGameStore.getState().seasonProgress) {
+        useGameStore.getState().startSeason();
+      }
     }
-  }, []);
+  }, [initialized]);
 
+  // Card swap trigger at race 4
   useEffect(() => {
     if (seasonProgress && seasonProgress.currentRaceIndex === 3 && !seasonProgress.cardSwapDone) {
       setSwapDeck([...currentDeck]);
       setShowCardSwap(true);
     }
-  }, [seasonProgress?.currentRaceIndex, seasonProgress?.cardSwapDone]);
+  }, [seasonProgress?.currentRaceIndex, seasonProgress?.cardSwapDone, currentDeck]);
 
-  if (!catalog || !seasonProgress) {
+  // Navigate to results when complete
+  useEffect(() => {
+    if (isComplete) {
+      navigate('/season/results');
+    }
+  }, [isComplete, navigate]);
+
+  if (!catalog || !selectedTeamId || currentDeck.length !== 9) {
+    return (
+      <div className="flex h-64 flex-col items-center justify-center gap-3 px-5 text-center">
+        <div className="font-display text-base font-bold uppercase tracking-wide text-metal-light">
+          {t('race.notReady')}
+        </div>
+        <p className="text-sm text-metal-light">
+          {!selectedTeamId ? t('race.selectTeam') : t('race.buildDeck')} {t('race.beforeRacing')}
+        </p>
+        <Button variant="primary" size="md" onClick={() => navigate(!selectedTeamId ? '/team' : '/decks')}>
+          {!selectedTeamId ? t('race.selectTeam') : t('race.buildDeck')}
+        </Button>
+      </div>
+    );
+  }
+
+  if (!seasonProgress) {
     return (
       <div className="flex h-64 items-center justify-center text-sm text-metal-light">
         {t('season.loadingSeason')}
@@ -52,26 +81,18 @@ export function SeasonScreen() {
     );
   }
 
-  const { raceOrder, currentRaceIndex, raceResults, cumulativeScore } = seasonProgress;
-  const isComplete = currentRaceIndex >= raceOrder.length;
-
-  useEffect(() => {
-    if (isComplete) {
-      navigate('/season/results');
-    }
-  }, [isComplete, navigate]);
-
   if (isComplete) {
     return null;
   }
+
+  const { raceOrder, currentRaceIndex, raceResults, cumulativeScore } = seasonProgress;
 
   const currentScenarioId = raceOrder[currentRaceIndex];
   const currentScenario = catalog.scenarios.find((s) => s.id === currentScenarioId);
   const team = catalog.teams.find((t) => t.id === selectedTeamId);
 
   const handleStartNextRace = () => {
-    const raceSeed = hashCombine(seasonProgress.seed, currentRaceIndex);
-    startRace(currentScenarioId, raceSeed);
+    // Navigate to race screen - tire setup will be shown there before race starts
     navigate('/race');
   };
 
@@ -96,6 +117,12 @@ export function SeasonScreen() {
 
   return (
     <div className="flex flex-col px-5 pt-6">
+      <button
+        onClick={() => navigate('/')}
+        className="mb-4 text-left text-xs uppercase tracking-wider text-metal-light transition-colors hover:text-white"
+      >
+        &larr; {t('common.back')}
+      </button>
       <div className="flex items-center justify-between mb-1">
         <h1 className="font-display text-2xl font-bold uppercase tracking-wide">{t('season.title')}</h1>
         <span className="font-mono text-base">{cumulativeScore} {t('common.scorePts')}</span>
@@ -172,6 +199,27 @@ export function SeasonScreen() {
         <div className="mt-2 flex gap-3 text-xs text-metal-light">
           <span>{t('race.start')} P{currentScenario?.params.startingPosition}</span>
           <span>{currentScenario?.turns} {t('race.laps')}</span>
+        </div>
+      </div>
+
+      {/* Tire budget */}
+      <div className="mb-4 rounded-2xl bg-white/[0.04] p-4">
+        <div className="mb-2 text-xs font-display uppercase tracking-wider text-metal-light">
+          {t('tireSetup.seasonBudget')}
+        </div>
+        <div className="flex gap-3">
+          <div className="flex items-center gap-1.5">
+            <div className="h-4 w-4 rounded-full bg-red-500" />
+            <span className="font-mono text-xs">S: {seasonProgress.tireBank.soft}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="h-4 w-4 rounded-full bg-yellow-500" />
+            <span className="font-mono text-xs">M: {seasonProgress.tireBank.medium}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="h-4 w-4 rounded-full bg-white" />
+            <span className="font-mono text-xs">H: {seasonProgress.tireBank.hard}</span>
+          </div>
         </div>
       </div>
 

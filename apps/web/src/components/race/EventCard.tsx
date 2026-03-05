@@ -16,27 +16,28 @@ export function EventCard({ event, animated = false }: EventCardProps) {
 
   return (
     <div
-      className={`rounded-2xl border p-4 ${colors} ${animated ? 'animate-card-flip' : 'animate-panel-pop'}`}
+      className={`rounded-xl border px-3 py-2 ${colors} ${animated ? 'animate-card-flip' : 'animate-panel-pop'}`}
     >
-      <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 font-mono text-[11px] font-bold tracking-wider text-white/90">
+      <div className="flex items-center gap-2">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-lg">
           {icon}
         </div>
-        <div className="flex-1">
-          <div className="mb-1 font-display text-sm font-bold uppercase tracking-wide text-white">
+        <div className="flex-1 min-w-0">
+          <div className="font-display text-sm font-bold uppercase tracking-wide text-white leading-tight">
             {eventName}
           </div>
-          <p className="text-sm leading-relaxed text-white/70">
-            {eventFlavor}
-          </p>
-
-          <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
-            {event.effect && (
-              <span className="rounded-full bg-white/8 px-2 py-0.5 text-metal-light">
-                {formatEffect(event.effect, t)}
-              </span>
-            )}
-          </div>
+        </div>
+        <div className="flex flex-wrap gap-1 shrink-0">
+          {event.effect && (
+            <span className="rounded-full bg-white/12 px-2.5 py-1 text-xs font-bold text-white/80">
+              {formatEffect(event.effect, t)}
+            </span>
+          )}
+          {event.type === 'safety-car' && (
+            <span className="rounded-full bg-hud-green/20 px-2.5 py-1 text-xs font-bold text-hud-green whitespace-nowrap">
+              {t('race.scFreePit')}
+            </span>
+          )}
         </div>
       </div>
     </div>

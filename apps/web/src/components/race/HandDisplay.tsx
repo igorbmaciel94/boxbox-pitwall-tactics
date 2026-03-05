@@ -5,14 +5,21 @@ import { useI18n } from '../../i18n';
 interface HandDisplayProps {
   hand: CardId[];
   catalog: GameCatalogData;
-  selectedCard: CardId | null;
-  onSelect: (cardId: CardId) => void;
+  selectedIndex?: number | null;
+  onSelectIndex?: (index: number) => void;
+  selectedCard?: CardId | null;
+  onSelect?: (cardId: CardId) => void;
   disabled?: boolean;
 }
 
-export function HandDisplay({ hand, catalog, selectedCard, onSelect, disabled = false }: HandDisplayProps) {
+export function HandDisplay({ hand, catalog, selectedIndex, onSelectIndex, selectedCard, onSelect, disabled = false }: HandDisplayProps) {
   const { t, getCardName } = useI18n();
-  const selectedCardData = selectedCard ? catalog.cards.find((c) => c.id === selectedCard) : null;
+
+  // Resolve selected card data from either index or cardId
+  const resolvedSelectedIndex = selectedIndex ?? (selectedCard ? hand.indexOf(selectedCard) : -1);
+  const selectedCardData = resolvedSelectedIndex >= 0
+    ? catalog.cards.find((c) => c.id === hand[resolvedSelectedIndex])
+    : null;
 
   return (
     <div className="space-y-2">
@@ -31,14 +38,21 @@ export function HandDisplay({ hand, catalog, selectedCard, onSelect, disabled = 
           const card = catalog.cards.find((c) => c.id === cardId);
           if (!card) return null;
 
+          const isSelected = selectedIndex !== undefined && selectedIndex !== null
+            ? i === selectedIndex
+            : selectedCard === cardId;
+
           return (
             <CardComponent
               key={`${cardId}-${i}`}
               card={card}
-              selected={selectedCard === cardId}
+              selected={isSelected}
               disabled={disabled}
               size="sm"
-              onClick={() => onSelect(cardId)}
+              onClick={() => {
+                if (onSelectIndex) onSelectIndex(i);
+                else if (onSelect) onSelect(cardId);
+              }}
             />
           );
         })}

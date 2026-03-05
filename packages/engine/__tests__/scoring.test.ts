@@ -10,6 +10,7 @@ function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
     scenarioId: 'monaco',
     teamId: 'crimson',
     seed: 42,
+    difficulty: 'normal',
     position: 10,
     tireWear: 30,
     currentTurn: 6,

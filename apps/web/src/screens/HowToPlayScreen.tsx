@@ -14,7 +14,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 function Term({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex items-start gap-2.5">
-      <span className="w-14 shrink-0 font-display text-xs font-bold uppercase tracking-wider text-hud-cyan">{label}</span>
+      <span className="w-20 shrink-0 font-display text-xs font-bold uppercase tracking-wider text-hud-cyan">{label}</span>
       <span className="text-sm text-metal-light">{children}</span>
     </div>
   );
@@ -80,10 +80,36 @@ export function HowToPlayScreen() {
         </div>
       </Section>
 
+      <Section title={t('howToPlay.sections.tireStrategyTitle')}>
+        <p>{t('howToPlay.sections.tireP1')}</p>
+        <div className="space-y-2 rounded-xl bg-white/[0.04] p-3">
+          <Term label="S / M / H">{t('howToPlay.sections.tireCompounds')}</Term>
+          <Term label="PIT">{t('howToPlay.sections.tirePitStop')}</Term>
+          <Term label="100%">{t('howToPlay.sections.tireBlowout')}</Term>
+          <Term label="SZN">{t('howToPlay.sections.tireSeasonBudget')}</Term>
+        </div>
+      </Section>
+
+      <Section title={t('howToPlay.sections.mulliganTitle')}>
+        <p>{t('howToPlay.sections.mulliganText')}</p>
+      </Section>
+
+      <Section title={t('howToPlay.sections.safetyCarTitle')}>
+        <p>{t('howToPlay.sections.safetyCarText')}</p>
+      </Section>
+
+      <Section title={t('howToPlay.sections.skipTurnTitle')}>
+        <p>{t('howToPlay.sections.skipTurnText')}</p>
+      </Section>
+
+      <Section title={t('howToPlay.sections.crashTitle')}>
+        <p>{t('howToPlay.sections.crashText')}</p>
+      </Section>
+
       <Section title={t('howToPlay.sections.eventsTitle')}>
         <div className="space-y-2 rounded-xl bg-white/[0.04] p-3">
           <Term label="SC">{t('howToPlay.sections.sc')}</Term>
-          <Term label="RAIN">{t('howToPlay.sections.rainEvent')}</Term>
+          <Term label={'\u{1F327}\u{FE0F}'}>{t('howToPlay.sections.rainEvent')}</Term>
           <Term label="ETC">{t('howToPlay.sections.others')}</Term>
         </div>
       </Section>

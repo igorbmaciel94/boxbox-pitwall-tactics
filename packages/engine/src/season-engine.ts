@@ -86,5 +86,6 @@ export function initializeSeasonState(
     cumulativeScore: 0,
     cardSwapDone: false,
     availableCards: allCardIds,
+    tireBank: { soft: 8, medium: 8, hard: 8 },
   };
 }

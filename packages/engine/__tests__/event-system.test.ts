@@ -9,6 +9,7 @@ function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
     scenarioId: 'monaco',
     teamId: 'crimson',
     seed: 42,
+    difficulty: 'normal',
     position: 10,
     tireWear: 30,
     currentTurn: 1,
@@ -103,6 +104,33 @@ describe('applyEventEffect', () => {
     };
     const updated = applyEventEffect(state, event);
     expect(updated.position).toBe(4);
+  });
+
+  it('rival-pits at P1 produces P0 without clamp (raw effect)', () => {
+    const state = makeBaseState({ position: 1 });
+    const event = {
+      type: 'rival-pits' as const,
+      name: 'Rival Pits',
+      flavorIndex: 0,
+      effect: { position: -1 },
+      flavorText: 'Rivals.',
+    };
+    const updated = applyEventEffect(state, event);
+    // applyEventEffect does NOT clamp — caller must clamp
+    expect(updated.position).toBe(0);
+  });
+
+  it('rival-overtake at P18 produces P20 without clamp (raw effect)', () => {
+    const state = makeBaseState({ position: 18 });
+    const event = {
+      type: 'rival-overtake' as const,
+      name: 'Rival Overtake',
+      flavorIndex: 0,
+      effect: { position: 2 },
+      flavorText: 'Overtake.',
+    };
+    const updated = applyEventEffect(state, event);
+    expect(updated.position).toBe(20);
   });
 
   it('applies traffic effect (position + tire wear)', () => {

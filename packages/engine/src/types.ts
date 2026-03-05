@@ -6,18 +6,34 @@ import type {
   ObjectiveData,
   ScenarioData,
   TeamData,
+  TireCompound,
 } from '@boxbox/content';
 
-export type { CardData, CardEffect, EventType, GameCatalogData, ObjectiveData, ScenarioData, TeamData };
+export type { CardData, CardEffect, EventType, GameCatalogData, ObjectiveData, ScenarioData, TeamData, TireCompound };
 
 export type CardId = string;
 export type TeamId = string;
+export type Difficulty = 'easy' | 'normal' | 'hard';
+
+export interface TireAllocation {
+  soft: number;
+  medium: number;
+  hard: number;
+}
+
+export interface SeasonTireBank {
+  soft: number;
+  medium: number;
+  hard: number;
+}
 
 export type TurnPhase =
   | 'start'
   | 'refill-hand'
+  | 'await-mulligan'
   | 'reveal-event'
   | 'await-perk'
+  | 'await-compound'
   | 'play-card'
   | 'resolve'
   | 'end';
@@ -34,9 +50,15 @@ export interface RaceState {
   scenarioId: string;
   teamId: TeamId;
   seed: number;
+  difficulty: Difficulty;
 
   position: number;
   tireWear: number;
+  tireCompound: TireCompound;
+  tireAllocation: TireAllocation;
+  compoundSetsUsed: TireCompound[];
+  hasPitted: boolean;
+  pitStopsMade: number;
 
   currentTurn: number;
   totalTurns: number;
@@ -48,9 +70,13 @@ export interface RaceState {
   currentEvent: RaceEvent | null;
   eventHistory: RaceEvent[];
   scUsed: boolean;
+  underSafetyCar: boolean;
   lastEventType: EventType | null;
 
   perkUsed: boolean;
+  mulliganUsed: boolean;
+  emergencyMulliganUsed: boolean;
+  turnsSkipped: number;
 
   objectivesCompleted: string[];
   cardsPlayedTotal: CardId[];
@@ -58,6 +84,8 @@ export interface RaceState {
   turnPhase: TurnPhase;
 
   maxTireWearReached: number;
+  isDNF: boolean;
+  lastCrashSeverity: 'none' | 'damage' | 'dnf';
 }
 
 export interface TurnSummary {
@@ -65,6 +93,7 @@ export interface TurnSummary {
   event: RaceEvent;
   actionCard: CardId;
   perkActivated: boolean;
+  tireCompound: TireCompound;
   stateSnapshot: {
     position: number;
     tireWear: number;
@@ -83,6 +112,7 @@ export interface RaceDebrief {
   eventHistory: RaceEvent[];
   cardsPlayed: CardId[];
   perkUsed: boolean;
+  hasPitted: boolean;
   turnLog: TurnSummary[];
 }
 
@@ -95,6 +125,7 @@ export interface SeasonState {
   cumulativeScore: number;
   cardSwapDone: boolean;
   availableCards: CardId[];
+  tireBank: SeasonTireBank;
 }
 
 export interface SeasonResult {
@@ -111,6 +142,8 @@ export interface PlayerAgent {
   chooseTeamPerk(state: RaceState): boolean;
   chooseActionCard(state: RaceState): CardId;
   chooseCardSwap?(availableCards: CardId[], currentDeck: CardId[]): CardId[];
+  chooseMulligan?(state: RaceState): boolean;
+  chooseCompound?(state: RaceState): TireCompound;
 }
 
 export interface SeededRng {

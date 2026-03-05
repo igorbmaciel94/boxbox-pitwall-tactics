@@ -73,6 +73,9 @@ export interface UIStrings {
     unmute: string;
     mute: string;
     playCard: string;
+    pitRequired: string;
+    mulligan: string;
+    keepHand: string;
     lapComplete: string;
     nextLap: string;
     lightsOut: string;
@@ -80,10 +83,11 @@ export interface UIStrings {
     startRace: string;
     chequeredFlag: string;
     viewDebrief: string;
+    abandon: string;
+    abandonConfirm: string;
     start: string;
     laps: string;
     wear: string;
-    ers: string;
     pre: string;
     post: string;
     quickDecisionRequired: string;
@@ -98,6 +102,20 @@ export interface UIStrings {
     lapWord: string;
     noEffect: string;
     qdEligibleTitle: string;
+    safetyCarActive: string;
+    freePitStop: string;
+    crashDamage: string;
+    crashDNF: string;
+    dnfTitle: string;
+    dnfMessage: string;
+    skipTurn: string;
+    emergencyMulligan: string;
+    noPitCardWarning: string;
+    scFreePit: string;
+    scOvertakeWarning: string;
+    scPlayAnyway: string;
+    p1NoOvertake: string;
+    pLastNoLose: string;
   };
   deck: {
     title: string;
@@ -196,6 +214,20 @@ export interface UIStrings {
       finish: string;
       main: string;
       bonus: string;
+      tireStrategyTitle: string;
+      tireP1: string;
+      tireCompounds: string;
+      tirePitStop: string;
+      tireBlowout: string;
+      tireSeasonBudget: string;
+      mulliganTitle: string;
+      mulliganText: string;
+      safetyCarTitle: string;
+      safetyCarText: string;
+      skipTurnTitle: string;
+      skipTurnText: string;
+      crashTitle: string;
+      crashText: string;
       tipsTitle: string;
       tip1: string;
       tip2: string;
@@ -205,11 +237,43 @@ export interface UIStrings {
       tip6: string;
     };
   };
+  tireSetup: {
+    title: string;
+    subtitle: string;
+    setsSelected: string;
+    startingCompound: string;
+    remaining: string;
+    rainInfo: string;
+    confirm: string;
+    chooseCompound: string;
+    noCompoundsLeft: string;
+    seasonBudget: string;
+  };
+  traits: {
+    'traffic-heavy': string;
+    'no-overtaking': string;
+    'sc-prone': string;
+    'rain-likely': string;
+    'rain-possible': string;
+    'high-speed': string;
+    'low-downforce': string;
+    'overtake-friendly': string;
+    'tire-heavy': string;
+    'technical': string;
+    'mechanical-risk': string;
+  };
+  difficulty: {
+    title: string;
+    easy: string;
+    normal: string;
+    hard: string;
+    easyDesc: string;
+    normalDesc: string;
+    hardDesc: string;
+  };
   stats: {
     pos: string;
     wear: string;
-    ers: string;
-    rain: string;
     lap: string;
   };
 }
@@ -255,6 +319,7 @@ function buildEnglishContent(): ContentStrings {
         'safety-car': 'Safety Car',
         rain: 'Rain',
         'rival-pits': 'Rival Pits',
+        'rival-overtake': 'Rival Overtake',
         traffic: 'Traffic',
         'clear-air': 'Clear Air',
         'mechanical-issue': 'Mechanical Issue',
@@ -311,7 +376,7 @@ const EN_UI: UIStrings = {
   },
   home: {
     title: 'Box Box',
-    subtitle: 'Pit Wall Tactics',
+    subtitle: 'Racing Strategy Game',
     teamLabel: 'Team',
     teamNone: 'None',
     deckLabel: 'Deck',
@@ -346,6 +411,9 @@ const EN_UI: UIStrings = {
     unmute: 'Unmute',
     mute: 'Mute',
     playCard: 'Play Card',
+    pitRequired: 'Mandatory pit stop needed!',
+    mulligan: 'Redraw Hand',
+    keepHand: 'Keep Hand',
     lapComplete: 'Lap {{lap}} Complete',
     nextLap: 'Next Lap',
     lightsOut: 'Lights Out!',
@@ -353,10 +421,11 @@ const EN_UI: UIStrings = {
     startRace: 'Start Race',
     chequeredFlag: 'Chequered Flag!',
     viewDebrief: 'View Debrief',
+    abandon: 'Quit Race',
+    abandonConfirm: 'Are you sure you want to abandon this race?',
     start: 'Start',
     laps: 'laps',
     wear: 'Wear',
-    ers: 'ERS',
     pre: 'PRE',
     post: 'POST',
     quickDecisionRequired: 'Quick Decision Required',
@@ -371,6 +440,20 @@ const EN_UI: UIStrings = {
     lapWord: 'LAP',
     noEffect: 'none',
     qdEligibleTitle: 'Quick Decision eligible',
+    safetyCarActive: 'Safety Car - No overtaking',
+    freePitStop: 'Free pit stop under SC!',
+    crashDamage: 'Incident! Heavy damage to the car.',
+    crashDNF: 'Crash! Car retired from the race.',
+    dnfTitle: 'Did Not Finish',
+    dnfMessage: 'Your car has retired from the race after a crash.',
+    skipTurn: 'Skip Turn',
+    emergencyMulligan: 'Emergency Redraw',
+    noPitCardWarning: 'No pit card! Redraw or skip turn.',
+    scFreePit: 'Free pit under SC',
+    scOvertakeWarning: 'Overtaking under SC! +3 position penalty if you play this card.',
+    scPlayAnyway: 'Play Anyway (+3 penalty)',
+    p1NoOvertake: 'You\'re P1! Overtake cards won\'t gain positions. Consider pit stop or skip.',
+    pLastNoLose: 'You\'re last — this card won\'t lose positions.',
   },
   deck: {
     title: 'Deck Builder',
@@ -440,7 +523,7 @@ const EN_UI: UIStrings = {
       gettingStartedTitle: 'Getting Started',
       start1: '1. Select a Team - Each constructor has a unique perk that activates once per race.',
       start2: '2. Build Your Deck - Choose 9 cards (max 2 copies of each). Balance between drive, pit, and tactics cards.',
-      start3: '3. Race - Pick a circuit and manage 6 laps of strategic decisions.',
+      start3: '3. Race - Pick a circuit and manage 8 laps of strategic decisions.',
       raceFlowTitle: 'Race Flow',
       drawLabel: 'Draw',
       drawText: 'Your hand refills to 3 cards from your shuffled deck.',
@@ -456,7 +539,7 @@ const EN_UI: UIStrings = {
       resultText: 'Card effects and event consequences are applied. Next lap begins.',
       cardTypesTitle: 'Card Types',
       drive: 'Position-focused. Push for overtakes or defend your spot.',
-      pit: 'Manage tires, ERS, and pit strategy.',
+      pit: 'Manage tires and pit strategy.',
       tactics: 'Versatile cards for adapting to changing conditions.',
       hudTitle: 'HUD Gauges',
       pos: 'Your race position (P1 = leading). Lower is better.',
@@ -469,6 +552,20 @@ const EN_UI: UIStrings = {
       finish: 'Points based on your final position (P1 = 25 pts, like real F1).',
       main: 'Complete the circuit\'s main objective for bonus points.',
       bonus: 'Optional secondary objectives for extra points.',
+      tireStrategyTitle: 'Tire Strategy',
+      tireP1: 'Before each race you choose 3 sets of dry tires from Soft (S), Medium (M), and Hard (H). Each compound has different wear characteristics.',
+      tireCompounds: 'Soft = fast but high wear. Medium = balanced. Hard = slow but durable. You pick the starting compound and can switch via pit cards during the race.',
+      tirePitStop: 'Playing a pit card triggers a tire change to the next available compound in your allocation. Pit stops cost positions but reset tire wear.',
+      tireBlowout: 'If tire wear reaches 100, you suffer a blowout penalty (+3 positions lost). Always pit before that happens!',
+      tireSeasonBudget: 'In Season mode, you have a limited tire budget across all 6 races. Plan ahead - running out of Softs early means fewer options later.',
+      mulliganTitle: 'Mulligan (Redraw)',
+      mulliganText: 'On the first lap only, you can redraw your entire hand once. Use this if your starting hand doesn\'t match the event or your strategy.',
+      safetyCarTitle: 'Safety Car Rules',
+      safetyCarText: 'Under Safety Car: pit stops are free (no position loss), defensive/overcut cards get +2 bonus positions, overtaking cards are nullified with a +3 penalty (you can still choose to play them). Team perk is blocked under SC. Use it to pit for fresh tires!',
+      skipTurnTitle: 'Skip Turn & Emergency Redraw',
+      skipTurnText: 'If you have no pit card when mandatory pit is needed, you get an emergency redraw. If still no pit card, you can skip your turn (no card played). Skipping avoids crash risk but you still take tire degradation penalties.',
+      crashTitle: 'Crash / DNF Risk',
+      crashText: 'Aggressive cards on worn tires, rain on dry tires, and mechanical issues increase crash risk. A crash can cause heavy damage (+8 positions, +30 wear) or a DNF (race over). Under Safety Car there is no crash risk.',
       tipsTitle: 'Strategy Tips',
       tip1: 'Balance your deck - do not go all-in on one card type.',
       tip2: 'Watch your tire wear - at 100 you get a tire blowout penalty.',
@@ -478,11 +575,43 @@ const EN_UI: UIStrings = {
       tip6: 'Some circuits have tougher tire wear - plan your pit stops accordingly.',
     },
   },
+  tireSetup: {
+    title: 'Tire Strategy',
+    subtitle: 'Select 3 sets of dry tires for this race.',
+    setsSelected: 'sets',
+    startingCompound: 'Starting Compound',
+    remaining: 'Left',
+    rainInfo: 'Inter & Wet tires are available automatically if it rains.',
+    confirm: 'Confirm Strategy',
+    chooseCompound: 'Choose Tire Compound',
+    noCompoundsLeft: 'No compounds available. Use Inter/Wet in rain.',
+    seasonBudget: 'Season Budget',
+  },
+  traits: {
+    'traffic-heavy': 'Heavy Traffic',
+    'no-overtaking': 'Hard to Overtake',
+    'sc-prone': 'SC Prone',
+    'rain-likely': 'Rain Likely',
+    'rain-possible': 'Rain Possible',
+    'high-speed': 'High Speed',
+    'low-downforce': 'Low Downforce',
+    'overtake-friendly': 'Overtake Friendly',
+    'tire-heavy': 'High Tire Wear',
+    'technical': 'Technical',
+    'mechanical-risk': 'Mech. Risk',
+  },
+  difficulty: {
+    title: 'Difficulty',
+    easy: 'Easy',
+    normal: 'Normal',
+    hard: 'Hard',
+    easyDesc: 'Relaxed experience. Less tire wear, fewer crashes. Great for learning the game.',
+    normalDesc: 'Balanced challenge. Standard tire wear and crash risk. The intended experience.',
+    hardDesc: 'Punishing conditions. Tires degrade fast, crashes are frequent. For experienced strategists.',
+  },
   stats: {
     pos: 'POS',
     wear: 'WEAR',
-    ers: 'ERS',
-    rain: 'RAIN',
     lap: 'LAP',
   },
 };
@@ -516,7 +645,7 @@ const PT_BR_UI: UIStrings = {
   },
   home: {
     title: 'Box Box',
-    subtitle: 'Pit Wall Tactics',
+    subtitle: 'Racing Strategy Game',
     teamLabel: 'Equipe',
     teamNone: 'Nenhuma',
     deckLabel: 'Deck',
@@ -551,6 +680,9 @@ const PT_BR_UI: UIStrings = {
     unmute: 'Ativar som',
     mute: 'Silenciar',
     playCard: 'Jogar Carta',
+    pitRequired: 'Pit stop obrigatorio!',
+    mulligan: 'Trocar Mao',
+    keepHand: 'Manter Mao',
     lapComplete: 'Volta {{lap}} Completa',
     nextLap: 'Proxima Volta',
     lightsOut: 'Largada!',
@@ -558,10 +690,11 @@ const PT_BR_UI: UIStrings = {
     startRace: 'Iniciar Corrida',
     chequeredFlag: 'Bandeira Quadriculada!',
     viewDebrief: 'Ver Debrief',
+    abandon: 'Abandonar Corrida',
+    abandonConfirm: 'Tem certeza que deseja abandonar esta corrida?',
     start: 'Largada',
     laps: 'voltas',
     wear: 'Desgaste',
-    ers: 'ERS',
     pre: 'PRE',
     post: 'POS',
     quickDecisionRequired: 'Decisao Rapida Obrigatoria',
@@ -576,6 +709,20 @@ const PT_BR_UI: UIStrings = {
     lapWord: 'VOLTA',
     noEffect: 'sem efeito',
     qdEligibleTitle: 'Elegivel para Decisao Rapida',
+    safetyCarActive: 'Safety Car - Sem ultrapassagens',
+    freePitStop: 'Pit stop gratis sob SC!',
+    crashDamage: 'Incidente! Dano pesado no carro.',
+    crashDNF: 'Batida! Carro abandonou a corrida.',
+    dnfTitle: 'Nao Terminou',
+    dnfMessage: 'Seu carro abandonou a corrida apos uma batida.',
+    skipTurn: 'Passar Vez',
+    emergencyMulligan: 'Trocar Mao Extra',
+    noPitCardWarning: 'Sem carta de pit! Troque a mao ou passe a vez.',
+    scFreePit: 'Pit gratis sob SC',
+    scOvertakeWarning: 'Ultrapassagem sob SC! +3 penalidade de posicao se jogar esta carta.',
+    scPlayAnyway: 'Jogar Mesmo Assim (+3 penalidade)',
+    p1NoOvertake: 'Voce esta em P1! Cartas de ultrapassagem nao ganham posicoes. Considere pit stop ou pular turno.',
+    pLastNoLose: 'Voce esta em ultimo — esta carta nao vai perder posicoes.',
   },
   deck: {
     title: 'Construtor de Deck',
@@ -645,7 +792,7 @@ const PT_BR_UI: UIStrings = {
       gettingStartedTitle: 'Primeiros Passos',
       start1: '1. Selecione uma Equipe - Cada construtora tem um perk unico que ativa uma vez por corrida.',
       start2: '2. Monte seu Deck - Escolha 9 cartas (maximo 2 copias de cada). Equilibre entre drive, pit e taticas.',
-      start3: '3. Corra - Escolha um circuito e gerencie 6 voltas de decisoes estrategicas.',
+      start3: '3. Corra - Escolha um circuito e gerencie 8 voltas de decisoes estrategicas.',
       raceFlowTitle: 'Fluxo da Corrida',
       drawLabel: 'Compra',
       drawText: 'Sua mao volta para 3 cartas com base no deck embaralhado.',
@@ -661,7 +808,7 @@ const PT_BR_UI: UIStrings = {
       resultText: 'Efeitos de cartas e consequencias do evento sao aplicados. A proxima volta comeca.',
       cardTypesTitle: 'Tipos de Carta',
       drive: 'Foco em posicao. Ataque para ultrapassar ou defender sua colocacao.',
-      pit: 'Gerencie pneus, ERS e estrategia de pit.',
+      pit: 'Gerencie pneus e estrategia de pit.',
       tactics: 'Cartas versateis para adaptar a corrida as mudancas.',
       hudTitle: 'Indicadores do HUD',
       pos: 'Sua posicao na corrida (P1 = lider). Quanto menor, melhor.',
@@ -674,6 +821,20 @@ const PT_BR_UI: UIStrings = {
       finish: 'Pontos por posicao final (P1 = 25 pts, como na F1 real).',
       main: 'Complete o objetivo principal do circuito para ganhar pontos extras.',
       bonus: 'Objetivos secundarios opcionais valem pontos adicionais.',
+      tireStrategyTitle: 'Estrategia de Pneus',
+      tireP1: 'Antes de cada corrida voce escolhe 3 jogos de pneus secos entre Soft (S), Medium (M) e Hard (H). Cada composto tem caracteristicas diferentes de desgaste.',
+      tireCompounds: 'Soft = rapido mas alto desgaste. Medium = equilibrado. Hard = lento mas duravel. Voce escolhe o composto inicial e pode trocar via cartas de pit durante a corrida.',
+      tirePitStop: 'Jogar uma carta de pit aciona a troca de pneus para o proximo composto disponivel na sua alocacao. Pit stops custam posicoes mas zeram o desgaste.',
+      tireBlowout: 'Se o desgaste chegar a 100, voce sofre penalidade de estouro (+3 posicoes perdidas). Sempre pare antes que isso aconteca!',
+      tireSeasonBudget: 'No modo Temporada, voce tem um orcamento limitado de pneus para todas as 6 corridas. Planeje - usar todos os Softs cedo significa menos opcoes depois.',
+      mulliganTitle: 'Mulligan (Trocar Mao)',
+      mulliganText: 'Apenas na primeira volta, voce pode trocar toda a mao uma vez. Use se a mao inicial nao combina com o evento ou sua estrategia.',
+      safetyCarTitle: 'Regras do Safety Car',
+      safetyCarText: 'Sob Safety Car: pit stops sao gratis (sem perda de posicao), cartas defensivas/overcut ganham +2 bonus de posicao, cartas de ultrapassagem sao anuladas com penalidade +3 (voce ainda pode jogar). Perk da equipe bloqueado sob SC. Aproveite para trocar os pneus!',
+      skipTurnTitle: 'Passar Vez e Troca Extra',
+      skipTurnText: 'Se voce nao tiver carta de pit quando o pit e obrigatorio, ganha uma troca extra de mao. Se ainda nao tiver, pode passar a vez (sem jogar carta). Passar evita risco de batida mas voce ainda sofre penalidades de desgaste.',
+      crashTitle: 'Risco de Batida / DNF',
+      crashText: 'Cartas agressivas com pneus gastos, chuva em pneus secos e problemas mecanicos aumentam o risco de batida. Uma batida causa dano pesado (+8 posicoes, +30 desgaste) ou DNF (corrida encerrada). Sob Safety Car nao ha risco de batida.',
       tipsTitle: 'Dicas de Estrategia',
       tip1: 'Equilibre o deck - nao aposte tudo em um unico tipo de carta.',
       tip2: 'Fique de olho no desgaste - ao chegar a 100 voce sofre penalidade por estouro de pneu.',
@@ -683,35 +844,61 @@ const PT_BR_UI: UIStrings = {
       tip6: 'Circuitos com muita chuva (Spa, Interlagos) favorecem cartas de clima.',
     },
   },
+  tireSetup: {
+    title: 'Estrategia de Pneus',
+    subtitle: 'Selecione 3 jogos de pneus secos para esta corrida.',
+    setsSelected: 'jogos',
+    startingCompound: 'Composto Inicial',
+    remaining: 'Restam',
+    rainInfo: 'Pneus Inter e Wet ficam disponiveis automaticamente em caso de chuva.',
+    confirm: 'Confirmar Estrategia',
+    chooseCompound: 'Escolher Composto de Pneu',
+    noCompoundsLeft: 'Sem compostos disponiveis. Use Inter/Wet na chuva.',
+    seasonBudget: 'Budget da Temporada',
+  },
+  traits: {
+    'traffic-heavy': 'Trafego Pesado',
+    'no-overtaking': 'Dificil Ultrapassar',
+    'sc-prone': 'SC Frequente',
+    'rain-likely': 'Chuva Provavel',
+    'rain-possible': 'Chuva Possivel',
+    'high-speed': 'Alta Velocidade',
+    'low-downforce': 'Baixo Downforce',
+    'overtake-friendly': 'Facil Ultrapassar',
+    'tire-heavy': 'Alto Desgaste',
+    'technical': 'Tecnico',
+    'mechanical-risk': 'Risco Mecanico',
+  },
+  difficulty: {
+    title: 'Dificuldade',
+    easy: 'Facil',
+    normal: 'Normal',
+    hard: 'Dificil',
+    easyDesc: 'Experiencia relaxada. Menos desgaste de pneu, menos batidas. Otimo para aprender o jogo.',
+    normalDesc: 'Desafio equilibrado. Desgaste e risco de batida padrao. A experiencia planejada.',
+    hardDesc: 'Condicoes punitivas. Pneus se desgastam rapido, batidas sao frequentes. Para estrategistas experientes.',
+  },
   stats: {
     pos: 'POS',
     wear: 'DESG',
-    ers: 'ERS',
-    rain: 'CHUVA',
     lap: 'VOLTA',
   },
 };
 
 const PT_BR_CONTENT: ContentStrings = {
   cards: {
-    'push-hard': { name: 'Push Hard', rulesText: 'Ganhe 2 posicoes, mas aumente o desgaste dos pneus em 15.' },
-    'box-box': { name: 'Box Box', rulesText: 'Pit stop: redefina desgaste para 10, perca 3 posicoes.' },
-    'conserve-tires': { name: 'Conservar Pneus', rulesText: 'Reduz desgaste em 10, mas perde 1 posicao.' },
-    'fuel-save': { name: 'Economia de Combustivel', rulesText: 'Economize 15 de combustivel, perca 1 posicao por ritmo mais lento.' },
-    overtake: { name: 'Ultrapassar', rulesText: 'Movida agressiva: ganhe 3 posicoes, +20 desgaste, +10 combustivel.' },
-    'defend-position': { name: 'Defender Posicao', rulesText: 'Mantenha a posicao. +5 desgaste por pilotagem defensiva.' },
-    'wet-setup': { name: 'Setup de Chuva', rulesText: 'Reduz impacto da chuva: -3 no medidor de chuva, +5 desgaste.' },
-    'dry-setup': { name: 'Setup de Seco', rulesText: 'Otimiza para seco: ganhe 1 posicao, -5 desgaste. +2 risco de chuva.' },
-    undercut: { name: 'Undercut', rulesText: 'Estrategia de pit antecipada: ganhe 2 posicoes, -60 desgaste, +5 combustivel.' },
-    overcut: { name: 'Overcut', rulesText: 'Ficar mais tempo na pista: ganhe 1 posicao, +10 desgaste, -5 combustivel.' },
-    'drs-attack': { name: 'Ataque de DRS', rulesText: 'Use DRS para ganhar 2 posicoes, +10 desgaste.' },
-    slipstream: { name: 'Vacuo', rulesText: 'Pegue vacuo do rival: ganhe 1 posicao, -5 combustivel.' },
-    'engine-mode': { name: 'Modo Motor', rulesText: 'Modo de alta potencia: ganhe 2 posicoes, +15 consumo de combustivel.' },
-    'battery-deploy': { name: 'Deploy da Bateria', rulesText: 'Impulso de ERS: ganhe 1 posicao, +5 combustivel.' },
-    'track-position': { name: 'Posicao de Pista', rulesText: 'Mantenha ar limpo: -10 desgaste, -5 combustivel.' },
-    'gap-management': { name: 'Gestao de Gap', rulesText: 'Gerencie o gap: -5 desgaste. Sem mudanca de posicao.' },
-    'late-brake': { name: 'Frenagem Tardia', rulesText: 'Frenagem tardia arriscada: ganhe 2 posicoes, +15 desgaste.' },
-    'alternate-strategy': { name: 'Estrategia Alternativa', rulesText: 'Troque estrategia: -20 desgaste, -10 combustivel, perca 1 posicao.' },
+    'push-hard': { name: 'Push Hard', rulesText: 'Leve o carro ao limite: ganhe 2 posicoes, +15 desgaste.' },
+    'box-box': { name: 'Box Box', rulesText: 'Pit stop! Pneus novos mas perde posicao: +4 posicoes perdidas, -80 desgaste.' },
+    'conserve-tires': { name: 'Conservar Pneus', rulesText: 'Cuide da borracha: perca 1 posicao, -15 desgaste.' },
+    overtake: { name: 'Ultrapassar', rulesText: 'Manda por dentro! Ganhe 3 posicoes, +25 desgaste.' },
+    'defend-position': { name: 'Defender Posicao', rulesText: 'Segure a linha: mantenha posicao, +5 desgaste por pilotagem defensiva.' },
+    'drs-attack': { name: 'Ataque de DRS', rulesText: 'DRS aberto! Ganhe 2 posicoes, +10 desgaste.' },
+    slipstream: { name: 'Vacuo', rulesText: 'Pegue vacuo do rival: ganhe 1 posicao, sem custo de pneu.' },
+    'late-brake': { name: 'Frenagem Tardia', rulesText: 'Frenagem tardia arriscada! Ganhe 3 posicoes, +20 desgaste.' },
+    'gap-management': { name: 'Gestao de Gap', rulesText: 'Controle o ritmo: mantenha posicao, -10 desgaste.' },
+    undercut: { name: 'Undercut', rulesText: 'Estrategia de pit antecipada: ganhe 1 posicao, -40 desgaste.' },
+    'engine-mode': { name: 'Modo Motor', rulesText: 'Aumente o motor: ganhe 1 posicao, +10 desgaste.' },
+    'alternate-strategy': { name: 'Estrategia Alternativa', rulesText: 'Estrategia oposta aos rivais: perca 2 posicoes, -30 desgaste.' },
   },
   teams: {
     crimson: { name: 'Crimson Racing' },
@@ -745,7 +932,7 @@ const PT_BR_CONTENT: ContentStrings = {
     'monza-main': 'Termine no top 6',
     'monza-bonus': 'Jogue pelo menos 2 cartas agressivas',
     'silverstone-main': 'Termine no top 4',
-    'silverstone-bonus': 'Termine com combustivel acima de 20',
+    'silverstone-bonus': 'Nunca ultrapasse 80 de desgaste',
     'suzuka-main': 'Termine no top 5',
     'suzuka-bonus': 'Nunca passe de 80 de desgaste',
     'interlagos-main': 'Termine no top 3',
@@ -756,6 +943,7 @@ const PT_BR_CONTENT: ContentStrings = {
       'safety-car': 'Safety Car',
       rain: 'Chuva',
       'rival-pits': 'Pit dos Rivais',
+      'rival-overtake': 'Ultrapassagem Rival',
       traffic: 'Trafego',
       'clear-air': 'Ar Limpo',
       'mechanical-issue': 'Problema Mecanico',
@@ -775,6 +963,11 @@ const PT_BR_CONTENT: ContentStrings = {
         'Seus rivais vao para o pit! Pressao total.',
         'Varios carros a frente estao parando. Voce responde?',
         'Pit stops dos rivais em andamento. Gap mudando.',
+      ],
+      'rival-overtake': [
+        'Um rival te ultrapassou! Reagir e crucial.',
+        'O carro de tras fez a manobra! Voce foi ultrapassado.',
+        'Perdeu uma posicao! O carro de tras achou uma brecha.',
       ],
       traffic: [
         'Trafego a frente! Retardatarios atrapalham a linha.',

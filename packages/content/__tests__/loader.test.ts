@@ -41,10 +41,10 @@ describe('loadCatalog', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('all scenarios have 6 turns', () => {
+  it('all scenarios have 8 turns', () => {
     const catalog = loadCatalog();
     for (const scenario of catalog.scenarios) {
-      expect(scenario.turns).toBe(6);
+      expect(scenario.turns).toBe(8);
     }
   });
 

@@ -2,9 +2,12 @@ export type EventType =
   | 'safety-car'
   | 'rain'
   | 'rival-pits'
+  | 'rival-overtake'
   | 'traffic'
   | 'clear-air'
   | 'mechanical-issue';
+
+export type TireCompound = 'soft' | 'medium' | 'hard' | 'intermediate' | 'wet';
 
 export interface CardEffect {
   position?: number;
@@ -55,6 +58,7 @@ export interface ScenarioData {
   turns: number;
   params: ScenarioParamsData;
   objectives: ObjectiveData[];
+  traits?: string[];
 }
 
 export interface GameStringsData {

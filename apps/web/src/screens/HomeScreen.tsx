@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { useI18n } from '../i18n';
+import { useAudio } from '../hooks/use-audio';
 
 const MENU_ITEMS = [
   { labelKey: 'home.menu.quickRaceLabel', descKey: 'home.menu.quickRaceDesc', path: '/race', icon: 'RACE', accent: 'text-hud-green', needsDeck: true },
@@ -17,12 +19,44 @@ export function HomeScreen() {
   const selectedTeamId = useGameStore((s) => s.selectedTeamId);
   const currentDeck = useGameStore((s) => s.currentDeck);
   const catalog = useGameStore((s) => s.catalog);
+  const audio = useAudio();
+  const [muted, setMuted] = useState(() => audio.isMuted());
 
   const team = catalog?.teams.find((t) => t.id === selectedTeamId);
   const ready = !!selectedTeamId && currentDeck.length === 9;
 
   return (
-    <div className="flex flex-col px-5 pt-10">
+    <div className="relative flex min-h-dvh flex-col px-5 pt-10">
+      {/* Background image */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <img
+          src="/images/backgrounds/home-bg.webp"
+          alt=""
+          className="h-full w-full object-cover opacity-15"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-carbon/80 via-carbon/60 to-carbon" />
+      </div>
+      {/* Mute toggle */}
+      <button
+        onClick={() => setMuted(audio.toggleMute())}
+        className="absolute right-5 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/8 text-white/50 transition-colors hover:bg-white/15 hover:text-white"
+        title={muted ? t('race.unmute') : t('race.mute')}
+      >
+        {muted ? (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <line x1="23" y1="9" x2="17" y2="15" />
+            <line x1="17" y1="9" x2="23" y2="15" />
+          </svg>
+        ) : (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+          </svg>
+        )}
+      </button>
+
       {/* Title */}
       <div className="mb-8 text-center">
         <h1 className="pitlane-divider inline-block font-display text-4xl font-black uppercase leading-none tracking-wider">

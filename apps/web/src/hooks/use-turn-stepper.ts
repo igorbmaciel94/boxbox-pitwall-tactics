@@ -10,12 +10,17 @@ import {
   clampRaceState,
   applyEffect,
   calculateRaceScore,
+  isCurrentlyRaining,
+  performMulligan,
+  performEmergencyMulligan,
+  applyCrashCheck,
 } from '@boxbox/engine';
 import type {
   CardId,
   RaceState,
   SeededRng,
   TurnSummary,
+  TireCompound,
 } from '@boxbox/engine';
 import { useGameStore } from '../stores/game-store';
 
@@ -65,6 +70,7 @@ export function useTurnStepper() {
     const event = selectEvent(state, scenario, eventRng, catalog);
     let s = updateEventTracking(state, event);
     s = applyEventEffect(s, event);
+    s = clampRaceState(s);
     s = { ...s, turnPhase: 'reveal-event' };
     currentEventRef.current = event;
 
@@ -77,8 +83,8 @@ export function useTurnStepper() {
     const { raceState: state, team } = store.getState();
     if (!state || !team) return;
 
-    // Phase 3: Team perk (if available)
-    if (!state.perkUsed) {
+    // Phase 3: Team perk (if available, but NOT under Safety Car)
+    if (!state.perkUsed && !state.underSafetyCar) {
       store.getState().setTurnPhaseUI('await-perk');
     } else {
       store.getState().setTurnPhaseUI('await-action-card');
@@ -101,6 +107,38 @@ export function useTurnStepper() {
     store.getState().setTurnPhaseUI('await-action-card');
   }, []);
 
+  const submitMulligan = useCallback(() => {
+    const { raceState: state, catalog } = store.getState();
+    const rng = rngRef.current;
+    if (!state || !rng || !catalog) return;
+
+    const mulliganRng = rng.fork(state.currentTurn * 100 + 10);
+    const s = performMulligan(state, catalog, mulliganRng);
+    store.getState().setRaceState(s);
+  }, []);
+
+  const submitEmergencyMulligan = useCallback(() => {
+    const { raceState: state, catalog } = store.getState();
+    const rng = rngRef.current;
+    if (!state || !rng || !catalog) return;
+
+    const mulliganRng = rng.fork(state.currentTurn * 100 + 20);
+    const s = performEmergencyMulligan(state, catalog, mulliganRng);
+    store.getState().setRaceState(s);
+    store.getState().setTurnPhaseUI('await-action-card');
+  }, []);
+
+  const submitSkipTurn = useCallback(() => {
+    const { raceState: state } = store.getState();
+    if (!state) return;
+
+    // Skip turn: no card played, go straight to resolving
+    actionCardRef.current = '';
+    const s: RaceState = { ...state, turnPhase: 'play-card', turnsSkipped: state.turnsSkipped + 1 };
+    store.getState().setRaceState(s);
+    store.getState().setTurnPhaseUI('resolving');
+  }, []);
+
   const submitActionCard = useCallback((cardId: CardId) => {
     const { raceState: state, catalog, team, scenario } = store.getState();
     const event = currentEventRef.current;
@@ -118,6 +156,24 @@ export function useTurnStepper() {
     }
     actionCardRef.current = usedCard;
 
+    // Check if this was a pit stop card — if so, show compound selector
+    const card = catalog.cards.find((c) => c.id === usedCard);
+    const isPit = card && card.tags.includes('pit') && (card.effect.tireWear ?? 0) < 0;
+
+    store.getState().setRaceState(s);
+    store.getState().setTurnPhaseUI(isPit ? 'await-compound' : 'resolving');
+  }, []);
+
+  const submitCompoundChoice = useCallback((compound: TireCompound) => {
+    const { raceState: state } = store.getState();
+    if (!state) return;
+
+    // Only update compound — tireWear/hasPitted/pitStopsMade already set by applyCardEffect
+    const s: RaceState = {
+      ...state,
+      tireCompound: compound,
+      compoundSetsUsed: [...state.compoundSetsUsed, compound],
+    };
     store.getState().setRaceState(s);
     store.getState().setTurnPhaseUI('resolving');
   }, []);
@@ -127,8 +183,23 @@ export function useTurnStepper() {
     if (!state || !team || !scenario || !catalog) return;
 
     // Phase 5: Apply penalties & clamp
-    let s = applyEndOfTurnPenalties(state);
+    const raining = isCurrentlyRaining(state);
+    let s = applyEndOfTurnPenalties(state, raining, state.underSafetyCar, state.difficulty);
     s = clampRaceState(s);
+
+    // Crash check
+    if (actionCardRef.current && rngRef.current) {
+      const crashRng = rngRef.current.fork(s.currentTurn * 100 + 50);
+      s = applyCrashCheck(s, actionCardRef.current, catalog, raining, crashRng, state.difficulty);
+      s = clampRaceState(s);
+    }
+
+    // Mandatory pit stop penalty on final turn
+    if (s.currentTurn >= s.totalTurns && !s.hasPitted && !s.isDNF) {
+      s = { ...s, position: s.position + 10 };
+      s = clampRaceState(s);
+    }
+
     s = { ...s, turnPhase: 'end' };
 
     // Record turn summary
@@ -137,6 +208,7 @@ export function useTurnStepper() {
       event: currentEventRef.current!,
       actionCard: actionCardRef.current,
       perkActivated: perkActivatedRef.current,
+      tireCompound: s.tireCompound,
       stateSnapshot: {
         position: s.position,
         tireWear: s.tireWear,
@@ -147,8 +219,8 @@ export function useTurnStepper() {
     store.getState().setRaceState(s);
     store.getState().addTurnSummary(summary);
 
-    // Check if race complete
-    if (s.currentTurn >= s.totalTurns) {
+    // Check if race complete (either all turns done or DNF)
+    if (s.currentTurn >= s.totalTurns || s.isDNF) {
       const debrief = calculateRaceScore(s, scenario, catalog, turnLogRef.current, {
         styleBonusesEnabled: true,
       });
@@ -164,7 +236,11 @@ export function useTurnStepper() {
     advanceToRevealEvent,
     advanceToPerkOrAction,
     submitPerkChoice,
+    submitMulligan,
+    submitEmergencyMulligan,
+    submitSkipTurn,
     submitActionCard,
+    submitCompoundChoice,
     advanceToResult,
   };
 }

@@ -2,11 +2,12 @@ import type { CardEffect, EventType, GameCatalogData, RaceEvent, RaceState, Scen
 
 const EVENT_EFFECTS: Record<EventType, CardEffect> = {
   'safety-car': { tireWear: -5 },
-  'rain': { tireWear: 10 },
+  'rain': { tireWear: 8 },
   'rival-pits': { position: -1 },
+  'rival-overtake': { position: 2 },
   'traffic': { position: 1, tireWear: 5 },
   'clear-air': { tireWear: -5 },
-  'mechanical-issue': { position: 2, tireWear: 5 },
+  'mechanical-issue': { position: 2, tireWear: 8 },
 };
 
 export function selectEvent(
@@ -69,5 +70,12 @@ export function updateEventTracking(state: RaceState, event: RaceEvent): RaceSta
     eventHistory: [...state.eventHistory, event],
     lastEventType: event.type,
     scUsed: state.scUsed || event.type === 'safety-car',
+    underSafetyCar: event.type === 'safety-car',
   };
+}
+
+/** Check if it's currently raining based on recent event history */
+export function isCurrentlyRaining(state: RaceState): boolean {
+  const recentEvents = state.eventHistory.slice(-2);
+  return recentEvents.some((e) => e.type === 'rain');
 }

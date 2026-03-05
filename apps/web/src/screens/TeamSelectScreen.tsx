@@ -16,6 +16,12 @@ export function TeamSelectScreen() {
 
   return (
     <div className="flex flex-col px-5 pt-6">
+      <button
+        onClick={() => navigate('/')}
+        className="mb-4 text-left text-xs uppercase tracking-wider text-metal-light transition-colors hover:text-white"
+      >
+        &larr; {t('common.back')}
+      </button>
       <h1 className="mb-1 font-display text-2xl font-bold uppercase tracking-wide">{t('team.title')}</h1>
       <p className="mb-5 text-sm text-metal-light">{t('team.subtitle')}</p>
 
