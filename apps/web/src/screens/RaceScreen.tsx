@@ -281,7 +281,7 @@ export function RaceScreen() {
       </div>
 
       <div className={`flex flex-col gap-2 px-5 py-2 ${
-        turnPhaseUI === 'await-mulligan' || (turnPhaseUI === 'await-action-card' && selectedActionCard) ? 'pb-20' : 'pb-4'
+        (turnPhaseUI === 'await-action-card' && selectedActionCard) ? 'pb-20' : 'pb-4'
       }`}>
         <HUD state={raceState} previousPosition={previousPosition} />
 
@@ -297,28 +297,26 @@ export function RaceScreen() {
               selectedCard={null}
               onSelect={() => {}}
             />
-            <div className="fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-carbon via-carbon/95 to-transparent px-5 pb-4 pt-3">
-              <div className="flex gap-2">
-                <Button
-                  variant="secondary"
-                  size="md"
-                  className="flex-1"
-                  onClick={() => {
-                    stepper.submitMulligan();
-                    stepper.advanceToRevealEvent();
-                  }}
-                >
-                  {t('race.mulligan')}
-                </Button>
-                <Button
-                  variant="primary"
-                  size="md"
-                  className="flex-1"
-                  onClick={() => stepper.advanceToRevealEvent()}
-                >
-                  {t('race.keepHand')}
-                </Button>
-              </div>
+            <div className="flex gap-2 pt-2">
+              <Button
+                variant="secondary"
+                size="md"
+                className="flex-1"
+                onClick={() => {
+                  stepper.submitMulligan();
+                  stepper.advanceToRevealEvent();
+                }}
+              >
+                {t('race.mulligan')}
+              </Button>
+              <Button
+                variant="primary"
+                size="md"
+                className="flex-1"
+                onClick={() => stepper.advanceToRevealEvent()}
+              >
+                {t('race.keepHand')}
+              </Button>
             </div>
           </>
         )}

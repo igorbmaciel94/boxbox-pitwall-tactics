@@ -200,6 +200,14 @@ export interface UIStrings {
       finish: string;
       main: string;
       bonus: string;
+      tireStrategyTitle: string;
+      tireP1: string;
+      tireCompounds: string;
+      tirePitStop: string;
+      tireBlowout: string;
+      tireSeasonBudget: string;
+      mulliganTitle: string;
+      mulliganText: string;
       tipsTitle: string;
       tip1: string;
       tip2: string;
@@ -488,6 +496,14 @@ const EN_UI: UIStrings = {
       finish: 'Points based on your final position (P1 = 25 pts, like real F1).',
       main: 'Complete the circuit\'s main objective for bonus points.',
       bonus: 'Optional secondary objectives for extra points.',
+      tireStrategyTitle: 'Tire Strategy',
+      tireP1: 'Before each race you choose 3 sets of dry tires from Soft (S), Medium (M), and Hard (H). Each compound has different wear characteristics.',
+      tireCompounds: 'Soft = fast but high wear. Medium = balanced. Hard = slow but durable. You pick the starting compound and can switch via pit cards during the race.',
+      tirePitStop: 'Playing a pit card triggers a tire change to the next available compound in your allocation. Pit stops cost positions but reset tire wear.',
+      tireBlowout: 'If tire wear reaches 100, you suffer a blowout penalty (+3 positions lost). Always pit before that happens!',
+      tireSeasonBudget: 'In Season mode, you have a limited tire budget across all 6 races. Plan ahead - running out of Softs early means fewer options later.',
+      mulliganTitle: 'Mulligan (Redraw)',
+      mulliganText: 'On the first lap only, you can redraw your entire hand once. Use this if your starting hand doesn\'t match the event or your strategy.',
       tipsTitle: 'Strategy Tips',
       tip1: 'Balance your deck - do not go all-in on one card type.',
       tip2: 'Watch your tire wear - at 100 you get a tire blowout penalty.',
@@ -707,6 +723,14 @@ const PT_BR_UI: UIStrings = {
       finish: 'Pontos por posicao final (P1 = 25 pts, como na F1 real).',
       main: 'Complete o objetivo principal do circuito para ganhar pontos extras.',
       bonus: 'Objetivos secundarios opcionais valem pontos adicionais.',
+      tireStrategyTitle: 'Estrategia de Pneus',
+      tireP1: 'Antes de cada corrida voce escolhe 3 jogos de pneus secos entre Soft (S), Medium (M) e Hard (H). Cada composto tem caracteristicas diferentes de desgaste.',
+      tireCompounds: 'Soft = rapido mas alto desgaste. Medium = equilibrado. Hard = lento mas duravel. Voce escolhe o composto inicial e pode trocar via cartas de pit durante a corrida.',
+      tirePitStop: 'Jogar uma carta de pit aciona a troca de pneus para o proximo composto disponivel na sua alocacao. Pit stops custam posicoes mas zeram o desgaste.',
+      tireBlowout: 'Se o desgaste chegar a 100, voce sofre penalidade de estouro (+3 posicoes perdidas). Sempre pare antes que isso aconteca!',
+      tireSeasonBudget: 'No modo Temporada, voce tem um orcamento limitado de pneus para todas as 6 corridas. Planeje - usar todos os Softs cedo significa menos opcoes depois.',
+      mulliganTitle: 'Mulligan (Trocar Mao)',
+      mulliganText: 'Apenas na primeira volta, voce pode trocar toda a mao uma vez. Use se a mao inicial nao combina com o evento ou sua estrategia.',
       tipsTitle: 'Dicas de Estrategia',
       tip1: 'Equilibre o deck - nao aposte tudo em um unico tipo de carta.',
       tip2: 'Fique de olho no desgaste - ao chegar a 100 voce sofre penalidade por estouro de pneu.',

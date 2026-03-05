@@ -80,6 +80,20 @@ export function HowToPlayScreen() {
         </div>
       </Section>
 
+      <Section title={t('howToPlay.sections.tireStrategyTitle')}>
+        <p>{t('howToPlay.sections.tireP1')}</p>
+        <div className="space-y-2 rounded-xl bg-white/[0.04] p-3">
+          <Term label="S / M / H">{t('howToPlay.sections.tireCompounds')}</Term>
+          <Term label="PIT">{t('howToPlay.sections.tirePitStop')}</Term>
+          <Term label="100%">{t('howToPlay.sections.tireBlowout')}</Term>
+          <Term label="SZN">{t('howToPlay.sections.tireSeasonBudget')}</Term>
+        </div>
+      </Section>
+
+      <Section title={t('howToPlay.sections.mulliganTitle')}>
+        <p>{t('howToPlay.sections.mulliganText')}</p>
+      </Section>
+
       <Section title={t('howToPlay.sections.eventsTitle')}>
         <div className="space-y-2 rounded-xl bg-white/[0.04] p-3">
           <Term label="SC">{t('howToPlay.sections.sc')}</Term>
