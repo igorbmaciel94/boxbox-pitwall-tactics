@@ -267,7 +267,7 @@ export function RaceScreen() {
             </Button>
           </div>
         )}
-        {/* Quit race button */}
+        {/* Quit race button - top left of map */}
         <button
           onClick={() => {
             if (window.confirm(t('race.abandonConfirm'))) {
@@ -275,18 +275,14 @@ export function RaceScreen() {
               navigate('/');
             }
           }}
-          className="absolute bottom-2 left-6 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white/40 transition-colors hover:bg-white/15 hover:text-hud-red"
-          title={t('race.abandon')}
+          className="absolute left-6 top-1 z-10 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-white/40 transition-colors hover:bg-white/15 hover:text-hud-red"
         >
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
+          {t('race.abandon')}
         </button>
-        {/* Mute button */}
+        {/* Mute button - top right of map */}
         <button
           onClick={() => setMuted(audio.toggleMute())}
-          className="absolute bottom-2 right-6 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white/40 transition-colors hover:bg-white/15 hover:text-white"
+          className="absolute right-6 top-1 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white/40 transition-colors hover:bg-white/15 hover:text-white"
           title={muted ? t('race.unmute') : t('race.mute')}
         >
           {muted ? (
