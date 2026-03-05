@@ -1,6 +1,11 @@
 import { useMemo } from 'react';
 import type { RaceEvent, TireCompound } from '@boxbox/engine';
 
+export interface RivalDot {
+  position: number;
+  color: string;
+}
+
 interface TrackMapProps {
   position: number;
   totalPositions?: number;
@@ -8,6 +13,7 @@ interface TrackMapProps {
   teamColor: string;
   circuitId?: string;
   tireCompound?: TireCompound;
+  rivals?: RivalDot[];
 }
 
 // Simplified but recognizable circuit layouts as polyline points
@@ -131,7 +137,7 @@ function getCenter(points: [number, number][]): { x: number; y: number } {
   return { x: sum.x / points.length, y: sum.y / points.length };
 }
 
-export function TrackMap({ position, totalPositions = 20, currentEvent, teamColor, circuitId, tireCompound }: TrackMapProps) {
+export function TrackMap({ position, totalPositions = 20, currentEvent, teamColor, circuitId, tireCompound, rivals }: TrackMapProps) {
   const width = 320;
   const height = 140;
 
@@ -169,10 +175,6 @@ export function TrackMap({ position, totalPositions = 20, currentEvent, teamColo
   const playerPos = getCarPos(position);
   const compoundColor = tireCompound ? COMPOUND_COLORS[tireCompound] : null;
 
-  // Generate rival dots (every 2-3 positions for visual clarity)
-  const rivals = Array.from({ length: totalPositions }, (_, i) => i + 1)
-    .filter((p) => p !== position && p % 3 !== 0);
-
   const eventIcon = currentEvent ? getEventIcon(currentEvent.type) : null;
 
   return (
@@ -208,11 +210,11 @@ export function TrackMap({ position, totalPositions = 20, currentEvent, teamColo
           <circle cx={points[0][0]} cy={points[0][1]} r={3} fill="rgba(255,255,255,0.3)" />
         )}
 
-        {/* Rival dots */}
-        {rivals.map((p) => {
-          const pos = getCarPos(p);
+        {/* Rival dots — colored by team */}
+        {rivals && rivals.map((r, i) => {
+          const pos = getCarPos(r.position);
           return (
-            <circle key={p} cx={pos.x} cy={pos.y} r={2.5} fill="rgba(255,255,255,0.15)" />
+            <circle key={i} cx={pos.x} cy={pos.y} r={2.5} fill={r.color} opacity={0.45} />
           );
         })}
 

@@ -112,6 +112,9 @@ export interface UIStrings {
     emergencyMulligan: string;
     noPitCardWarning: string;
     scFreePit: string;
+    scOvertakeWarning: string;
+    scPlayAnyway: string;
+    bwFlagWarning: string;
   };
   deck: {
     title: string;
@@ -224,6 +227,8 @@ export interface UIStrings {
       skipTurnText: string;
       crashTitle: string;
       crashText: string;
+      bwFlagTitle: string;
+      bwFlagText: string;
       tipsTitle: string;
       tip1: string;
       tip2: string;
@@ -363,7 +368,7 @@ const EN_UI: UIStrings = {
   },
   home: {
     title: 'Box Box',
-    subtitle: 'Pit Wall Tactics',
+    subtitle: 'Racing Strategy Game',
     teamLabel: 'Team',
     teamNone: 'None',
     deckLabel: 'Deck',
@@ -436,7 +441,10 @@ const EN_UI: UIStrings = {
     skipTurn: 'Skip Turn',
     emergencyMulligan: 'Emergency Redraw',
     noPitCardWarning: 'No pit card! Redraw or skip turn.',
-    scFreePit: 'Free pit under SC (POS -2)',
+    scFreePit: 'Free pit under SC',
+    scOvertakeWarning: 'Overtaking under SC! +3 position penalty if you play this card.',
+    scPlayAnyway: 'Play Anyway (+3 penalty)',
+    bwFlagWarning: 'Black & White Flag! Next violation = time penalty.',
   },
   deck: {
     title: 'Deck Builder',
@@ -544,11 +552,13 @@ const EN_UI: UIStrings = {
       mulliganTitle: 'Mulligan (Redraw)',
       mulliganText: 'On the first lap only, you can redraw your entire hand once. Use this if your starting hand doesn\'t match the event or your strategy.',
       safetyCarTitle: 'Safety Car Rules',
-      safetyCarText: 'Under Safety Car: no overtaking (position gains halved), pit stops are free (no position loss), and tire wear is reduced. Use it as a chance to pit for fresh tires!',
+      safetyCarText: 'Under Safety Car: pit stops are free (no position loss), defensive/overcut cards get +2 bonus positions, overtaking cards are nullified with a +3 penalty (you can still choose to play them). Team perk is blocked under SC. Use it to pit for fresh tires!',
       skipTurnTitle: 'Skip Turn & Emergency Redraw',
       skipTurnText: 'If you have no pit card when mandatory pit is needed, you get an emergency redraw. If still no pit card, you can skip your turn (no card played). Skipping avoids crash risk but you still take tire degradation penalties.',
       crashTitle: 'Crash / DNF Risk',
       crashText: 'Aggressive cards on worn tires, rain on dry tires, and mechanical issues increase crash risk. A crash can cause heavy damage (+8 positions, +30 wear) or a DNF (race over). Under Safety Car there is no crash risk.',
+      bwFlagTitle: 'Black & White Flag',
+      bwFlagText: 'Each aggressive card played (outside of Safety Car) counts as a track limits violation. After 3 violations you receive a Black & White Flag warning. Any further violation results in a +3 position penalty. Balance your aggression!',
       tipsTitle: 'Strategy Tips',
       tip1: 'Balance your deck - do not go all-in on one card type.',
       tip2: 'Watch your tire wear - at 100 you get a tire blowout penalty.',
@@ -619,7 +629,7 @@ const PT_BR_UI: UIStrings = {
   },
   home: {
     title: 'Box Box',
-    subtitle: 'Pit Wall Tactics',
+    subtitle: 'Racing Strategy Game',
     teamLabel: 'Equipe',
     teamNone: 'Nenhuma',
     deckLabel: 'Deck',
@@ -692,7 +702,10 @@ const PT_BR_UI: UIStrings = {
     skipTurn: 'Passar Vez',
     emergencyMulligan: 'Trocar Mao Extra',
     noPitCardWarning: 'Sem carta de pit! Troque a mao ou passe a vez.',
-    scFreePit: 'Pit gratis sob SC (POS -2)',
+    scFreePit: 'Pit gratis sob SC',
+    scOvertakeWarning: 'Ultrapassagem sob SC! +3 penalidade de posicao se jogar esta carta.',
+    scPlayAnyway: 'Jogar Mesmo Assim (+3 penalidade)',
+    bwFlagWarning: 'Bandeira Preta e Branca! Proxima violacao = penalidade de tempo.',
   },
   deck: {
     title: 'Construtor de Deck',
@@ -800,11 +813,13 @@ const PT_BR_UI: UIStrings = {
       mulliganTitle: 'Mulligan (Trocar Mao)',
       mulliganText: 'Apenas na primeira volta, voce pode trocar toda a mao uma vez. Use se a mao inicial nao combina com o evento ou sua estrategia.',
       safetyCarTitle: 'Regras do Safety Car',
-      safetyCarText: 'Sob Safety Car: sem ultrapassagens (ganhos de posicao pela metade), pit stops sao gratis (sem perda de posicao), e desgaste de pneus reduzido. Aproveite para trocar os pneus!',
+      safetyCarText: 'Sob Safety Car: pit stops sao gratis (sem perda de posicao), cartas defensivas/overcut ganham +2 bonus de posicao, cartas de ultrapassagem sao anuladas com penalidade +3 (voce ainda pode jogar). Perk da equipe bloqueado sob SC. Aproveite para trocar os pneus!',
       skipTurnTitle: 'Passar Vez e Troca Extra',
       skipTurnText: 'Se voce nao tiver carta de pit quando o pit e obrigatorio, ganha uma troca extra de mao. Se ainda nao tiver, pode passar a vez (sem jogar carta). Passar evita risco de batida mas voce ainda sofre penalidades de desgaste.',
       crashTitle: 'Risco de Batida / DNF',
       crashText: 'Cartas agressivas com pneus gastos, chuva em pneus secos e problemas mecanicos aumentam o risco de batida. Uma batida causa dano pesado (+8 posicoes, +30 desgaste) ou DNF (corrida encerrada). Sob Safety Car nao ha risco de batida.',
+      bwFlagTitle: 'Bandeira Preta e Branca',
+      bwFlagText: 'Cada carta agressiva jogada (fora do Safety Car) conta como violacao de limites de pista. Apos 3 violacoes voce recebe aviso de Bandeira Preta e Branca. Qualquer violacao seguinte resulta em penalidade de +3 posicoes. Equilibre sua agressividade!',
       tipsTitle: 'Dicas de Estrategia',
       tip1: 'Equilibre o deck - nao aposte tudo em um unico tipo de carta.',
       tip2: 'Fique de olho no desgaste - ao chegar a 100 voce sofre penalidade por estouro de pneu.',

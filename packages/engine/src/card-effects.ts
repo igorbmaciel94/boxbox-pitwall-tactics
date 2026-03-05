@@ -27,10 +27,29 @@ export function applyCardEffect(
   const newHand = [...state.hand];
   newHand.splice(handIndex, 1);
 
-  // Under Safety Car: halve position changes, pit stops are free
-  const effectToApply = state.underSafetyCar
-    ? { ...card.effect, position: Math.floor((card.effect.position ?? 0) / 2) }
-    : card.effect;
+  // Under Safety Car: special rules
+  let effectToApply = card.effect;
+  let scOvertakePenalty = 0;
+  if (state.underSafetyCar) {
+    const isPit = isPitStopCard(cardId, catalog);
+    const isDefensive = card.tags.includes('defensive');
+    const posChange = card.effect.position ?? 0;
+
+    if (isPit) {
+      // Pit cards: halve position loss (will be fully restored below)
+      effectToApply = { ...card.effect, position: Math.floor(posChange / 2) };
+    } else if (isDefensive) {
+      // Defensive/overcut: bonus — gain 2 extra positions
+      effectToApply = { ...card.effect, position: posChange - 2 };
+    } else if (posChange < 0) {
+      // Overtaking under SC: nullify gains + penalize +3
+      scOvertakePenalty = 3;
+      effectToApply = { ...card.effect, position: 0 };
+    } else {
+      // Other cards: halve position changes
+      effectToApply = { ...card.effect, position: Math.floor(posChange / 2) };
+    }
+  }
 
   let updated = applyEffect(state, effectToApply);
   updated = {
@@ -40,9 +59,24 @@ export function applyCardEffect(
     cardsPlayedTotal: [...state.cardsPlayedTotal, cardId],
   };
 
+  // Apply SC overtake penalty
+  if (scOvertakePenalty > 0) {
+    updated = { ...updated, position: updated.position + scOvertakePenalty };
+  }
+
+  // Black & White flag: aggressive cards trigger track limit violations
+  if (card.tags.includes('aggressive') && !state.underSafetyCar) {
+    const newViolations = updated.trackLimitViolations + 1;
+    updated = { ...updated, trackLimitViolations: newViolations };
+    // 4th+ violation: +3 position penalty
+    if (newViolations >= 4) {
+      updated = { ...updated, position: updated.position + 3 };
+    }
+  }
+
   // Pit stop: reset tire wear and change compound
   if (isPitStopCard(cardId, catalog)) {
-    // Under SC: free pit stop (undo any position penalty from card)
+    // Under SC: free pit stop (restore position to before card)
     if (state.underSafetyCar) {
       updated = { ...updated, position: state.position };
     }

@@ -6,10 +6,10 @@ function clamp(value: number, min: number, max: number): number {
 
 /** Base tire wear added each turn depending on compound */
 export const COMPOUND_WEAR_PER_TURN: Record<TireCompound, number> = {
-  soft: 6,
-  medium: 4,
-  hard: 2,
-  intermediate: 4,
+  soft: 7,
+  medium: 5,
+  hard: 3,
+  intermediate: 5,
   wet: 3,
 };
 
@@ -57,11 +57,11 @@ export function applyEndOfTurnPenalties(state: RaceState, isRaining: boolean, un
   // Under Safety Car: no position changes from degradation (field is bunched)
   if (!underSafetyCar) {
     // Progressive degradation: high wear = lose positions
-    if (updated.tireWear >= 95) {
+    if (updated.tireWear >= 90) {
       updated = { ...updated, position: updated.position + 3 };
-    } else if (updated.tireWear >= 80) {
+    } else if (updated.tireWear >= 75) {
       updated = { ...updated, position: updated.position + 2 };
-    } else if (updated.tireWear >= 60) {
+    } else if (updated.tireWear >= 55) {
       updated = { ...updated, position: updated.position + 1 };
     }
 
@@ -100,13 +100,13 @@ export function applyCrashCheck(
   let crashChance = 0;
 
   // Aggressive driving with worn tires
-  if (card?.tags.includes('aggressive') && state.tireWear > 80) {
-    crashChance += 3;
+  if (card?.tags.includes('aggressive') && state.tireWear > 75) {
+    crashChance += 4;
   }
 
   // Rain on dry tires (risky)
   if (isRaining && (state.tireCompound === 'soft' || state.tireCompound === 'medium' || state.tireCompound === 'hard')) {
-    crashChance += 5;
+    crashChance += 6;
   }
 
   // Mechanical issues compound risk
@@ -115,7 +115,7 @@ export function applyCrashCheck(
 
   // Extreme tire wear adds risk
   if (state.tireWear >= 95) {
-    crashChance += 3;
+    crashChance += 4;
   }
 
   if (crashChance <= 0) return { ...state, lastCrashSeverity: 'none' };
@@ -125,15 +125,15 @@ export function applyCrashCheck(
 
   // Crash occurred! Determine severity
   const severityRoll = rng.nextInt(1, 100);
-  if (severityRoll <= 25) {
+  if (severityRoll <= 30) {
     // DNF - race over
     return { ...state, isDNF: true, position: 20, lastCrashSeverity: 'dnf' };
   } else {
     // Damage - survivable but costly
     return {
       ...state,
-      position: state.position + 5,
-      tireWear: Math.min(state.tireWear + 20, 100),
+      position: state.position + 6,
+      tireWear: Math.min(state.tireWear + 25, 100),
       lastCrashSeverity: 'damage',
     };
   }

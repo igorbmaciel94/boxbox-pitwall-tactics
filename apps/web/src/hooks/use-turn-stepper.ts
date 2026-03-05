@@ -82,8 +82,8 @@ export function useTurnStepper() {
     const { raceState: state, team } = store.getState();
     if (!state || !team) return;
 
-    // Phase 3: Team perk (if available)
-    if (!state.perkUsed) {
+    // Phase 3: Team perk (if available, but NOT under Safety Car)
+    if (!state.perkUsed && !state.underSafetyCar) {
       store.getState().setTurnPhaseUI('await-perk');
     } else {
       store.getState().setTurnPhaseUI('await-action-card');

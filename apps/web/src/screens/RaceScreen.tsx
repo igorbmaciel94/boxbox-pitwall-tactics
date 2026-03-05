@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { useUIStore } from '../stores/ui-store';
@@ -10,6 +10,7 @@ import { EventCard } from '../components/race/EventCard';
 import { HandDisplay } from '../components/race/HandDisplay';
 import { PerkButton } from '../components/race/PerkButton';
 import { TrackMap } from '../components/race/TrackMap';
+import type { RivalDot } from '../components/race/TrackMap';
 import { CompoundSelector } from '../components/race/CompoundSelector';
 import { PreRaceTireSetup } from '../components/race/PreRaceTireSetup';
 import { Button } from '../components/shared/Button';
@@ -231,6 +232,32 @@ export function RaceScreen() {
     );
   }
 
+  // Generate 18-position grid (6 teams × 3 pilots), excluding player position
+  const rivalDots: RivalDot[] = useMemo(() => {
+    if (!catalog || !team) return [];
+    const teamColors = catalog.teams.map((t) => t.color);
+    // 3 pilots per team = 18 grid slots
+    const allSlots: { color: string }[] = [];
+    for (const color of teamColors) {
+      allSlots.push({ color }, { color }, { color });
+    }
+    // Assign positions 1..18, skip player position
+    const dots: RivalDot[] = [];
+    let slotIdx = 0;
+    for (let pos = 1; pos <= 18; pos++) {
+      if (pos === raceState.position) continue;
+      if (slotIdx < allSlots.length) {
+        // Skip slots matching player's team color (one of the 3 is the player)
+        if (allSlots[slotIdx].color === team.color && pos !== raceState.position) {
+          // Still render — the player's teammates are rivals too
+        }
+        dots.push({ position: pos, color: allSlots[slotIdx].color });
+        slotIdx++;
+      }
+    }
+    return dots;
+  }, [catalog, team, raceState?.position]);
+
   const isSC = currentEvent?.type === 'safety-car';
   const isRain = currentEvent?.type === 'rain';
 
@@ -259,10 +286,12 @@ export function RaceScreen() {
       <div className="relative px-5 py-1">
         <TrackMap
           position={raceState.position}
+          totalPositions={18}
           currentEvent={currentEvent}
           teamColor={team.color}
           circuitId={scenario.id}
           tireCompound={raceState.tireCompound}
+          rivals={rivalDots}
         />
       </div>
 
@@ -309,6 +338,12 @@ export function RaceScreen() {
       }`}>
         <HUD state={raceState} previousPosition={previousPosition} />
 
+        {raceState.trackLimitViolations >= 3 && turnPhaseUI === 'await-action-card' && (
+          <div className="rounded-lg bg-white/10 border border-white/30 px-3 py-1.5 text-center text-[11px] text-white animate-fade-in">
+            {t('race.bwFlagWarning')} ({raceState.trackLimitViolations}x)
+          </div>
+        )}
+
         {currentEvent && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
           <EventCard event={currentEvent} animated={turnPhaseUI === 'reveal-event'} />
         )}
@@ -326,7 +361,15 @@ export function RaceScreen() {
           const hasPit = handHasPitCard(raceState.hand, catalog);
           const canEmergencyMulligan = needsPit && !hasPit && !raceState.emergencyMulliganUsed;
           const canSkipTurn = needsPit && !hasPit && raceState.emergencyMulliganUsed;
-          const showSkipAlways = raceState.underSafetyCar; // Under SC, always allow skip
+          const showSkipAlways = raceState.underSafetyCar;
+
+          // SC overtake warning: selected card gains positions (posChange < 0) and is not a pit card
+          const selectedCardId = selectedHandIndex !== null ? raceState.hand[selectedHandIndex] : null;
+          const selectedCardData = selectedCardId ? catalog.cards.find((c) => c.id === selectedCardId) : null;
+          const isScOvertake = raceState.underSafetyCar && selectedCardData
+            && (selectedCardData.effect.position ?? 0) < 0
+            && !selectedCardData.tags.includes('pit');
+
           return (
             <>
               {/* Warning: no pit card when pit mandatory */}
@@ -346,21 +389,29 @@ export function RaceScreen() {
               {/* Fixed bottom buttons */}
               <div className={`fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-carbon via-carbon/95 to-transparent px-5 pb-4 pt-3 ${selectedHandIndex !== null || canEmergencyMulligan || canSkipTurn || showSkipAlways ? 'animate-slide-up' : 'hidden'}`}>
                 {selectedHandIndex !== null && (
-                  <Button
-                    variant="primary"
-                    size="md"
-                    className="w-full"
-                    onClick={() => {
-                      const cardId = raceState.hand[selectedHandIndex];
-                      if (cardId) {
-                        sendRadio('generic');
-                        stepper.submitActionCard(cardId);
-                        setSelectedHandIndex(null);
-                      }
-                    }}
-                  >
-                    {t('race.playCard')}
-                  </Button>
+                  <>
+                    {/* SC overtake warning */}
+                    {isScOvertake && (
+                      <div className="mb-2 rounded-lg bg-hud-yellow/10 border border-hud-yellow/30 px-3 py-1.5 text-center text-[11px] text-hud-yellow">
+                        {t('race.scOvertakeWarning')}
+                      </div>
+                    )}
+                    <Button
+                      variant={isScOvertake ? 'secondary' : 'primary'}
+                      size="md"
+                      className="w-full"
+                      onClick={() => {
+                        const cardId = raceState.hand[selectedHandIndex];
+                        if (cardId) {
+                          sendRadio('generic');
+                          stepper.submitActionCard(cardId);
+                          setSelectedHandIndex(null);
+                        }
+                      }}
+                    >
+                      {isScOvertake ? t('race.scPlayAnyway') : t('race.playCard')}
+                    </Button>
+                  </>
                 )}
                 {selectedHandIndex === null && (canEmergencyMulligan || canSkipTurn || showSkipAlways) && (
                   <div className="flex gap-2">
