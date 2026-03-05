@@ -48,7 +48,7 @@ export function CardComponent({ card, selected = false, disabled = false, compac
         className={`group relative w-full overflow-hidden rounded-xl text-left transition-all duration-150
           ${selected ? 'ring-2 ring-f1-red/60 ring-offset-2 ring-offset-carbon' : ''}
           ${disabled ? 'pointer-events-none opacity-40' : 'hover:brightness-110 active:scale-[0.98]'}
-          ${selected ? 'z-10 -translate-y-1 scale-[1.02]' : ''}
+          ${selected ? 'z-10 -translate-y-3 scale-[1.04] shadow-lg shadow-f1-red/20' : ''}
         `}
       >
         {/* Full background image or gradient */}
