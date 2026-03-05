@@ -365,7 +365,7 @@ export function RaceScreen() {
           const hasPit = handHasPitCard(raceState.hand, catalog);
           const canEmergencyMulligan = needsPit && !hasPit && !raceState.emergencyMulliganUsed;
           const canSkipTurn = needsPit && !hasPit && raceState.emergencyMulliganUsed;
-          const showSkipAlways = raceState.underSafetyCar;
+          const showSkipAlways = raceState.underSafetyCar || raceState.position === 1;
 
           // SC overtake warning: selected card gains positions (posChange < 0) and is not a pit card
           const selectedCardId = selectedHandIndex !== null ? raceState.hand[selectedHandIndex] : null;
@@ -433,15 +433,19 @@ export function RaceScreen() {
                   const atPLast = raceState.position >= 18 && posChange > 0;
                   return (
                   <>
-                    {/* Position boundary hint */}
+                    {/* Position boundary hint — same style as SC warning */}
                     {atP1 && (
-                      <div className="mb-2 rounded-lg bg-hud-cyan/10 border border-hud-cyan/30 px-3 py-2 text-center text-xs text-hud-cyan">
-                        {t('race.p1NoOvertake')}
+                      <div className="mb-3 rounded-xl border-2 border-hud-cyan bg-hud-cyan/20 px-4 py-3 text-center animate-fade-in">
+                        <div className="font-display text-base font-bold uppercase tracking-wide text-hud-cyan">
+                          {t('race.p1NoOvertake')}
+                        </div>
                       </div>
                     )}
                     {atPLast && !atP1 && (
-                      <div className="mb-2 rounded-lg bg-metal-light/10 border border-metal-light/30 px-3 py-2 text-center text-xs text-metal-light">
-                        {t('race.pLastNoLose')}
+                      <div className="mb-3 rounded-xl border-2 border-metal-light bg-metal-light/15 px-4 py-3 text-center animate-fade-in">
+                        <div className="font-display text-base font-bold uppercase tracking-wide text-metal-light">
+                          {t('race.pLastNoLose')}
+                        </div>
                       </div>
                     )}
                     {/* SC overtake warning — visible on easy (always) and normal (once) */}
@@ -627,7 +631,7 @@ function CircuitCard({
         <div className="mt-2 text-[11px]">
           {scenario.objectives.map((obj) => (
             <span key={obj.id} className="mr-3 inline-block">
-              <span className={obj.type === 'main' ? 'font-mono text-hud-amber' : 'font-mono text-metal-light'}>{obj.type === 'main' ? 'M>' : 'B>'}</span>{' '}
+              <span className={obj.type === 'main' ? 'text-hud-amber' : 'text-metal-light'}>{obj.type === 'main' ? '\u{1F3C6}' : '\u{2B50}'}</span>{' '}
               <span className="text-white/60">{getObjectiveDescription(obj.id, obj.description)}</span>
               <span className="text-metal-light"> ({obj.points}{t('common.scorePts')})</span>
             </span>
