@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { useUIStore } from '../stores/ui-store';
@@ -50,11 +50,13 @@ export function RaceScreen() {
   const seasonProgress = useGameStore((s) => s.seasonProgress);
   const deductTireBank = useGameStore((s) => s.deductTireBank);
 
-  const [selectedActionCard, setSelectedActionCard] = useState<CardId | null>(null);
+  const [selectedHandIndex, setSelectedHandIndex] = useState<number | null>(null);
   const [scenarioSelectMode, setScenarioSelectMode] = useState(false);
   const [pendingScenarioId, setPendingScenarioId] = useState<string | null>(null);
   const [pendingRaceSeed, setPendingRaceSeed] = useState<number | undefined>(undefined);
   const [muted, setMuted] = useState(() => audio.isMuted());
+
+  const handRef = useRef<HTMLDivElement>(null);
 
   const hasTeamAndDeck = !!selectedTeamId && currentDeck.length === 9;
 
@@ -106,6 +108,13 @@ export function RaceScreen() {
     }
 
     return () => clearTimeout(timer);
+  }, [turnPhaseUI]);
+
+  // Auto-scroll to hand when cards need interaction
+  useEffect(() => {
+    if (turnPhaseUI === 'await-action-card' || turnPhaseUI === 'await-mulligan') {
+      setTimeout(() => handRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+    }
   }, [turnPhaseUI]);
 
   const handleStartScenario = useCallback(
@@ -301,7 +310,7 @@ export function RaceScreen() {
       </div>
 
       <div className={`flex flex-col gap-2 px-5 py-2 ${
-        (turnPhaseUI === 'await-action-card' && selectedActionCard) ? 'pb-20' : 'pb-4'
+        (turnPhaseUI === 'await-action-card' && selectedHandIndex !== null) ? 'pb-20' : 'pb-4'
       }`}>
         <HUD state={raceState} previousPosition={previousPosition} />
 
@@ -310,12 +319,14 @@ export function RaceScreen() {
         )}
 
         {turnPhaseUI === 'await-mulligan' && (
-          <HandDisplay
-            hand={raceState.hand}
-            catalog={catalog}
-            selectedCard={null}
-            onSelect={() => {}}
-          />
+          <div ref={handRef}>
+            <HandDisplay
+              hand={raceState.hand}
+              catalog={catalog}
+              selectedCard={null}
+              onSelect={() => {}}
+            />
+          </div>
         )}
 
         <PerkButton
@@ -328,25 +339,30 @@ export function RaceScreen() {
 
         {turnPhaseUI === 'await-action-card' && (
           <>
-            <HandDisplay
-              hand={raceState.hand}
-              catalog={catalog}
-              selectedCard={selectedActionCard}
-              onSelect={(cardId) =>
-                setSelectedActionCard((prev) => (prev === cardId ? null : cardId))
-              }
-            />
+            <div ref={handRef}>
+              <HandDisplay
+                hand={raceState.hand}
+                catalog={catalog}
+                selectedIndex={selectedHandIndex}
+                onSelectIndex={(index) =>
+                  setSelectedHandIndex((prev) => (prev === index ? null : index))
+                }
+              />
+            </div>
             {/* Fixed bottom button — only visible when a card is selected */}
-            {selectedActionCard && (
+            {selectedHandIndex !== null && (
               <div className="fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-carbon via-carbon/95 to-transparent px-5 pb-4 pt-3 animate-slide-up">
                 <Button
                   variant="primary"
                   size="md"
                   className="w-full"
                   onClick={() => {
-                    sendRadio('generic');
-                    stepper.submitActionCard(selectedActionCard);
-                    setSelectedActionCard(null);
+                    const cardId = raceState.hand[selectedHandIndex];
+                    if (cardId) {
+                      sendRadio('generic');
+                      stepper.submitActionCard(cardId);
+                      setSelectedHandIndex(null);
+                    }
                   }}
                 >
                   {t('race.playCard')}
@@ -373,7 +389,7 @@ export function RaceScreen() {
               size="lg"
               className="w-full"
               onClick={() => {
-                setSelectedActionCard(null);
+                setSelectedHandIndex(null);
                 stepper.startNextTurn();
               }}
             >
