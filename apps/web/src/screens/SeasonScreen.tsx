@@ -31,29 +31,20 @@ export function SeasonScreen() {
   const [showCardSwap, setShowCardSwap] = useState(false);
   const [swapDeck, setSwapDeck] = useState<CardId[]>([]);
 
+  const isComplete = seasonProgress ? seasonProgress.currentRaceIndex >= (seasonProgress.raceOrder?.length ?? 0) : false;
+
   useEffect(() => {
     if (!seasonProgress) {
       startSeason();
     }
-  }, []);
+  }, [seasonProgress, startSeason]);
 
   useEffect(() => {
     if (seasonProgress && seasonProgress.currentRaceIndex === 3 && !seasonProgress.cardSwapDone) {
       setSwapDeck([...currentDeck]);
       setShowCardSwap(true);
     }
-  }, [seasonProgress?.currentRaceIndex, seasonProgress?.cardSwapDone]);
-
-  if (!catalog || !seasonProgress) {
-    return (
-      <div className="flex h-64 items-center justify-center text-sm text-metal-light">
-        {t('season.loadingSeason')}
-      </div>
-    );
-  }
-
-  const { raceOrder, currentRaceIndex, raceResults, cumulativeScore } = seasonProgress;
-  const isComplete = currentRaceIndex >= raceOrder.length;
+  }, [seasonProgress?.currentRaceIndex, seasonProgress?.cardSwapDone, currentDeck]);
 
   useEffect(() => {
     if (isComplete) {
@@ -61,9 +52,35 @@ export function SeasonScreen() {
     }
   }, [isComplete, navigate]);
 
+  if (!catalog || !selectedTeamId || currentDeck.length !== 9) {
+    return (
+      <div className="flex h-64 flex-col items-center justify-center gap-3 px-5 text-center">
+        <div className="font-display text-base font-bold uppercase tracking-wide text-metal-light">
+          {t('race.notReady')}
+        </div>
+        <p className="text-sm text-metal-light">
+          {!selectedTeamId ? t('race.selectTeam') : t('race.buildDeck')} {t('race.beforeRacing')}
+        </p>
+        <Button variant="primary" size="md" onClick={() => navigate(!selectedTeamId ? '/team' : '/decks')}>
+          {!selectedTeamId ? t('race.selectTeam') : t('race.buildDeck')}
+        </Button>
+      </div>
+    );
+  }
+
+  if (!seasonProgress) {
+    return (
+      <div className="flex h-64 items-center justify-center text-sm text-metal-light">
+        {t('season.loadingSeason')}
+      </div>
+    );
+  }
+
   if (isComplete) {
     return null;
   }
+
+  const { raceOrder, currentRaceIndex, raceResults, cumulativeScore } = seasonProgress;
 
   const currentScenarioId = raceOrder[currentRaceIndex];
   const currentScenario = catalog.scenarios.find((s) => s.id === currentScenarioId);
@@ -95,6 +112,12 @@ export function SeasonScreen() {
 
   return (
     <div className="flex flex-col px-5 pt-6">
+      <button
+        onClick={() => navigate('/')}
+        className="mb-4 text-left text-xs uppercase tracking-wider text-metal-light transition-colors hover:text-white"
+      >
+        &larr; {t('common.back')}
+      </button>
       <div className="flex items-center justify-between mb-1">
         <h1 className="font-display text-2xl font-bold uppercase tracking-wide">{t('season.title')}</h1>
         <span className="font-mono text-base">{cumulativeScore} {t('common.scorePts')}</span>

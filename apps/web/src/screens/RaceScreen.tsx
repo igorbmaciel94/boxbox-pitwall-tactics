@@ -288,35 +288,37 @@ export function RaceScreen() {
         )}
 
         {turnPhaseUI === 'await-mulligan' && (
-          <div className="space-y-2">
+          <>
             <HandDisplay
               hand={raceState.hand}
               catalog={catalog}
               selectedCard={null}
               onSelect={() => {}}
             />
-            <div className="flex gap-2">
-              <Button
-                variant="secondary"
-                size="md"
-                className="flex-1"
-                onClick={() => {
-                  stepper.submitMulligan();
-                  stepper.advanceToRevealEvent();
-                }}
-              >
-                {t('race.mulligan')}
-              </Button>
-              <Button
-                variant="primary"
-                size="md"
-                className="flex-1"
-                onClick={() => stepper.advanceToRevealEvent()}
-              >
-                {t('race.keepHand')}
-              </Button>
+            <div className="fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-carbon via-carbon/95 to-transparent px-5 pb-4 pt-3">
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  size="md"
+                  className="flex-1"
+                  onClick={() => {
+                    stepper.submitMulligan();
+                    stepper.advanceToRevealEvent();
+                  }}
+                >
+                  {t('race.mulligan')}
+                </Button>
+                <Button
+                  variant="primary"
+                  size="md"
+                  className="flex-1"
+                  onClick={() => stepper.advanceToRevealEvent()}
+                >
+                  {t('race.keepHand')}
+                </Button>
+              </div>
             </div>
-          </div>
+          </>
         )}
 
         <PerkButton
@@ -328,29 +330,32 @@ export function RaceScreen() {
         />
 
         {turnPhaseUI === 'await-action-card' && (
-          <div className="space-y-2">
+          <>
             <HandDisplay
               hand={raceState.hand}
               catalog={catalog}
               selectedCard={selectedActionCard}
               onSelect={setSelectedActionCard}
             />
-            <Button
-              variant="primary"
-              size="md"
-              className="w-full"
-              disabled={!selectedActionCard}
-              onClick={() => {
-                if (selectedActionCard) {
-                  sendRadio('generic');
-                  stepper.submitActionCard(selectedActionCard);
-                  setSelectedActionCard(null);
-                }
-              }}
-            >
-              {t('race.playCard')}
-            </Button>
-          </div>
+            {/* Fixed bottom button for mobile */}
+            <div className="fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-carbon via-carbon/95 to-transparent px-5 pb-4 pt-3">
+              <Button
+                variant="primary"
+                size="md"
+                className="w-full"
+                disabled={!selectedActionCard}
+                onClick={() => {
+                  if (selectedActionCard) {
+                    sendRadio('generic');
+                    stepper.submitActionCard(selectedActionCard);
+                    setSelectedActionCard(null);
+                  }
+                }}
+              >
+                {t('race.playCard')}
+              </Button>
+            </div>
+          </>
         )}
 
         {turnPhaseUI === 'await-compound' && (
