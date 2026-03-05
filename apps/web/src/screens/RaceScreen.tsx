@@ -59,6 +59,15 @@ export function RaceScreen() {
 
   const hasTeamAndDeck = !!selectedTeamId && currentDeck.length === 9;
 
+  // On mount: if quick-race mode has a stale raceState (from previous unfinished race), reset it
+  useEffect(() => {
+    if (mode !== 'season' && raceState && turnPhaseUI !== 'idle') {
+      // Stale race from a previous session — reset to show circuit selection
+      useGameStore.getState().resetRace();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!raceState && catalog) {
       if (mode === 'season' && seasonProgress) {

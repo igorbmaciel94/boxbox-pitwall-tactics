@@ -249,10 +249,10 @@ export function TrackMap({ position, totalPositions = 20, currentEvent, teamColo
           />
         )}
 
-        {/* Position label near player */}
+        {/* Position label near player — below dot when near top edge */}
         <text
           x={playerPos.x}
-          y={playerPos.y - 13}
+          y={playerPos.y < 25 ? playerPos.y + 18 : playerPos.y - 13}
           textAnchor="middle"
           className="fill-white text-[9px] font-bold"
           style={{ fontFamily: 'monospace' }}

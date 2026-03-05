@@ -6,11 +6,11 @@ function clamp(value: number, min: number, max: number): number {
 
 /** Base tire wear added each turn depending on compound */
 export const COMPOUND_WEAR_PER_TURN: Record<TireCompound, number> = {
-  soft: 8,
-  medium: 5,
-  hard: 3,
-  intermediate: 5,
-  wet: 4,
+  soft: 6,
+  medium: 4,
+  hard: 2,
+  intermediate: 4,
+  wet: 3,
 };
 
 /** Wear multiplier when using wrong compound for conditions */
@@ -57,11 +57,11 @@ export function applyEndOfTurnPenalties(state: RaceState, isRaining: boolean, un
   // Under Safety Car: no position changes from degradation (field is bunched)
   if (!underSafetyCar) {
     // Progressive degradation: high wear = lose positions
-    if (updated.tireWear >= 90) {
+    if (updated.tireWear >= 95) {
       updated = { ...updated, position: updated.position + 3 };
-    } else if (updated.tireWear >= 70) {
+    } else if (updated.tireWear >= 80) {
       updated = { ...updated, position: updated.position + 2 };
-    } else if (updated.tireWear >= 50) {
+    } else if (updated.tireWear >= 60) {
       updated = { ...updated, position: updated.position + 1 };
     }
 
@@ -100,22 +100,22 @@ export function applyCrashCheck(
   let crashChance = 0;
 
   // Aggressive driving with worn tires
-  if (card?.tags.includes('aggressive') && state.tireWear > 70) {
-    crashChance += 5;
+  if (card?.tags.includes('aggressive') && state.tireWear > 80) {
+    crashChance += 3;
   }
 
-  // Rain on dry tires (very risky)
+  // Rain on dry tires (risky)
   if (isRaining && (state.tireCompound === 'soft' || state.tireCompound === 'medium' || state.tireCompound === 'hard')) {
-    crashChance += 8;
+    crashChance += 5;
   }
 
   // Mechanical issues compound risk
   const mechIssues = state.eventHistory.filter((e) => e.type === 'mechanical-issue').length;
-  crashChance += mechIssues * 3;
+  crashChance += mechIssues * 2;
 
   // Extreme tire wear adds risk
   if (state.tireWear >= 95) {
-    crashChance += 5;
+    crashChance += 3;
   }
 
   if (crashChance <= 0) return { ...state, lastCrashSeverity: 'none' };
@@ -125,15 +125,15 @@ export function applyCrashCheck(
 
   // Crash occurred! Determine severity
   const severityRoll = rng.nextInt(1, 100);
-  if (severityRoll <= 40) {
+  if (severityRoll <= 25) {
     // DNF - race over
     return { ...state, isDNF: true, position: 20, lastCrashSeverity: 'dnf' };
   } else {
-    // Heavy damage - survivable but costly
+    // Damage - survivable but costly
     return {
       ...state,
-      position: state.position + 8,
-      tireWear: Math.min(state.tireWear + 30, 100),
+      position: state.position + 5,
+      tireWear: Math.min(state.tireWear + 20, 100),
       lastCrashSeverity: 'damage',
     };
   }
