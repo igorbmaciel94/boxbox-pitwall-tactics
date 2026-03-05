@@ -5,7 +5,6 @@ export type {
   GameCatalogData,
   GameStringsData,
   ObjectiveData,
-  PerkTiming,
   ScenarioData,
   ScenarioParamsData,
   TeamData,

@@ -1,6 +1,6 @@
 import type { RaceState } from '@boxbox/engine';
 import { StatBar } from '../shared/StatBar';
-import { getPositionColor, getWearColor, getErsColor, getRainColor } from '../../lib/constants';
+import { getPositionColor, getWearColor } from '../../lib/constants';
 import { useI18n } from '../../i18n';
 
 interface HUDProps {
@@ -34,10 +34,8 @@ export function HUD({ state, previousPosition }: HUDProps) {
         </div>
       </div>
 
-      {/* Stat bars */}
+      {/* Tire wear bar */}
       <StatBar label={t('stats.wear')} value={state.tireWear} max={100} colorFn={getWearColor} flash={state.tireWear >= 80} />
-      <StatBar label={t('stats.ers')} value={state.fuel} max={100} colorFn={getErsColor} flash={state.fuel <= 15} />
-      <StatBar label={t('stats.rain')} value={state.rainMeter} max={10} colorFn={getRainColor} flash={state.rainMeter >= 7} />
     </div>
   );
 }

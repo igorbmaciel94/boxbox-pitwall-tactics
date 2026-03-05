@@ -11,10 +11,10 @@ import type {
   TurnSummary,
 } from './types.js';
 import { createRng } from './rng.js';
-import { refillHandWithRng, applyCardEffect, consumeQuickDecisionCard } from './card-effects.js';
-import { selectEvent, applyPreEffects, applyPostEffects, checkRainSpike, updateEventTracking } from './event-system.js';
-import { maybeApplyTeamPerk, applyEndOfTurnPerk } from './team-perks.js';
-import { clampRaceState } from './clamp.js';
+import { refillHandWithRng, applyCardEffect } from './card-effects.js';
+import { selectEvent, applyEventEffect, updateEventTracking } from './event-system.js';
+import { maybeApplyTeamPerk } from './team-perks.js';
+import { clampRaceState, applyEndOfTurnPenalties } from './clamp.js';
 import { calculateRaceScore } from './scoring.js';
 
 export function initializeRaceState(
@@ -33,8 +33,6 @@ export function initializeRaceState(
     seed,
     position: scenario.params.startingPosition,
     tireWear: scenario.params.baseTireWear,
-    fuel: scenario.params.baseFuel,
-    rainMeter: 0,
     currentTurn: 0,
     totalTurns: scenario.turns,
     deck: shuffledDeck,
@@ -43,13 +41,10 @@ export function initializeRaceState(
     currentEvent: null,
     eventHistory: [],
     scUsed: false,
-    vscUsed: false,
-    rainCount: 0,
     lastEventType: null,
     perkUsed: false,
     objectivesCompleted: [],
     cardsPlayedTotal: [],
-    quickDecisionMade: false,
     turnPhase: 'start',
     maxTireWearReached: scenario.params.baseTireWear,
   };
@@ -70,39 +65,20 @@ export function runTurn(
   const handRng = rng.fork(s.currentTurn * 100 + 1);
   s = refillHandWithRng(s, catalog, handRng);
 
-  // Phase 2: Reveal event
+  // Phase 2: Reveal event & apply effect
   s = { ...s, turnPhase: 'reveal-event' };
   const eventRng = rng.fork(s.currentTurn * 100 + 2);
   const event = selectEvent(s, scenario, eventRng, catalog);
   s = updateEventTracking(s, event);
+  s = applyEventEffect(s, event);
 
-  // Phase 3: Apply pre-effects
-  s = { ...s, turnPhase: 'pre-effects' };
-  s = applyPreEffects(s, event);
-
-  // Phase 4: Quick decision (SC/VSC/Rain spike)
-  s = { ...s, turnPhase: 'quick-decision', quickDecisionMade: false };
-  let quickDecisionCard: string | null = null;
-  const needsQuickDecision = event.requiresQuickDecision || checkRainSpike(s);
-
-  if (needsQuickDecision && s.hand.length > 0) {
-    const chosen = agent.chooseQuickDecisionCard(s);
-    if (chosen !== null) {
-      const card = catalog.cards.find((c) => c.id === chosen);
-      if (card && card.quickDecisionEligible && s.hand.includes(chosen)) {
-        s = consumeQuickDecisionCard(s, chosen, catalog);
-        quickDecisionCard = chosen;
-      }
-    }
-  }
-
-  // Phase 5: Team perk (standard timing)
-  s = { ...s, turnPhase: 'team-perk' };
+  // Phase 3: Team perk (optional, once per race)
+  s = { ...s, turnPhase: 'await-perk' };
   const perkUsedBefore = s.perkUsed;
   s = maybeApplyTeamPerk(s, team, agent);
-  const perkActivatedStandard = !perkUsedBefore && s.perkUsed;
+  const perkActivated = !perkUsedBefore && s.perkUsed;
 
-  // Phase 6: Play 1 action card
+  // Phase 4: Play 1 action card
   s = { ...s, turnPhase: 'play-card' };
   let actionCard: string;
   if (s.hand.length > 0) {
@@ -115,29 +91,20 @@ export function runTurn(
     actionCard = '';
   }
 
-  // Phase 7: Apply post-effects
-  s = { ...s, turnPhase: 'post-effects' };
-  s = applyPostEffects(s, event);
-
-  // Phase 8: Clamp + end-of-turn hooks
-  s = { ...s, turnPhase: 'clamp-and-hooks' };
-  const perkUsedBeforeEOT = s.perkUsed;
-  s = applyEndOfTurnPerk(s, team);
-  const perkActivatedEOT = !perkUsedBeforeEOT && s.perkUsed;
+  // Phase 5: Resolve - apply penalties & clamp
+  s = { ...s, turnPhase: 'resolve' };
+  s = applyEndOfTurnPenalties(s);
   s = clampRaceState(s);
   s = { ...s, turnPhase: 'end' };
 
   const summary: TurnSummary = {
     turn: s.currentTurn,
     event,
-    quickDecisionCard,
     actionCard,
-    perkActivated: perkActivatedStandard || perkActivatedEOT,
+    perkActivated,
     stateSnapshot: {
       position: s.position,
       tireWear: s.tireWear,
-      fuel: s.fuel,
-      rainMeter: s.rainMeter,
     },
   };
 

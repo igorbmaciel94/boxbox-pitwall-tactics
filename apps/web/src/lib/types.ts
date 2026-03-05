@@ -4,13 +4,9 @@ export type TurnPhaseUI =
   | 'idle'
   | 'refill-hand'
   | 'reveal-event'
-  | 'pre-effects'
-  | 'await-quick-decision'
   | 'await-perk'
   | 'await-action-card'
   | 'resolving'
-  | 'post-effects'
-  | 'clamp-and-hooks'
   | 'turn-summary'
   | 'race-complete';
 

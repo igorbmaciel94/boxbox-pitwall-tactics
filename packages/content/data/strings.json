@@ -1,15 +1,10 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "events": {
     "safety-car": [
       "Safety car deployed! The field bunches up.",
       "Yellow flags! Safety car is out on track.",
       "Incident ahead! Safety car activated."
-    ],
-    "vsc": [
-      "Virtual safety car activated. Delta times are frozen.",
-      "VSC! Slow down to the delta.",
-      "Virtual safety car. Maintain your delta time."
     ],
     "rain": [
       "Drops of rain on the visor... conditions changing.",
@@ -21,11 +16,6 @@
       "Multiple cars ahead are boxing. Do you respond?",
       "Rival pit stops underway. Gap is shifting."
     ],
-    "track-limits": [
-      "Track limits warning! Stay within the white lines.",
-      "You've been flagged for track limits. Watch the corners.",
-      "Stewards are monitoring track limits closely."
-    ],
     "traffic": [
       "Traffic ahead! Backmarkers blocking the racing line.",
       "Blue flags! But the lapped cars are slow to move.",
@@ -35,11 +25,6 @@
       "Clear air ahead. Perfect conditions to push.",
       "Open track! No traffic in sight.",
       "Clean air. The track is yours."
-    ],
-    "drs-train": [
-      "DRS train forming. Everyone has DRS, nobody can pass.",
-      "Stuck in a DRS train. Need to find another way through.",
-      "Line of cars with DRS. Overtaking is difficult."
     ],
     "mechanical-issue": [
       "Warning light on the dash! Something doesn't feel right.",

@@ -46,11 +46,6 @@ const EVALUATORS: Record<string, EvaluatorFn> = {
     return state.tireWear <= threshold;
   },
 
-  'fuel-above': (state, params) => {
-    const threshold = params.threshold as number;
-    return state.fuel >= threshold;
-  },
-
   'used-perk': (state) => {
     return state.perkUsed;
   },
@@ -118,9 +113,6 @@ function calculateStyleBonus(state: RaceState): number {
 
   // Bonus for finishing on worn tires (aggressive style)
   if (state.tireWear >= 80) bonus += 2;
-
-  // Bonus for fuel efficiency
-  if (state.fuel >= 30) bonus += 1;
 
   // Bonus for using many different cards
   const uniqueCards = new Set(state.cardsPlayedTotal);

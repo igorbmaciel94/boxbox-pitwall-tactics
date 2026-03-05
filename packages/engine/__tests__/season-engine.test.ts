@@ -6,13 +6,6 @@ import type { PlayerAgent, ScoringConfig } from '../src/types.js';
 const catalog = loadCatalog();
 
 const deterministicAgent: PlayerAgent = {
-  chooseQuickDecisionCard: (state) => {
-    for (const cardId of state.hand) {
-      const card = catalog.cards.find((c) => c.id === cardId);
-      if (card?.quickDecisionEligible) return cardId;
-    }
-    return null;
-  },
   chooseTeamPerk: () => true,
   chooseActionCard: (state) => state.hand[0],
 };
@@ -54,7 +47,6 @@ describe('runSeason', () => {
     const result1 = runSeason(catalog, 'crimson', deterministicAgent, 111, config);
     const result2 = runSeason(catalog, 'crimson', deterministicAgent, 999, config);
 
-    // Race order should be different
     const order1 = result1.races.map((r) => r.scenarioId);
     const order2 = result2.races.map((r) => r.scenarioId);
     expect(order1).not.toEqual(order2);

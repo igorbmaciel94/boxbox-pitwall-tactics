@@ -128,7 +128,6 @@ export function DebriefScreen() {
         <div className="space-y-2">
           {lastDebrief.turnLog.map((turn) => {
             const actionCard = catalog.cards.find((c) => c.id === turn.actionCard);
-            const qdCard = turn.quickDecisionCard ? catalog.cards.find((c) => c.id === turn.quickDecisionCard) : null;
             return (
               <div key={turn.turn} className="flex items-start gap-2 rounded-xl bg-white/[0.04] px-3 py-2 text-xs">
                 <span className="w-8 shrink-0 font-display font-semibold text-metal-light">
@@ -138,9 +137,6 @@ export function DebriefScreen() {
                   <span className="text-metal-light">
                     {EVENT_ICONS[turn.event.type] ?? '?'} {getEventName(turn.event.type, turn.event.name)}
                   </span>
-                  {qdCard && (
-                    <span className="text-hud-yellow ml-2">{t('debrief.qdPrefix')}: {getCardName(qdCard.id, qdCard.name)}</span>
-                  )}
                   <span className="ml-2 text-f1-red">{actionCard ? getCardName(actionCard.id, actionCard.name) : turn.actionCard}</span>
                   {turn.perkActivated && <span className="text-hud-green ml-2">{t('debrief.perkActivated')}</span>}
                 </div>

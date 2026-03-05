@@ -88,7 +88,7 @@ function TeamCard({ team, active, onSelect }: {
             {getPerkName(team.perk.id, team.perk.name)}
           </span>
           <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-metal-light">
-            {team.perk.timing === 'end-of-turn' ? t('team.auto') : t('team.active')}
+            {t('team.active')}
           </span>
         </div>
 
@@ -101,16 +101,6 @@ function TeamCard({ team, active, onSelect }: {
           {team.perk.effect.tireWear != null && team.perk.effect.tireWear !== 0 && (
             <span className={(team.perk.effect.tireWear ?? 0) < 0 ? 'text-hud-green' : 'text-hud-red'}>
               {t('stats.wear')} {(team.perk.effect.tireWear ?? 0) > 0 ? '+' : ''}{team.perk.effect.tireWear}
-            </span>
-          )}
-          {team.perk.effect.fuel != null && team.perk.effect.fuel !== 0 && (
-            <span className={(team.perk.effect.fuel ?? 0) < 0 ? 'text-hud-green' : 'text-hud-red'}>
-              {t('stats.ers')} {(team.perk.effect.fuel ?? 0) > 0 ? '+' : ''}{team.perk.effect.fuel}
-            </span>
-          )}
-          {team.perk.effect.rainMeter != null && team.perk.effect.rainMeter !== 0 && (
-            <span className={(team.perk.effect.rainMeter ?? 0) < 0 ? 'text-hud-green' : 'text-hud-red'}>
-              {t('stats.rain')} {(team.perk.effect.rainMeter ?? 0) > 0 ? '+' : ''}{team.perk.effect.rainMeter}
             </span>
           )}
         </div>

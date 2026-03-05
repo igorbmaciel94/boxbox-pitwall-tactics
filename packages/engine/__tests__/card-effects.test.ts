@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { loadCatalog } from '@boxbox/content';
-import { applyCardEffect, consumeQuickDecisionCard, refillHandWithRng } from '../src/card-effects.js';
+import { applyCardEffect, refillHandWithRng } from '../src/card-effects.js';
 import { createRng } from '../src/rng.js';
 import type { RaceState } from '../src/types.js';
 
@@ -13,8 +13,6 @@ function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
     seed: 42,
     position: 10,
     tireWear: 30,
-    fuel: 50,
-    rainMeter: 0,
     currentTurn: 1,
     totalTurns: 6,
     deck: [],
@@ -23,13 +21,10 @@ function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
     currentEvent: null,
     eventHistory: [],
     scUsed: false,
-    vscUsed: false,
-    rainCount: 0,
     lastEventType: null,
     perkUsed: false,
     objectivesCompleted: [],
     cardsPlayedTotal: [],
-    quickDecisionMade: false,
     turnPhase: 'start',
     maxTireWearReached: 30,
     ...overrides,
@@ -53,7 +48,7 @@ describe('applyCardEffect', () => {
     const state = makeBaseState({ tireWear: 80 });
     const updated = applyCardEffect(state, 'box-box', catalog);
 
-    expect(updated.position).toBe(13); // 10 + 3
+    expect(updated.position).toBe(14); // 10 + 4
     expect(updated.tireWear).toBe(0); // 80 + (-80)
     expect(updated.hand).toHaveLength(2);
   });
@@ -77,37 +72,11 @@ describe('applyCardEffect', () => {
   });
 });
 
-describe('consumeQuickDecisionCard', () => {
-  it('consumes an eligible quick-decision card', () => {
-    const state = makeBaseState({ hand: ['box-box', 'push-hard', 'overtake'] });
-    const updated = consumeQuickDecisionCard(state, 'box-box', catalog);
-
-    expect(updated.hand).toHaveLength(2);
-    expect(updated.hand).not.toContain('box-box');
-    expect(updated.discard).toContain('box-box');
-    expect(updated.quickDecisionMade).toBe(true);
-    expect(updated.cardsPlayedTotal).toContain('box-box');
-  });
-
-  it('throws if card is not quick-decision eligible', () => {
-    const state = makeBaseState({ hand: ['push-hard'] });
-    expect(() => consumeQuickDecisionCard(state, 'push-hard', catalog)).toThrow('not eligible');
-  });
-
-  it('applies the card effect during quick decision', () => {
-    const state = makeBaseState({ hand: ['box-box', 'push-hard', 'overtake'], tireWear: 80 });
-    const updated = consumeQuickDecisionCard(state, 'box-box', catalog);
-
-    expect(updated.tireWear).toBe(0); // 80 + (-80)
-    expect(updated.position).toBe(13); // 10 + 3
-  });
-});
-
 describe('refillHandWithRng', () => {
   it('draws cards to fill hand to 3', () => {
     const state = makeBaseState({
       hand: ['push-hard'],
-      deck: ['overtake', 'defend-position', 'slipstream', 'fuel-save'],
+      deck: ['overtake', 'defend-position', 'slipstream', 'drs-attack'],
     });
     const rng = createRng(42);
     const updated = refillHandWithRng(state, catalog, rng);
