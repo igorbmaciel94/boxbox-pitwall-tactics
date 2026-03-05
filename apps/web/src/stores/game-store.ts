@@ -6,9 +6,12 @@ import type {
   RaceEvent,
   RaceState,
   TeamId,
+  TireAllocation,
+  TireCompound,
   TurnSummary,
   ScenarioData,
   TeamData,
+  SeasonTireBank,
   SeededRng,
 } from '@boxbox/engine';
 import { createRng, initializeRaceState } from '@boxbox/engine';
@@ -21,6 +24,7 @@ interface SeasonProgress {
   cumulativeScore: number;
   cardSwapDone: boolean;
   seed: number;
+  tireBank: SeasonTireBank;
 }
 
 interface GameState {
@@ -63,7 +67,7 @@ interface GameState {
   seasonRuns: SeasonRunEntry[];
 
   // Actions — race
-  startRace: (scenarioId: string, seed?: number) => void;
+  startRace: (scenarioId: string, seed?: number, startingCompound?: TireCompound, tireAllocation?: TireAllocation) => void;
   setRaceState: (state: RaceState) => void;
   setTurnPhaseUI: (phase: TurnPhaseUI) => void;
   setCurrentEvent: (event: RaceEvent | null) => void;
@@ -75,6 +79,7 @@ interface GameState {
   startSeason: (seed?: number) => void;
   advanceSeasonRace: (debrief: RaceDebrief) => void;
   setSeasonCardSwapDone: () => void;
+  deductTireBank: (allocation: TireAllocation) => void;
 
   // Actions — persistence
   setSavedDecks: (decks: SavedDeck[]) => void;
@@ -119,7 +124,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   runHistory: [],
   seasonRuns: [],
 
-  startRace: (scenarioId, seed) => {
+  startRace: (scenarioId, seed, startingCompound, tireAllocation) => {
     const { catalog, selectedTeamId, currentDeck } = get();
     if (!catalog || !selectedTeamId) return;
 
@@ -129,7 +134,11 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     const raceSeed = seed ?? Math.floor(Math.random() * 2147483647);
     const rng = createRng(raceSeed);
-    const baseState = initializeRaceState(scenario, team, catalog, raceSeed, rng);
+    const baseState = initializeRaceState(
+      scenario, team, catalog, raceSeed, rng,
+      startingCompound ?? 'soft',
+      tireAllocation ?? { soft: 1, medium: 1, hard: 1 },
+    );
 
     // Override deck with player's 9-card selection
     const deckToUse = currentDeck.length === 9 ? currentDeck : catalog.cards.map((c) => c.id);
@@ -177,6 +186,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         cumulativeScore: 0,
         cardSwapDone: false,
         seed: seasonSeed,
+        tireBank: { soft: 8, medium: 8, hard: 8 },
       },
     });
   },
@@ -201,6 +211,23 @@ export const useGameStore = create<GameState>((set, get) => ({
       if (!s.seasonProgress) return s;
       return {
         seasonProgress: { ...s.seasonProgress, cardSwapDone: true },
+      };
+    });
+  },
+
+  deductTireBank: (allocation) => {
+    set((s) => {
+      if (!s.seasonProgress) return s;
+      const bank = s.seasonProgress.tireBank;
+      return {
+        seasonProgress: {
+          ...s.seasonProgress,
+          tireBank: {
+            soft: bank.soft - allocation.soft,
+            medium: bank.medium - allocation.medium,
+            hard: bank.hard - allocation.hard,
+          },
+        },
       };
     });
   },

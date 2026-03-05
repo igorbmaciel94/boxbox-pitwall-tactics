@@ -9,14 +9,22 @@ import { ScenarioStrip } from '../components/race/ScenarioStrip';
 import { EventCard } from '../components/race/EventCard';
 import { HandDisplay } from '../components/race/HandDisplay';
 import { PerkButton } from '../components/race/PerkButton';
-import { RadioFeed } from '../components/race/RadioFeed';
 import { TrackMap } from '../components/race/TrackMap';
 import { CompoundSelector } from '../components/race/CompoundSelector';
+import { PreRaceTireSetup } from '../components/race/PreRaceTireSetup';
 import { Button } from '../components/shared/Button';
 import { useAudio } from '../hooks/use-audio';
 import { getCircuitImageUrl, getCircuitFallbackGradient } from '../lib/images';
-import type { CardId } from '@boxbox/engine';
+import type { CardId, TireAllocation, TireCompound } from '@boxbox/engine';
 import { useI18n } from '../i18n';
+
+function hashCombine(a: number, b: number): number {
+  let h = (a ^ (b * 0x9e3779b9 + 0x6d2b79f5)) | 0;
+  h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
+  h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
+  h = h ^ (h >>> 16);
+  return h >>> 0;
+}
 
 export function RaceScreen() {
   const navigate = useNavigate();
@@ -39,17 +47,30 @@ export function RaceScreen() {
   const { sendRadio, sendEventRadio } = useRadioMessage();
   const audio = useAudio();
 
+  const seasonProgress = useGameStore((s) => s.seasonProgress);
+  const deductTireBank = useGameStore((s) => s.deductTireBank);
+
   const [selectedActionCard, setSelectedActionCard] = useState<CardId | null>(null);
   const [scenarioSelectMode, setScenarioSelectMode] = useState(false);
+  const [pendingScenarioId, setPendingScenarioId] = useState<string | null>(null);
+  const [pendingRaceSeed, setPendingRaceSeed] = useState<number | undefined>(undefined);
   const [muted, setMuted] = useState(() => audio.isMuted());
 
   const hasTeamAndDeck = !!selectedTeamId && currentDeck.length === 9;
 
   useEffect(() => {
-    if (!raceState && catalog && mode !== 'season') {
-      setScenarioSelectMode(true);
+    if (!raceState && catalog) {
+      if (mode === 'season' && seasonProgress) {
+        // In season mode, auto-set the current race as pending for tire setup
+        const currentScenarioId = seasonProgress.raceOrder[seasonProgress.currentRaceIndex];
+        const raceSeed = hashCombine(seasonProgress.seed, seasonProgress.currentRaceIndex);
+        setPendingScenarioId(currentScenarioId);
+        setPendingRaceSeed(raceSeed);
+      } else if (mode !== 'season') {
+        setScenarioSelectMode(true);
+      }
     }
-  }, [raceState, catalog, mode]);
+  }, [raceState, catalog, mode, seasonProgress]);
 
   useEffect(() => {
     if (!raceState || !catalog || !scenario || !team) return;
@@ -88,12 +109,27 @@ export function RaceScreen() {
   }, [turnPhaseUI]);
 
   const handleStartScenario = useCallback(
-    (scenarioId: string) => {
-      clearRadioMessages();
-      startRace(scenarioId);
+    (scenarioId: string, raceSeed?: number) => {
+      setPendingScenarioId(scenarioId);
+      setPendingRaceSeed(raceSeed);
       setScenarioSelectMode(false);
     },
-    [startRace, clearRadioMessages],
+    [],
+  );
+
+  const handleTireSetupConfirm = useCallback(
+    (allocation: TireAllocation, startingCompound: TireCompound) => {
+      if (!pendingScenarioId) return;
+      // Deduct from season tire bank if in championship
+      if (mode === 'season') {
+        deductTireBank(allocation);
+      }
+      clearRadioMessages();
+      startRace(pendingScenarioId, pendingRaceSeed, startingCompound, allocation);
+      setPendingScenarioId(null);
+      setPendingRaceSeed(undefined);
+    },
+    [pendingScenarioId, pendingRaceSeed, mode, startRace, clearRadioMessages, deductTireBank],
   );
 
   // Scenario selection view
@@ -135,6 +171,29 @@ export function RaceScreen() {
     );
   }
 
+  // Pre-race tire setup (after circuit selection, before race starts)
+  if (pendingScenarioId && !raceState && catalog) {
+    const pendingScenario = catalog.scenarios.find((s) => s.id === pendingScenarioId);
+    return (
+      <div className="flex flex-col px-5 pt-6">
+        {pendingScenario && (
+          <div className="mb-4">
+            <h1 className="mb-1 font-display text-xl font-bold uppercase tracking-wide">
+              {getScenarioName(pendingScenario.id, pendingScenario.name)}
+            </h1>
+            <p className="text-sm text-metal-light">
+              {getScenarioCircuit(pendingScenario.id, pendingScenario.circuit)}
+            </p>
+          </div>
+        )}
+        <PreRaceTireSetup
+          onConfirm={handleTireSetupConfirm}
+          seasonTireBank={mode === 'season' ? seasonProgress?.tireBank ?? null : null}
+        />
+      </div>
+    );
+  }
+
   if (!raceState || !scenario || !team || !catalog) {
     return (
       <div className="flex h-64 items-center justify-center text-sm text-metal-light">
@@ -159,10 +218,21 @@ export function RaceScreen() {
         <ScenarioStrip scenario={scenario} turn={raceState.currentTurn} />
         <button
           onClick={() => setMuted(audio.toggleMute())}
-          className="absolute right-3 top-3 z-10 rounded-full bg-white/10 px-2.5 py-1 font-mono text-[10px] text-white/60 transition-colors hover:bg-white/15 hover:text-white"
+          className="absolute right-3 top-3 z-10 rounded-full bg-white/10 p-2 text-white/60 transition-colors hover:bg-white/15 hover:text-white"
           title={muted ? t('race.unmute') : t('race.mute')}
         >
-          {muted ? t('race.muted') : t('race.sfx')}
+          {muted ? (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <line x1="23" y1="9" x2="17" y2="15" />
+              <line x1="17" y1="9" x2="23" y2="15" />
+            </svg>
+          ) : (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+            </svg>
+          )}
         </button>
       </div>
 
@@ -171,6 +241,8 @@ export function RaceScreen() {
           position={raceState.position}
           currentEvent={currentEvent}
           teamColor={team.color}
+          circuitId={scenario.id}
+          tireCompound={raceState.tireCompound}
         />
       </div>
 
@@ -301,7 +373,6 @@ export function RaceScreen() {
           </div>
         )}
 
-        <RadioFeed />
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import type { CardId, RaceDebrief, TeamId } from '@boxbox/engine';
 
 export type TurnPhaseUI =
   | 'idle'
+  | 'pre-race-setup'
   | 'refill-hand'
   | 'await-mulligan'
   | 'reveal-event'

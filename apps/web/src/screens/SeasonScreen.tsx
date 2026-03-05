@@ -70,8 +70,7 @@ export function SeasonScreen() {
   const team = catalog.teams.find((t) => t.id === selectedTeamId);
 
   const handleStartNextRace = () => {
-    const raceSeed = hashCombine(seasonProgress.seed, currentRaceIndex);
-    startRace(currentScenarioId, raceSeed);
+    // Navigate to race screen - tire setup will be shown there before race starts
     navigate('/race');
   };
 
@@ -172,6 +171,27 @@ export function SeasonScreen() {
         <div className="mt-2 flex gap-3 text-xs text-metal-light">
           <span>{t('race.start')} P{currentScenario?.params.startingPosition}</span>
           <span>{currentScenario?.turns} {t('race.laps')}</span>
+        </div>
+      </div>
+
+      {/* Tire budget */}
+      <div className="mb-4 rounded-2xl bg-white/[0.04] p-4">
+        <div className="mb-2 text-xs font-display uppercase tracking-wider text-metal-light">
+          {t('tireSetup.seasonBudget')}
+        </div>
+        <div className="flex gap-3">
+          <div className="flex items-center gap-1.5">
+            <div className="h-4 w-4 rounded-full bg-red-500" />
+            <span className="font-mono text-xs">S: {seasonProgress.tireBank.soft}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="h-4 w-4 rounded-full bg-yellow-500" />
+            <span className="font-mono text-xs">M: {seasonProgress.tireBank.medium}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="h-4 w-4 rounded-full bg-white" />
+            <span className="font-mono text-xs">H: {seasonProgress.tireBank.hard}</span>
+          </div>
         </div>
       </div>
 

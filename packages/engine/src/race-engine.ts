@@ -7,6 +7,8 @@ import type {
   ScoringConfig,
   SeededRng,
   TeamData,
+  TireAllocation,
+  TireCompound,
   TurnSummary,
 } from './types.js';
 import { createRng } from './rng.js';
@@ -22,6 +24,8 @@ export function initializeRaceState(
   catalog: GameCatalogData,
   seed: number,
   rng: SeededRng,
+  startingCompound: TireCompound = 'soft',
+  tireAllocation: TireAllocation = { soft: 1, medium: 1, hard: 1 },
 ): RaceState {
   const allCardIds = catalog.cards.map((c) => c.id);
   const shuffledDeck = rng.fork(0).shuffle(allCardIds);
@@ -32,7 +36,9 @@ export function initializeRaceState(
     seed,
     position: scenario.params.startingPosition,
     tireWear: scenario.params.baseTireWear,
-    tireCompound: 'soft',
+    tireCompound: startingCompound,
+    tireAllocation,
+    compoundSetsUsed: [startingCompound],
     hasPitted: false,
     pitStopsMade: 0,
     currentTurn: 0,

@@ -38,7 +38,7 @@ export function CardComponent({ card, selected = false, disabled = false, compac
   const fallbackGradient = getCardFallbackGradient(card.tags);
 
   const isSmall = size === 'sm';
-  const showArt = !compact;
+  const showArt = !compact || isSmall;
   const artHeight = isSmall ? 'h-[42%]' : 'h-28';
   const infoPadding = isSmall ? 'p-2' : 'p-3';
   const nameSize = isSmall ? 'text-xs' : 'text-sm';

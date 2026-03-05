@@ -2,6 +2,7 @@ import type { RaceState, TireCompound } from '@boxbox/engine';
 import { StatBar } from '../shared/StatBar';
 import { getPositionColor, getWearColor } from '../../lib/constants';
 import { useI18n } from '../../i18n';
+import { useUIStore, type RadioMessage } from '../../stores/ui-store';
 
 interface HUDProps {
   state: RaceState;
@@ -17,7 +18,9 @@ const COMPOUND_COLORS: Record<TireCompound, { bg: string; text: string; label: s
 };
 
 export function HUD({ state, previousPosition }: HUDProps) {
-  const { t } = useI18n();
+  const { t, getEventFlavor, getRadioMessage } = useI18n();
+  const messages = useUIStore((s) => s.radioMessages);
+  const lastMsg = messages.length > 0 ? messages[messages.length - 1] : null;
   const gap = previousPosition !== null ? state.position - previousPosition : 0;
   const gapStr = gap === 0 ? '' : gap > 0 ? `+${gap}` : `${gap}`;
   const gapColor = gap < 0 ? 'text-hud-green' : gap > 0 ? 'text-hud-red' : 'text-metal-light';
@@ -61,6 +64,16 @@ export function HUD({ state, previousPosition }: HUDProps) {
 
       {/* Tire wear bar */}
       <StatBar label={t('stats.wear')} value={state.tireWear} max={100} colorFn={getWearColor} flash={state.tireWear >= 80} />
+
+      {/* Inline radio message */}
+      {lastMsg && (
+        <div key={lastMsg.timestamp} className="animate-fade-in truncate text-[11px] leading-snug text-white/60">
+          <span className="mr-1 font-mono text-[10px] text-f1-red/70">{lastMsg.source === 'event' ? 'PIT>' : 'ENG>'}</span>
+          {lastMsg.source === 'event'
+            ? getEventFlavor(lastMsg.key, lastMsg.flavorIndex)
+            : getRadioMessage(lastMsg.key, lastMsg.flavorIndex)}
+        </div>
+      )}
     </div>
   );
 }

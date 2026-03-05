@@ -142,7 +142,7 @@ export function DeckBuilderScreen() {
                   onClick={() => canAdd && addCard(card.id)}
                 />
               {count > 0 && (
-                <span className="absolute right-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-f1-red text-[10px] font-bold text-white shadow">
+                <span className="absolute left-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-f1-red text-[10px] font-bold text-white shadow">
                   {count}
                 </span>
               )}

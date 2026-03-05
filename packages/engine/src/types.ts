@@ -14,6 +14,18 @@ export type { CardData, CardEffect, EventType, GameCatalogData, ObjectiveData, S
 export type CardId = string;
 export type TeamId = string;
 
+export interface TireAllocation {
+  soft: number;
+  medium: number;
+  hard: number;
+}
+
+export interface SeasonTireBank {
+  soft: number;
+  medium: number;
+  hard: number;
+}
+
 export type TurnPhase =
   | 'start'
   | 'refill-hand'
@@ -41,6 +53,8 @@ export interface RaceState {
   position: number;
   tireWear: number;
   tireCompound: TireCompound;
+  tireAllocation: TireAllocation;
+  compoundSetsUsed: TireCompound[];
   hasPitted: boolean;
   pitStopsMade: number;
 
@@ -104,6 +118,7 @@ export interface SeasonState {
   cumulativeScore: number;
   cardSwapDone: boolean;
   availableCards: CardId[];
+  tireBank: SeasonTireBank;
 }
 
 export interface SeasonResult {

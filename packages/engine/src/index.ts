@@ -18,7 +18,9 @@ export type {
   TeamData,
   TeamId,
   TurnPhase,
+  TireAllocation,
   TireCompound,
+  SeasonTireBank,
   TurnSummary,
 } from './types.js';
 

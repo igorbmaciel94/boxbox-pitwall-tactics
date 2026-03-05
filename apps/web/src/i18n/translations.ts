@@ -207,6 +207,18 @@ export interface UIStrings {
       tip6: string;
     };
   };
+  tireSetup: {
+    title: string;
+    subtitle: string;
+    setsSelected: string;
+    startingCompound: string;
+    remaining: string;
+    rainInfo: string;
+    confirm: string;
+    chooseCompound: string;
+    noCompoundsLeft: string;
+    seasonBudget: string;
+  };
   stats: {
     pos: string;
     wear: string;
@@ -481,6 +493,18 @@ const EN_UI: UIStrings = {
       tip6: 'Some circuits have tougher tire wear - plan your pit stops accordingly.',
     },
   },
+  tireSetup: {
+    title: 'Tire Strategy',
+    subtitle: 'Select 3 sets of dry tires for this race.',
+    setsSelected: 'sets',
+    startingCompound: 'Starting Compound',
+    remaining: 'Left',
+    rainInfo: 'Inter & Wet tires are available automatically if it rains.',
+    confirm: 'Confirm Strategy',
+    chooseCompound: 'Choose Tire Compound',
+    noCompoundsLeft: 'No compounds available. Use Inter/Wet in rain.',
+    seasonBudget: 'Season Budget',
+  },
   stats: {
     pos: 'POS',
     wear: 'WEAR',
@@ -685,6 +709,18 @@ const PT_BR_UI: UIStrings = {
       tip5: 'Estude os objetivos do circuito antes de montar o deck.',
       tip6: 'Circuitos com muita chuva (Spa, Interlagos) favorecem cartas de clima.',
     },
+  },
+  tireSetup: {
+    title: 'Estrategia de Pneus',
+    subtitle: 'Selecione 3 jogos de pneus secos para esta corrida.',
+    setsSelected: 'jogos',
+    startingCompound: 'Composto Inicial',
+    remaining: 'Restam',
+    rainInfo: 'Pneus Inter e Wet ficam disponiveis automaticamente em caso de chuva.',
+    confirm: 'Confirmar Estrategia',
+    chooseCompound: 'Escolher Composto de Pneu',
+    noCompoundsLeft: 'Sem compostos disponiveis. Use Inter/Wet na chuva.',
+    seasonBudget: 'Budget da Temporada',
   },
   stats: {
     pos: 'POS',

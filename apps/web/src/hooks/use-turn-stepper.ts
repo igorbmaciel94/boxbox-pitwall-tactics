@@ -144,7 +144,11 @@ export function useTurnStepper() {
     if (!state) return;
 
     // Only update compound — tireWear/hasPitted/pitStopsMade already set by applyCardEffect
-    const s: RaceState = { ...state, tireCompound: compound };
+    const s: RaceState = {
+      ...state,
+      tireCompound: compound,
+      compoundSetsUsed: [...state.compoundSetsUsed, compound],
+    };
     store.getState().setRaceState(s);
     store.getState().setTurnPhaseUI('resolving');
   }, []);
