@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 
 const AUDIO_FILES = {
   radioStatic: '/audio/radio-static.mp3',
+  pitStop: '/audio/pit-stop.mp3',
 } as const;
 
 const MUSIC_FILES = {
@@ -142,6 +143,9 @@ export function useAudio() {
   return {
     playCardSelect: () => {},
     playCardPlay: () => {},
+    playPitStop: () => {
+      playSound(AUDIO_FILES.pitStop, 0.5);
+    },
     playEventReveal: () => {},
     playSafetyCar: () => {},
     playRainStart: () => {},
