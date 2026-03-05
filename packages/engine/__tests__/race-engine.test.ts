@@ -14,12 +14,13 @@ const deterministicAgent: PlayerAgent = {
 const config: ScoringConfig = { styleBonusesEnabled: false };
 
 describe('runRace', () => {
-  it('completes a full race of 6 turns', () => {
+  it('completes a full race or ends early on DNF', () => {
     const scenario = catalog.scenarios[0];
     const team = catalog.teams[0];
     const debrief = runRace(scenario, team, catalog, deterministicAgent, 12345, config);
 
-    expect(debrief.turnLog).toHaveLength(8);
+    expect(debrief.turnLog.length).toBeGreaterThanOrEqual(1);
+    expect(debrief.turnLog.length).toBeLessThanOrEqual(8);
     expect(debrief.scenarioId).toBe(scenario.id);
     expect(debrief.teamId).toBe(team.id);
   });
@@ -57,7 +58,8 @@ describe('runRace', () => {
     const team = catalog.teams[0];
     const debrief = runRace(scenario, team, catalog, deterministicAgent, 42, config);
 
-    expect(debrief.eventHistory).toHaveLength(8);
+    expect(debrief.eventHistory.length).toBeGreaterThanOrEqual(1);
+    expect(debrief.eventHistory.length).toBeLessThanOrEqual(8);
     for (const event of debrief.eventHistory) {
       expect(event.type).toBeTruthy();
       expect(event.name).toBeTruthy();
@@ -71,7 +73,8 @@ describe('runRace', () => {
     const team = catalog.teams[0];
     const debrief = runRace(scenario, team, catalog, deterministicAgent, 42, config);
 
-    expect(debrief.cardsPlayed.length).toBe(8);
+    expect(debrief.cardsPlayed.length).toBeGreaterThanOrEqual(1);
+    expect(debrief.cardsPlayed.length).toBeLessThanOrEqual(8);
   });
 
   it('final position is within valid range', () => {
@@ -90,7 +93,8 @@ describe('runRace', () => {
 
     for (const scenario of catalog.scenarios) {
       const debrief = runRace(scenario, team, catalog, deterministicAgent, 42, config);
-      expect(debrief.turnLog).toHaveLength(8);
+      expect(debrief.turnLog.length).toBeGreaterThanOrEqual(1);
+      expect(debrief.turnLog.length).toBeLessThanOrEqual(8);
       expect(debrief.scenarioId).toBe(scenario.id);
     }
   });
@@ -100,7 +104,8 @@ describe('runRace', () => {
 
     for (const team of catalog.teams) {
       const debrief = runRace(scenario, team, catalog, deterministicAgent, 42, config);
-      expect(debrief.turnLog).toHaveLength(8);
+      expect(debrief.turnLog.length).toBeGreaterThanOrEqual(1);
+      expect(debrief.turnLog.length).toBeLessThanOrEqual(8);
       expect(debrief.teamId).toBe(team.id);
     }
   });

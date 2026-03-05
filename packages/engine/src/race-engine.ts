@@ -15,7 +15,7 @@ import { createRng } from './rng.js';
 import { refillHandWithRng, applyCardEffect, performMulligan } from './card-effects.js';
 import { selectEvent, applyEventEffect, updateEventTracking, isCurrentlyRaining } from './event-system.js';
 import { maybeApplyTeamPerk } from './team-perks.js';
-import { clampRaceState, applyEndOfTurnPenalties } from './clamp.js';
+import { clampRaceState, applyEndOfTurnPenalties, applyCrashCheck } from './clamp.js';
 import { calculateRaceScore } from './scoring.js';
 
 export function initializeRaceState(
@@ -49,6 +49,7 @@ export function initializeRaceState(
     currentEvent: null,
     eventHistory: [],
     scUsed: false,
+    underSafetyCar: false,
     lastEventType: null,
     perkUsed: false,
     mulliganUsed: false,
@@ -56,6 +57,8 @@ export function initializeRaceState(
     cardsPlayedTotal: [],
     turnPhase: 'start',
     maxTireWearReached: scenario.params.baseTireWear,
+    isDNF: false,
+    lastCrashSeverity: 'none',
   };
 }
 
@@ -67,7 +70,7 @@ export function runTurn(
   agent: PlayerAgent,
   rng: SeededRng,
 ): { state: RaceState; summary: TurnSummary } {
-  let s: RaceState = { ...state, currentTurn: state.currentTurn + 1, turnPhase: 'start' };
+  let s: RaceState = { ...state, currentTurn: state.currentTurn + 1, turnPhase: 'start', lastCrashSeverity: 'none' };
 
   // Phase 1: Refill hand to 3
   s = { ...s, turnPhase: 'refill-hand' };
@@ -110,11 +113,18 @@ export function runTurn(
   // Phase 5: Resolve - apply penalties & clamp
   s = { ...s, turnPhase: 'resolve' };
   const raining = isCurrentlyRaining(s);
-  s = applyEndOfTurnPenalties(s, raining);
+  s = applyEndOfTurnPenalties(s, raining, s.underSafetyCar);
   s = clampRaceState(s);
 
+  // Crash check (after all effects are resolved)
+  if (actionCard) {
+    const crashRng = rng.fork(s.currentTurn * 100 + 50);
+    s = applyCrashCheck(s, actionCard, catalog, raining, crashRng);
+    s = clampRaceState(s);
+  }
+
   // Mandatory pit stop warning: if final turn and no pit, apply penalty
-  if (s.currentTurn >= s.totalTurns && !s.hasPitted) {
+  if (s.currentTurn >= s.totalTurns && !s.hasPitted && !s.isDNF) {
     s = { ...s, position: s.position + 10 };
     s = clampRaceState(s);
   }
@@ -152,6 +162,7 @@ export function runRace(
     const result = runTurn(state, scenario, team, catalog, agent, rng);
     state = result.state;
     turnLog.push(result.summary);
+    if (state.isDNF) break;
   }
 
   return calculateRaceScore(state, scenario, catalog, turnLog, config);

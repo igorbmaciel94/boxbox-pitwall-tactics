@@ -102,6 +102,12 @@ export interface UIStrings {
     lapWord: string;
     noEffect: string;
     qdEligibleTitle: string;
+    safetyCarActive: string;
+    freePitStop: string;
+    crashDamage: string;
+    crashDNF: string;
+    dnfTitle: string;
+    dnfMessage: string;
   };
   deck: {
     title: string;
@@ -398,6 +404,12 @@ const EN_UI: UIStrings = {
     lapWord: 'LAP',
     noEffect: 'none',
     qdEligibleTitle: 'Quick Decision eligible',
+    safetyCarActive: 'Safety Car - No overtaking',
+    freePitStop: 'Free pit stop under SC!',
+    crashDamage: 'Incident! Heavy damage to the car.',
+    crashDNF: 'Crash! Car retired from the race.',
+    dnfTitle: 'Did Not Finish',
+    dnfMessage: 'Your car has retired from the race after a crash.',
   },
   deck: {
     title: 'Deck Builder',
@@ -625,6 +637,12 @@ const PT_BR_UI: UIStrings = {
     lapWord: 'VOLTA',
     noEffect: 'sem efeito',
     qdEligibleTitle: 'Elegivel para Decisao Rapida',
+    safetyCarActive: 'Safety Car - Sem ultrapassagens',
+    freePitStop: 'Pit stop gratis sob SC!',
+    crashDamage: 'Incidente! Dano pesado no carro.',
+    crashDNF: 'Batida! Carro abandonou a corrida.',
+    dnfTitle: 'Nao Terminou',
+    dnfMessage: 'Seu carro abandonou a corrida apos uma batida.',
   },
   deck: {
     title: 'Construtor de Deck',

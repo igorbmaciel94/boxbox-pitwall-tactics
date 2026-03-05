@@ -6,10 +6,13 @@ import { useI18n } from '../../i18n';
 interface ScenarioStripProps {
   scenario: ScenarioData;
   turn: number;
+  onQuit?: () => void;
+  onToggleMute?: () => void;
+  isMuted?: boolean;
 }
 
-export function ScenarioStrip({ scenario, turn }: ScenarioStripProps) {
-  const { getScenarioName, getScenarioCircuit } = useI18n();
+export function ScenarioStrip({ scenario, turn, onQuit, onToggleMute, isMuted }: ScenarioStripProps) {
+  const { getScenarioName, getScenarioCircuit, t } = useI18n();
   const [imgFailed, setImgFailed] = useState(false);
 
   return (
@@ -34,26 +37,63 @@ export function ScenarioStrip({ scenario, turn }: ScenarioStripProps) {
       </div>
 
       {/* Content */}
-      <div className="relative flex items-center justify-between gap-3 px-5 py-3.5">
+      <div className="relative flex items-center gap-3 px-5 py-3.5">
+        {/* Quit button */}
+        {onQuit && (
+          <button
+            onClick={onQuit}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/8 text-white/40 transition-colors hover:bg-white/15 hover:text-hud-red"
+            title={t('race.abandon')}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </button>
+        )}
         <div className="min-w-0 flex-1">
           <div className="truncate font-display text-base font-bold uppercase leading-none tracking-wide">
             {getScenarioName(scenario.id, scenario.name)}
           </div>
           <div className="mt-1 truncate text-sm text-metal-light">{getScenarioCircuit(scenario.id, scenario.circuit)}</div>
         </div>
-        <div className="flex flex-shrink-0 gap-1">
-          {Array.from({ length: scenario.turns }).map((_, i) => (
-            <div
-              key={i}
-              className={`h-1.5 w-4 rounded-full transition-all duration-200 ${
-                i < turn
-                  ? 'bg-hud-green'
-                  : i === turn
-                    ? 'bg-f1-red'
-                    : 'bg-white/10'
-              }`}
-            />
-          ))}
+        <div className="flex flex-shrink-0 items-center gap-2">
+          <div className="flex gap-1">
+            {Array.from({ length: scenario.turns }).map((_, i) => (
+              <div
+                key={i}
+                className={`h-1.5 w-4 rounded-full transition-all duration-200 ${
+                  i < turn
+                    ? 'bg-hud-green'
+                    : i === turn
+                      ? 'bg-f1-red'
+                      : 'bg-white/10'
+                }`}
+              />
+            ))}
+          </div>
+          {/* Mute toggle */}
+          {onToggleMute && (
+            <button
+              onClick={onToggleMute}
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/8 text-white/40 transition-colors hover:bg-white/15 hover:text-white"
+              title={isMuted ? t('race.unmute') : t('race.mute')}
+            >
+              {isMuted ? (
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                  <line x1="23" y1="9" x2="17" y2="15" />
+                  <line x1="17" y1="9" x2="23" y2="15" />
+                </svg>
+              ) : (
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+                </svg>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

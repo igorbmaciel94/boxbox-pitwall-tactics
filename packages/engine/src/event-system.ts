@@ -70,6 +70,7 @@ export function updateEventTracking(state: RaceState, event: RaceEvent): RaceSta
     eventHistory: [...state.eventHistory, event],
     lastEventType: event.type,
     scUsed: state.scUsed || event.type === 'safety-car',
+    underSafetyCar: event.type === 'safety-car',
   };
 }
 

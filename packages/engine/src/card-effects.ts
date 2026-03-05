@@ -27,7 +27,12 @@ export function applyCardEffect(
   const newHand = [...state.hand];
   newHand.splice(handIndex, 1);
 
-  let updated = applyEffect(state, card.effect);
+  // Under Safety Car: halve position changes, pit stops are free
+  const effectToApply = state.underSafetyCar
+    ? { ...card.effect, position: Math.floor((card.effect.position ?? 0) / 2) }
+    : card.effect;
+
+  let updated = applyEffect(state, effectToApply);
   updated = {
     ...updated,
     hand: newHand,
@@ -37,6 +42,10 @@ export function applyCardEffect(
 
   // Pit stop: reset tire wear and change compound
   if (isPitStopCard(cardId, catalog)) {
+    // Under SC: free pit stop (undo any position penalty from card)
+    if (state.underSafetyCar) {
+      updated = { ...updated, position: state.position };
+    }
     const newCompound = agent?.chooseCompound?.(updated) ?? 'medium';
     updated = {
       ...updated,

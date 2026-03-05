@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { useUIStore } from '../stores/ui-store';
@@ -56,8 +56,6 @@ export function RaceScreen() {
   const [pendingRaceSeed, setPendingRaceSeed] = useState<number | undefined>(undefined);
   const [muted, setMuted] = useState(() => audio.isMuted());
 
-  const handRef = useRef<HTMLDivElement>(null);
-
   const hasTeamAndDeck = !!selectedTeamId && currentDeck.length === 9;
 
   useEffect(() => {
@@ -108,13 +106,6 @@ export function RaceScreen() {
     }
 
     return () => clearTimeout(timer);
-  }, [turnPhaseUI]);
-
-  // Auto-scroll to hand when cards need interaction
-  useEffect(() => {
-    if (turnPhaseUI === 'await-action-card' || turnPhaseUI === 'await-mulligan') {
-      setTimeout(() => handRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
-    }
   }, [turnPhaseUI]);
 
   const handleStartScenario = useCallback(
@@ -242,7 +233,18 @@ export function RaceScreen() {
         <div className="pointer-events-none fixed inset-0 z-30 bg-hud-cyan/5 animate-rain-flash" />
       )}
 
-      <ScenarioStrip scenario={scenario} turn={raceState.currentTurn} />
+      <ScenarioStrip
+        scenario={scenario}
+        turn={raceState.currentTurn}
+        onQuit={() => {
+          if (window.confirm(t('race.abandonConfirm'))) {
+            useGameStore.getState().resetRace();
+            navigate('/');
+          }
+        }}
+        onToggleMute={() => setMuted(audio.toggleMute())}
+        isMuted={muted}
+      />
 
       <div className="relative px-5 py-1">
         <TrackMap
@@ -252,62 +254,45 @@ export function RaceScreen() {
           circuitId={scenario.id}
           tireCompound={raceState.tireCompound}
         />
-        {/* Mulligan overlay on track map */}
-        {turnPhaseUI === 'await-mulligan' && (
-          <div className="absolute inset-0 z-10 flex items-end justify-center gap-2 bg-gradient-to-t from-carbon via-carbon/80 to-transparent px-8 pb-3 animate-fade-in">
-            <Button
-              variant="secondary"
-              size="md"
-              className="flex-1"
-              onClick={() => {
-                stepper.submitMulligan();
-                stepper.advanceToRevealEvent();
-              }}
-            >
-              {t('race.mulligan')}
-            </Button>
-            <Button
-              variant="primary"
-              size="md"
-              className="flex-1"
-              onClick={() => stepper.advanceToRevealEvent()}
-            >
-              {t('race.keepHand')}
-            </Button>
-          </div>
-        )}
-        {/* Quit race button - top left of map */}
-        <button
-          onClick={() => {
-            if (window.confirm(t('race.abandonConfirm'))) {
-              useGameStore.getState().resetRace();
-              navigate('/');
-            }
-          }}
-          className="absolute left-6 top-1 z-10 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-white/40 transition-colors hover:bg-white/15 hover:text-hud-red"
-        >
-          {t('race.abandon')}
-        </button>
-        {/* Mute button - top right of map */}
-        <button
-          onClick={() => setMuted(audio.toggleMute())}
-          className="absolute right-6 top-1 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white/40 transition-colors hover:bg-white/15 hover:text-white"
-          title={muted ? t('race.unmute') : t('race.mute')}
-        >
-          {muted ? (
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <line x1="23" y1="9" x2="17" y2="15" />
-              <line x1="17" y1="9" x2="23" y2="15" />
-            </svg>
-          ) : (
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
-            </svg>
-          )}
-        </button>
       </div>
+
+      {/* Mulligan bottom sheet overlay */}
+      {turnPhaseUI === 'await-mulligan' && (
+        <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 animate-fade-in">
+          <div className="w-full max-w-lg rounded-t-3xl bg-carbon px-5 pb-6 pt-4 animate-slide-up">
+            <div className="mb-3 text-center text-xs font-display uppercase tracking-wider text-metal-light">
+              {t('race.yourHand')}
+            </div>
+            <HandDisplay
+              hand={raceState.hand}
+              catalog={catalog}
+              selectedCard={null}
+              onSelect={() => {}}
+            />
+            <div className="mt-4 flex gap-2">
+              <Button
+                variant="secondary"
+                size="md"
+                className="flex-1"
+                onClick={() => {
+                  stepper.submitMulligan();
+                  stepper.advanceToRevealEvent();
+                }}
+              >
+                {t('race.mulligan')}
+              </Button>
+              <Button
+                variant="primary"
+                size="md"
+                className="flex-1"
+                onClick={() => stepper.advanceToRevealEvent()}
+              >
+                {t('race.keepHand')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className={`flex flex-col gap-2 px-5 py-2 ${
         (turnPhaseUI === 'await-action-card' && selectedHandIndex !== null) ? 'pb-20' : 'pb-4'
@@ -316,17 +301,6 @@ export function RaceScreen() {
 
         {currentEvent && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
           <EventCard event={currentEvent} animated={turnPhaseUI === 'reveal-event'} />
-        )}
-
-        {turnPhaseUI === 'await-mulligan' && (
-          <div ref={handRef}>
-            <HandDisplay
-              hand={raceState.hand}
-              catalog={catalog}
-              selectedCard={null}
-              onSelect={() => {}}
-            />
-          </div>
         )}
 
         <PerkButton
@@ -339,16 +313,14 @@ export function RaceScreen() {
 
         {turnPhaseUI === 'await-action-card' && (
           <>
-            <div ref={handRef}>
-              <HandDisplay
-                hand={raceState.hand}
-                catalog={catalog}
-                selectedIndex={selectedHandIndex}
-                onSelectIndex={(index) =>
-                  setSelectedHandIndex((prev) => (prev === index ? null : index))
-                }
-              />
-            </div>
+            <HandDisplay
+              hand={raceState.hand}
+              catalog={catalog}
+              selectedIndex={selectedHandIndex}
+              onSelectIndex={(index) =>
+                setSelectedHandIndex((prev) => (prev === index ? null : index))
+              }
+            />
             {/* Fixed bottom button — only visible when a card is selected */}
             {selectedHandIndex !== null && (
               <div className="fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-carbon via-carbon/95 to-transparent px-5 pb-4 pt-3 animate-slide-up">
@@ -414,12 +386,24 @@ export function RaceScreen() {
 
         {turnPhaseUI === 'race-complete' && (
           <div className="animate-panel-pop space-y-3 rounded-2xl bg-white/[0.04] py-6 text-center">
-            <div className="font-display text-2xl font-black uppercase tracking-wide">
-              {t('race.chequeredFlag')}
-            </div>
-            <div className="font-display text-3xl font-black text-hud-green">
-              P{raceState.position}
-            </div>
+            {raceState.isDNF ? (
+              <>
+                <div className="font-display text-2xl font-black uppercase tracking-wide text-hud-red">
+                  {t('race.dnfTitle')}
+                </div>
+                <p className="text-sm text-metal-light">{t('race.dnfMessage')}</p>
+                <div className="font-display text-3xl font-black text-hud-red">DNF</div>
+              </>
+            ) : (
+              <>
+                <div className="font-display text-2xl font-black uppercase tracking-wide">
+                  {t('race.chequeredFlag')}
+                </div>
+                <div className="font-display text-3xl font-black text-hud-green">
+                  P{raceState.position}
+                </div>
+              </>
+            )}
             <Button variant="primary" size="lg" className="w-full" onClick={() => navigate('/debrief')}>
               {t('race.viewDebrief')}
             </Button>

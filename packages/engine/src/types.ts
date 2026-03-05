@@ -68,6 +68,7 @@ export interface RaceState {
   currentEvent: RaceEvent | null;
   eventHistory: RaceEvent[];
   scUsed: boolean;
+  underSafetyCar: boolean;
   lastEventType: EventType | null;
 
   perkUsed: boolean;
@@ -79,6 +80,8 @@ export interface RaceState {
   turnPhase: TurnPhase;
 
   maxTireWearReached: number;
+  isDNF: boolean;
+  lastCrashSeverity: 'none' | 'damage' | 'dnf';
 }
 
 export interface TurnSummary {

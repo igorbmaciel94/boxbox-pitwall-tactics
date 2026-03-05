@@ -35,6 +35,6 @@ export { runSeason, initializeSeasonState } from './season-engine.js';
 export { selectEvent, applyEventEffect, updateEventTracking, isCurrentlyRaining } from './event-system.js';
 export { applyCardEffect, refillHandWithRng, performMulligan } from './card-effects.js';
 export { maybeApplyTeamPerk } from './team-perks.js';
-export { clampRaceState, applyEffect, applyEndOfTurnPenalties } from './clamp.js';
+export { clampRaceState, applyEffect, applyEndOfTurnPenalties, applyCrashCheck } from './clamp.js';
 export { getPositionScore, evaluateObjective, calculateRaceScore, calculateSeasonScore, POSITION_SCORE_TABLE } from './scoring.js';
 export { validateRaceState, validateCatalog } from './validators.js';

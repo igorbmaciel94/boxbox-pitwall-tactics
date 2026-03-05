@@ -26,7 +26,17 @@ export function HomeScreen() {
   const ready = !!selectedTeamId && currentDeck.length === 9;
 
   return (
-    <div className="relative flex flex-col px-5 pt-10">
+    <div className="relative flex min-h-dvh flex-col px-5 pt-10">
+      {/* Background image */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <img
+          src="/images/backgrounds/home-bg.webp"
+          alt=""
+          className="h-full w-full object-cover opacity-15"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-carbon/80 via-carbon/60 to-carbon" />
+      </div>
       {/* Mute toggle */}
       <button
         onClick={() => setMuted(audio.toggleMute())}
