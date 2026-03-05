@@ -142,6 +142,7 @@ export function RaceScreen() {
         timer = setTimeout(() => stepper.advanceToPerkOrAction(), 800);
         break;
       case 'await-compound':
+        audio.playPitStop();
         // Wait for user input
         break;
       case 'resolving':
