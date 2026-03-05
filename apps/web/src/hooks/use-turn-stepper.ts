@@ -12,6 +12,7 @@ import {
   calculateRaceScore,
   isCurrentlyRaining,
   performMulligan,
+  performEmergencyMulligan,
   applyCrashCheck,
 } from '@boxbox/engine';
 import type {
@@ -115,6 +116,28 @@ export function useTurnStepper() {
     store.getState().setRaceState(s);
   }, []);
 
+  const submitEmergencyMulligan = useCallback(() => {
+    const { raceState: state, catalog } = store.getState();
+    const rng = rngRef.current;
+    if (!state || !rng || !catalog) return;
+
+    const mulliganRng = rng.fork(state.currentTurn * 100 + 20);
+    const s = performEmergencyMulligan(state, catalog, mulliganRng);
+    store.getState().setRaceState(s);
+    store.getState().setTurnPhaseUI('await-action-card');
+  }, []);
+
+  const submitSkipTurn = useCallback(() => {
+    const { raceState: state } = store.getState();
+    if (!state) return;
+
+    // Skip turn: no card played, go straight to resolving
+    actionCardRef.current = '';
+    const s: RaceState = { ...state, turnPhase: 'play-card', turnsSkipped: state.turnsSkipped + 1 };
+    store.getState().setRaceState(s);
+    store.getState().setTurnPhaseUI('resolving');
+  }, []);
+
   const submitActionCard = useCallback((cardId: CardId) => {
     const { raceState: state, catalog, team, scenario } = store.getState();
     const event = currentEventRef.current;
@@ -213,6 +236,8 @@ export function useTurnStepper() {
     advanceToPerkOrAction,
     submitPerkChoice,
     submitMulligan,
+    submitEmergencyMulligan,
+    submitSkipTurn,
     submitActionCard,
     submitCompoundChoice,
     advanceToResult,

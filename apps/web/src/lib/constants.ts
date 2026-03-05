@@ -39,7 +39,7 @@ export const MEDAL_COLORS = {
 
 export const EVENT_ICONS: Record<string, string> = {
   'safety-car': 'SC',
-  rain: 'RAIN',
+  rain: '\u{1F327}\u{FE0F}',
   'rival-pits': 'PIT',
   'rival-overtake': 'OVT',
   traffic: 'TFC',

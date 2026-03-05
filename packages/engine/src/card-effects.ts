@@ -116,3 +116,18 @@ export function performMulligan(
   const discarded = { ...state, discard: [...state.discard, ...state.hand], hand: [] as string[], mulliganUsed: true };
   return refillHandWithRng(discarded, catalog, rng);
 }
+
+/** Emergency mulligan: available when mandatory pit needed but no pit card in hand */
+export function performEmergencyMulligan(
+  state: RaceState,
+  catalog: GameCatalogData,
+  rng: { shuffle<T>(arr: readonly T[]): T[] },
+): RaceState {
+  const discarded = { ...state, discard: [...state.discard, ...state.hand], hand: [] as string[], emergencyMulliganUsed: true };
+  return refillHandWithRng(discarded, catalog, rng);
+}
+
+/** Check if hand has at least one pit card */
+export function handHasPitCard(hand: string[], catalog: GameCatalogData): boolean {
+  return hand.some((cardId) => isPitStopCard(cardId, catalog));
+}

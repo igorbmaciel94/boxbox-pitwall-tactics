@@ -54,11 +54,11 @@ export function HUD({ state, previousPosition }: HUDProps) {
         </div>
       </div>
 
-      {/* Pit stop warning */}
+      {/* Pit stop warning — compact inline between position and lap */}
       {needsPit && (
-        <div className="flex items-center gap-2 rounded-lg bg-hud-amber/10 border border-hud-amber/30 px-3 py-1.5">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-hud-amber animate-pulse">PIT</span>
-          <span className="text-[11px] text-hud-amber/80 truncate">{t('race.pitRequired')}</span>
+        <div className="flex items-center gap-1.5 rounded-full bg-hud-amber/12 border border-hud-amber/25 px-2.5 py-0.5 w-fit">
+          <span className="text-[9px] font-bold uppercase tracking-wider text-hud-amber animate-pulse">PIT</span>
+          <span className="text-[10px] text-hud-amber/80">{t('race.pitRequired')}</span>
         </div>
       )}
 

@@ -15,6 +15,7 @@ import { PreRaceTireSetup } from '../components/race/PreRaceTireSetup';
 import { Button } from '../components/shared/Button';
 import { useAudio } from '../hooks/use-audio';
 import { getCircuitImageUrl, getCircuitFallbackGradient } from '../lib/images';
+import { handHasPitCard } from '@boxbox/engine';
 import type { CardId, TireAllocation, TireCompound } from '@boxbox/engine';
 import { useI18n } from '../i18n';
 
@@ -311,44 +312,92 @@ export function RaceScreen() {
           onSkip={() => stepper.submitPerkChoice(false)}
         />
 
-        {turnPhaseUI === 'await-action-card' && (
-          <>
-            <HandDisplay
-              hand={raceState.hand}
-              catalog={catalog}
-              selectedIndex={selectedHandIndex}
-              onSelectIndex={(index) =>
-                setSelectedHandIndex((prev) => (prev === index ? null : index))
-              }
-            />
-            {/* Fixed bottom button — only visible when a card is selected */}
-            {selectedHandIndex !== null && (
-              <div className="fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-carbon via-carbon/95 to-transparent px-5 pb-4 pt-3 animate-slide-up">
-                <Button
-                  variant="primary"
-                  size="md"
-                  className="w-full"
-                  onClick={() => {
-                    const cardId = raceState.hand[selectedHandIndex];
-                    if (cardId) {
-                      sendRadio('generic');
-                      stepper.submitActionCard(cardId);
-                      setSelectedHandIndex(null);
-                    }
-                  }}
-                >
-                  {t('race.playCard')}
-                </Button>
+        {turnPhaseUI === 'await-action-card' && (() => {
+          const needsPit = !raceState.hasPitted && raceState.currentTurn >= raceState.totalTurns - 2 && raceState.currentTurn > 0;
+          const hasPit = handHasPitCard(raceState.hand, catalog);
+          const canEmergencyMulligan = needsPit && !hasPit && !raceState.emergencyMulliganUsed;
+          const canSkipTurn = needsPit && !hasPit && raceState.emergencyMulliganUsed;
+          const showSkipAlways = raceState.underSafetyCar; // Under SC, always allow skip
+          return (
+            <>
+              {/* Warning: no pit card when pit mandatory */}
+              {needsPit && !hasPit && (
+                <div className="rounded-lg bg-hud-red/10 border border-hud-red/30 px-3 py-1.5 text-center text-[11px] text-hud-red animate-fade-in">
+                  {t('race.noPitCardWarning')}
+                </div>
+              )}
+              <HandDisplay
+                hand={raceState.hand}
+                catalog={catalog}
+                selectedIndex={selectedHandIndex}
+                onSelectIndex={(index) =>
+                  setSelectedHandIndex((prev) => (prev === index ? null : index))
+                }
+              />
+              {/* Fixed bottom buttons */}
+              <div className={`fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-carbon via-carbon/95 to-transparent px-5 pb-4 pt-3 ${selectedHandIndex !== null || canEmergencyMulligan || canSkipTurn || showSkipAlways ? 'animate-slide-up' : 'hidden'}`}>
+                {selectedHandIndex !== null && (
+                  <Button
+                    variant="primary"
+                    size="md"
+                    className="w-full"
+                    onClick={() => {
+                      const cardId = raceState.hand[selectedHandIndex];
+                      if (cardId) {
+                        sendRadio('generic');
+                        stepper.submitActionCard(cardId);
+                        setSelectedHandIndex(null);
+                      }
+                    }}
+                  >
+                    {t('race.playCard')}
+                  </Button>
+                )}
+                {selectedHandIndex === null && (canEmergencyMulligan || canSkipTurn || showSkipAlways) && (
+                  <div className="flex gap-2">
+                    {canEmergencyMulligan && (
+                      <Button
+                        variant="secondary"
+                        size="md"
+                        className="flex-1"
+                        onClick={() => {
+                          stepper.submitEmergencyMulligan();
+                          setSelectedHandIndex(null);
+                        }}
+                      >
+                        {t('race.emergencyMulligan')}
+                      </Button>
+                    )}
+                    {(canSkipTurn || showSkipAlways) && (
+                      <Button
+                        variant="secondary"
+                        size="md"
+                        className="flex-1"
+                        onClick={() => {
+                          stepper.submitSkipTurn();
+                          setSelectedHandIndex(null);
+                        }}
+                      >
+                        {t('race.skipTurn')}
+                      </Button>
+                    )}
+                  </div>
+                )}
               </div>
-            )}
-          </>
-        )}
+            </>
+          );
+        })()}
 
+        {/* Tire compound selection — bottom sheet modal */}
         {turnPhaseUI === 'await-compound' && (
-          <CompoundSelector
-            raceState={raceState}
-            onSelect={(compound) => stepper.submitCompoundChoice(compound)}
-          />
+          <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 animate-fade-in">
+            <div className="w-full max-w-lg rounded-t-3xl bg-carbon px-5 pb-6 pt-4 animate-slide-up">
+              <CompoundSelector
+                raceState={raceState}
+                onSelect={(compound) => stepper.submitCompoundChoice(compound)}
+              />
+            </div>
+          </div>
         )}
 
         {turnPhaseUI === 'turn-summary' && (
@@ -385,28 +434,29 @@ export function RaceScreen() {
         )}
 
         {turnPhaseUI === 'race-complete' && (
-          <div className="animate-panel-pop space-y-3 rounded-2xl bg-white/[0.04] py-6 text-center">
-            {raceState.isDNF ? (
-              <>
-                <div className="font-display text-2xl font-black uppercase tracking-wide text-hud-red">
-                  {t('race.dnfTitle')}
-                </div>
-                <p className="text-sm text-metal-light">{t('race.dnfMessage')}</p>
-                <div className="font-display text-3xl font-black text-hud-red">DNF</div>
-              </>
-            ) : (
-              <>
-                <div className="font-display text-2xl font-black uppercase tracking-wide">
-                  {t('race.chequeredFlag')}
-                </div>
-                <div className="font-display text-3xl font-black text-hud-green">
-                  P{raceState.position}
-                </div>
-              </>
-            )}
-            <Button variant="primary" size="lg" className="w-full" onClick={() => navigate('/debrief')}>
-              {t('race.viewDebrief')}
-            </Button>
+          <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 animate-fade-in">
+            <div className="w-full max-w-lg rounded-t-3xl bg-carbon px-5 pb-6 pt-5 animate-slide-up text-center space-y-3">
+              {raceState.isDNF ? (
+                <>
+                  <div className="font-display text-2xl font-black uppercase tracking-wide text-hud-red">
+                    {t('race.dnfTitle')}
+                  </div>
+                  <p className="text-sm text-metal-light">{t('race.dnfMessage')}</p>
+                </>
+              ) : (
+                <>
+                  <div className="font-display text-xl font-black uppercase tracking-wide">
+                    {t('race.chequeredFlag')}
+                  </div>
+                  <div className="font-display text-4xl font-black text-hud-green">
+                    P{raceState.position}
+                  </div>
+                </>
+              )}
+              <Button variant="primary" size="lg" className="w-full" onClick={() => navigate('/debrief')}>
+                {t('race.viewDebrief')}
+              </Button>
+            </div>
           </div>
         )}
 
@@ -430,6 +480,7 @@ function CircuitCard({
     params: { startingPosition: number; baseTireWear: number };
     turns: number;
     objectives: { id: string; type: string; description: string; points: number }[];
+    traits?: string[];
   };
   onSelect: () => void;
   getScenarioName: (id: string, fallback?: string) => string;
@@ -474,6 +525,15 @@ function CircuitCard({
           <span>{t('race.wear')} {scenario.params.baseTireWear}</span>
           <span>{scenario.turns} {t('race.laps')}</span>
         </div>
+        {scenario.traits && scenario.traits.length > 0 && (
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {scenario.traits.map((trait) => (
+              <span key={trait} className="rounded-full bg-white/8 px-2 py-0.5 text-[10px] text-white/60">
+                {t(`traits.${trait}`)}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="mt-2 text-[11px]">
           {scenario.objectives.map((obj) => (
             <span key={obj.id} className="mr-3 inline-block">

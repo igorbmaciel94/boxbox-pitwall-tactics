@@ -19,7 +19,7 @@ export function EventCard({ event, animated = false }: EventCardProps) {
       className={`rounded-xl border p-3 ${colors} ${animated ? 'animate-card-flip' : 'animate-panel-pop'}`}
     >
       <div className="flex items-start gap-2.5">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 font-mono text-[10px] font-bold tracking-wider text-white/90">
+        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 font-bold tracking-wider text-white/90 ${event.type === 'rain' ? 'text-base' : 'font-mono text-[10px]'}`}>
           {icon}
         </div>
         <div className="flex-1 min-w-0">
@@ -29,11 +29,18 @@ export function EventCard({ event, animated = false }: EventCardProps) {
           <p className="mt-0.5 text-xs leading-snug text-white/70 line-clamp-2">
             {eventFlavor}
           </p>
-          {event.effect && (
-            <span className="mt-1 inline-block rounded-full bg-white/8 px-2 py-0.5 text-[10px] text-metal-light">
-              {formatEffect(event.effect, t)}
-            </span>
-          )}
+          <div className="mt-1 flex flex-wrap gap-1">
+            {event.effect && (
+              <span className="inline-block rounded-full bg-white/8 px-2 py-0.5 text-[10px] text-metal-light">
+                {formatEffect(event.effect, t)}
+              </span>
+            )}
+            {event.type === 'safety-car' && (
+              <span className="inline-block rounded-full bg-hud-green/15 px-2 py-0.5 text-[10px] text-hud-green">
+                {t('race.scFreePit')}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>

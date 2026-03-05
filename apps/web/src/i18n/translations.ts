@@ -108,6 +108,10 @@ export interface UIStrings {
     crashDNF: string;
     dnfTitle: string;
     dnfMessage: string;
+    skipTurn: string;
+    emergencyMulligan: string;
+    noPitCardWarning: string;
+    scFreePit: string;
   };
   deck: {
     title: string;
@@ -214,6 +218,12 @@ export interface UIStrings {
       tireSeasonBudget: string;
       mulliganTitle: string;
       mulliganText: string;
+      safetyCarTitle: string;
+      safetyCarText: string;
+      skipTurnTitle: string;
+      skipTurnText: string;
+      crashTitle: string;
+      crashText: string;
       tipsTitle: string;
       tip1: string;
       tip2: string;
@@ -234,6 +244,19 @@ export interface UIStrings {
     chooseCompound: string;
     noCompoundsLeft: string;
     seasonBudget: string;
+  };
+  traits: {
+    'traffic-heavy': string;
+    'no-overtaking': string;
+    'sc-prone': string;
+    'rain-likely': string;
+    'rain-possible': string;
+    'high-speed': string;
+    'low-downforce': string;
+    'overtake-friendly': string;
+    'tire-heavy': string;
+    'technical': string;
+    'mechanical-risk': string;
   };
   stats: {
     pos: string;
@@ -410,6 +433,10 @@ const EN_UI: UIStrings = {
     crashDNF: 'Crash! Car retired from the race.',
     dnfTitle: 'Did Not Finish',
     dnfMessage: 'Your car has retired from the race after a crash.',
+    skipTurn: 'Skip Turn',
+    emergencyMulligan: 'Emergency Redraw',
+    noPitCardWarning: 'No pit card! Redraw or skip turn.',
+    scFreePit: 'Free pit under SC (POS -2)',
   },
   deck: {
     title: 'Deck Builder',
@@ -516,6 +543,12 @@ const EN_UI: UIStrings = {
       tireSeasonBudget: 'In Season mode, you have a limited tire budget across all 6 races. Plan ahead - running out of Softs early means fewer options later.',
       mulliganTitle: 'Mulligan (Redraw)',
       mulliganText: 'On the first lap only, you can redraw your entire hand once. Use this if your starting hand doesn\'t match the event or your strategy.',
+      safetyCarTitle: 'Safety Car Rules',
+      safetyCarText: 'Under Safety Car: no overtaking (position gains halved), pit stops are free (no position loss), and tire wear is reduced. Use it as a chance to pit for fresh tires!',
+      skipTurnTitle: 'Skip Turn & Emergency Redraw',
+      skipTurnText: 'If you have no pit card when mandatory pit is needed, you get an emergency redraw. If still no pit card, you can skip your turn (no card played). Skipping avoids crash risk but you still take tire degradation penalties.',
+      crashTitle: 'Crash / DNF Risk',
+      crashText: 'Aggressive cards on worn tires, rain on dry tires, and mechanical issues increase crash risk. A crash can cause heavy damage (+8 positions, +30 wear) or a DNF (race over). Under Safety Car there is no crash risk.',
       tipsTitle: 'Strategy Tips',
       tip1: 'Balance your deck - do not go all-in on one card type.',
       tip2: 'Watch your tire wear - at 100 you get a tire blowout penalty.',
@@ -536,6 +569,19 @@ const EN_UI: UIStrings = {
     chooseCompound: 'Choose Tire Compound',
     noCompoundsLeft: 'No compounds available. Use Inter/Wet in rain.',
     seasonBudget: 'Season Budget',
+  },
+  traits: {
+    'traffic-heavy': 'Heavy Traffic',
+    'no-overtaking': 'Hard to Overtake',
+    'sc-prone': 'SC Prone',
+    'rain-likely': 'Rain Likely',
+    'rain-possible': 'Rain Possible',
+    'high-speed': 'High Speed',
+    'low-downforce': 'Low Downforce',
+    'overtake-friendly': 'Overtake Friendly',
+    'tire-heavy': 'High Tire Wear',
+    'technical': 'Technical',
+    'mechanical-risk': 'Mech. Risk',
   },
   stats: {
     pos: 'POS',
@@ -643,6 +689,10 @@ const PT_BR_UI: UIStrings = {
     crashDNF: 'Batida! Carro abandonou a corrida.',
     dnfTitle: 'Nao Terminou',
     dnfMessage: 'Seu carro abandonou a corrida apos uma batida.',
+    skipTurn: 'Passar Vez',
+    emergencyMulligan: 'Trocar Mao Extra',
+    noPitCardWarning: 'Sem carta de pit! Troque a mao ou passe a vez.',
+    scFreePit: 'Pit gratis sob SC (POS -2)',
   },
   deck: {
     title: 'Construtor de Deck',
@@ -749,6 +799,12 @@ const PT_BR_UI: UIStrings = {
       tireSeasonBudget: 'No modo Temporada, voce tem um orcamento limitado de pneus para todas as 6 corridas. Planeje - usar todos os Softs cedo significa menos opcoes depois.',
       mulliganTitle: 'Mulligan (Trocar Mao)',
       mulliganText: 'Apenas na primeira volta, voce pode trocar toda a mao uma vez. Use se a mao inicial nao combina com o evento ou sua estrategia.',
+      safetyCarTitle: 'Regras do Safety Car',
+      safetyCarText: 'Sob Safety Car: sem ultrapassagens (ganhos de posicao pela metade), pit stops sao gratis (sem perda de posicao), e desgaste de pneus reduzido. Aproveite para trocar os pneus!',
+      skipTurnTitle: 'Passar Vez e Troca Extra',
+      skipTurnText: 'Se voce nao tiver carta de pit quando o pit e obrigatorio, ganha uma troca extra de mao. Se ainda nao tiver, pode passar a vez (sem jogar carta). Passar evita risco de batida mas voce ainda sofre penalidades de desgaste.',
+      crashTitle: 'Risco de Batida / DNF',
+      crashText: 'Cartas agressivas com pneus gastos, chuva em pneus secos e problemas mecanicos aumentam o risco de batida. Uma batida causa dano pesado (+8 posicoes, +30 desgaste) ou DNF (corrida encerrada). Sob Safety Car nao ha risco de batida.',
       tipsTitle: 'Dicas de Estrategia',
       tip1: 'Equilibre o deck - nao aposte tudo em um unico tipo de carta.',
       tip2: 'Fique de olho no desgaste - ao chegar a 100 voce sofre penalidade por estouro de pneu.',
@@ -769,6 +825,19 @@ const PT_BR_UI: UIStrings = {
     chooseCompound: 'Escolher Composto de Pneu',
     noCompoundsLeft: 'Sem compostos disponiveis. Use Inter/Wet na chuva.',
     seasonBudget: 'Budget da Temporada',
+  },
+  traits: {
+    'traffic-heavy': 'Trafego Pesado',
+    'no-overtaking': 'Dificil Ultrapassar',
+    'sc-prone': 'SC Frequente',
+    'rain-likely': 'Chuva Provavel',
+    'rain-possible': 'Chuva Possivel',
+    'high-speed': 'Alta Velocidade',
+    'low-downforce': 'Baixo Downforce',
+    'overtake-friendly': 'Facil Ultrapassar',
+    'tire-heavy': 'Alto Desgaste',
+    'technical': 'Tecnico',
+    'mechanical-risk': 'Risco Mecanico',
   },
   stats: {
     pos: 'POS',

@@ -58,6 +58,7 @@ export interface ScenarioData {
   turns: number;
   params: ScenarioParamsData;
   objectives: ObjectiveData[];
+  traits?: string[];
 }
 
 export interface GameStringsData {

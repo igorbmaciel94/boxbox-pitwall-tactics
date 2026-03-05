@@ -53,6 +53,8 @@ export function initializeRaceState(
     lastEventType: null,
     perkUsed: false,
     mulliganUsed: false,
+    emergencyMulliganUsed: false,
+    turnsSkipped: 0,
     objectivesCompleted: [],
     cardsPlayedTotal: [],
     turnPhase: 'start',
