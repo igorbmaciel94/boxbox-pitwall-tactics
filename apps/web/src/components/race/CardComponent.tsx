@@ -38,31 +38,29 @@ export function CardComponent({ card, selected = false, disabled = false, compac
   const fallbackGradient = getCardFallbackGradient(card.tags);
 
   const isSmall = size === 'sm';
-  const showArt = !compact || isSmall;
-  const artHeight = isSmall ? 'h-[42%]' : 'h-28';
+  const showArt = !compact && !isSmall;
+  const artHeight = 'h-28';
   const infoPadding = isSmall ? 'p-2' : 'p-3';
   const nameSize = isSmall ? 'text-xs' : 'text-sm';
   const rulesSize = isSmall ? 'mb-1 text-[11px] leading-snug' : 'mb-2 text-xs leading-relaxed';
   const cardStyle = isSmall ? { aspectRatio: '63 / 88' } : undefined;
   const showRules = !compact && !isSmall;
 
+  // Use fallback gradient as card background for small cards
+  const cardBgStyle = isSmall ? { ...cardStyle, background: fallbackGradient } : cardStyle;
+
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      style={cardStyle}
+      style={cardBgStyle}
       className={`group relative w-full overflow-hidden rounded-2xl text-left transition-all duration-150
-        ${selected ? 'ring-2 ring-f1-red/60 ring-offset-2 ring-offset-carbon bg-white/8' : 'bg-white/[0.04]'}
-        ${disabled ? 'pointer-events-none opacity-40' : 'hover:bg-white/[0.07] active:scale-[0.98]'}
+        ${selected ? 'ring-2 ring-f1-red/60 ring-offset-2 ring-offset-carbon' : isSmall ? '' : 'bg-white/[0.04]'}
+        ${disabled ? 'pointer-events-none opacity-40' : 'hover:brightness-110 active:scale-[0.98]'}
         ${isSmall ? 'flex flex-col origin-bottom' : ''}
         ${selected && isSmall ? 'z-10 -translate-y-1 scale-[1.02]' : ''}
       `}
     >
-      {selected && isSmall && (
-        <span className="absolute right-1.5 top-1.5 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-f1-red text-[11px] font-black text-white shadow">
-          ✓
-        </span>
-      )}
       {/* Card art area */}
       {showArt && (
         <div className={`relative w-full ${artHeight} overflow-hidden`}>
@@ -85,7 +83,7 @@ export function CardComponent({ card, selected = false, disabled = false, compac
       )}
 
       {/* Card info area */}
-      <div className={`${infoPadding}`}>
+      <div className={`${infoPadding} ${isSmall ? 'mt-auto' : ''}`}>
         <div className={`mb-0.5 font-display ${nameSize} font-semibold uppercase tracking-wide`}>
           {getCardName(card.id, card.name)}
         </div>

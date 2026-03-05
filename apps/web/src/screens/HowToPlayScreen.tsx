@@ -14,7 +14,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 function Term({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex items-start gap-2.5">
-      <span className="w-20 shrink-0 font-display text-xs font-bold uppercase tracking-wider text-hud-cyan">{label}</span>
+      <span className="shrink-0 whitespace-nowrap font-display text-xs font-bold uppercase tracking-wider text-hud-cyan">{label}</span>
       <span className="text-sm text-metal-light">{children}</span>
     </div>
   );
