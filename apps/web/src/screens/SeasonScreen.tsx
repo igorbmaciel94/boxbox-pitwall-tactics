@@ -23,22 +23,26 @@ export function SeasonScreen() {
   const selectedTeamId = useGameStore((s) => s.selectedTeamId);
   const seasonProgress = useGameStore((s) => s.seasonProgress);
   const currentDeck = useGameStore((s) => s.currentDeck);
-  const startSeason = useGameStore((s) => s.startSeason);
-  const startRace = useGameStore((s) => s.startRace);
   const setDeck = useGameStore((s) => s.setDeck);
   const setSeasonCardSwapDone = useGameStore((s) => s.setSeasonCardSwapDone);
 
   const [showCardSwap, setShowCardSwap] = useState(false);
   const [swapDeck, setSwapDeck] = useState<CardId[]>([]);
+  const [initialized, setInitialized] = useState(false);
 
   const isComplete = seasonProgress ? seasonProgress.currentRaceIndex >= (seasonProgress.raceOrder?.length ?? 0) : false;
 
+  // Initialize season on mount (only once)
   useEffect(() => {
-    if (!seasonProgress) {
-      startSeason();
+    if (!initialized) {
+      setInitialized(true);
+      if (!useGameStore.getState().seasonProgress) {
+        useGameStore.getState().startSeason();
+      }
     }
-  }, [seasonProgress, startSeason]);
+  }, [initialized]);
 
+  // Card swap trigger at race 4
   useEffect(() => {
     if (seasonProgress && seasonProgress.currentRaceIndex === 3 && !seasonProgress.cardSwapDone) {
       setSwapDeck([...currentDeck]);
@@ -46,6 +50,7 @@ export function SeasonScreen() {
     }
   }, [seasonProgress?.currentRaceIndex, seasonProgress?.cardSwapDone, currentDeck]);
 
+  // Navigate to results when complete
   useEffect(() => {
     if (isComplete) {
       navigate('/season/results');
