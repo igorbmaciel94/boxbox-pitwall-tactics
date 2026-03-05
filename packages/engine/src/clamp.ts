@@ -1,4 +1,4 @@
-import type { CardEffect, CardId, GameCatalogData, RaceState, SeededRng, TireCompound } from './types.js';
+import type { CardEffect, CardId, Difficulty, GameCatalogData, RaceState, SeededRng, TireCompound } from './types.js';
 
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
@@ -20,6 +20,18 @@ export const COMPOUND_WRONG_CONDITION_WEAR: Record<TireCompound, { dry: number; 
   hard: { dry: 1.0, rain: 1.3 },
   intermediate: { dry: 1.5, rain: 1.0 },
   wet: { dry: 2.0, rain: 0.8 },
+};
+
+/** Difficulty scaling factors */
+const DIFFICULTY_CONFIG: Record<Difficulty, {
+  wearMultiplier: number;
+  degradationReduction: number;
+  crashMultiplier: number;
+  blowoutPenalty: number;
+}> = {
+  easy: { wearMultiplier: 0.7, degradationReduction: 1, crashMultiplier: 0.3, blowoutPenalty: 3 },
+  normal: { wearMultiplier: 1.0, degradationReduction: 0, crashMultiplier: 1.0, blowoutPenalty: 5 },
+  hard: { wearMultiplier: 1.4, degradationReduction: 0, crashMultiplier: 1.6, blowoutPenalty: 7 },
 };
 
 export function clampRaceState(state: RaceState): RaceState {
@@ -44,30 +56,36 @@ export function applyEffect(state: RaceState, effect: CardEffect): RaceState {
  * Higher tire wear = worse performance (lose positions).
  * Also applies tire blowout at 100.
  */
-export function applyEndOfTurnPenalties(state: RaceState, isRaining: boolean, underSafetyCar: boolean = false): RaceState {
+export function applyEndOfTurnPenalties(
+  state: RaceState,
+  isRaining: boolean,
+  underSafetyCar: boolean = false,
+  difficulty: Difficulty = 'normal',
+): RaceState {
   let updated = state;
+  const cfg = DIFFICULTY_CONFIG[difficulty];
 
-  // Apply compound-based wear per turn
+  // Apply compound-based wear per turn (scaled by difficulty)
   const baseWear = COMPOUND_WEAR_PER_TURN[updated.tireCompound];
   const condition = isRaining ? 'rain' : 'dry';
   const multiplier = COMPOUND_WRONG_CONDITION_WEAR[updated.tireCompound][condition];
-  const compoundWear = Math.round(baseWear * multiplier);
+  const compoundWear = Math.round(baseWear * multiplier * cfg.wearMultiplier);
   updated = { ...updated, tireWear: updated.tireWear + compoundWear };
 
   // Under Safety Car: no position changes from degradation (field is bunched)
   if (!underSafetyCar) {
     // Progressive degradation: high wear = lose positions
     if (updated.tireWear >= 90) {
-      updated = { ...updated, position: updated.position + 3 };
+      updated = { ...updated, position: updated.position + 3 - cfg.degradationReduction };
     } else if (updated.tireWear >= 75) {
-      updated = { ...updated, position: updated.position + 2 };
+      updated = { ...updated, position: updated.position + 2 - cfg.degradationReduction };
     } else if (updated.tireWear >= 55) {
-      updated = { ...updated, position: updated.position + 1 };
+      updated = { ...updated, position: updated.position + Math.max(0, 1 - cfg.degradationReduction) };
     }
 
-    // Tire blowout: if tire wear >= 100, massive position penalty
+    // Tire blowout: if tire wear >= 100, position penalty (scaled by difficulty)
     if (updated.tireWear >= 100) {
-      updated = { ...updated, position: updated.position + 5 };
+      updated = { ...updated, position: updated.position + cfg.blowoutPenalty };
     }
 
     // Wrong compound penalty
@@ -93,10 +111,12 @@ export function applyCrashCheck(
   catalog: GameCatalogData,
   isRaining: boolean,
   rng: SeededRng,
+  difficulty: Difficulty = 'normal',
 ): RaceState {
   if (state.underSafetyCar || state.isDNF) return state;
 
   const card = catalog.cards.find((c) => c.id === lastCardPlayed);
+  const cfg = DIFFICULTY_CONFIG[difficulty];
   let crashChance = 0;
 
   // Aggressive driving with worn tires
@@ -117,6 +137,9 @@ export function applyCrashCheck(
   if (state.tireWear >= 95) {
     crashChance += 4;
   }
+
+  // Scale by difficulty
+  crashChance = Math.round(crashChance * cfg.crashMultiplier);
 
   if (crashChance <= 0) return { ...state, lastCrashSeverity: 'none' };
 

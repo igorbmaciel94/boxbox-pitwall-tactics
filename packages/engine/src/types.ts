@@ -13,6 +13,7 @@ export type { CardData, CardEffect, EventType, GameCatalogData, ObjectiveData, S
 
 export type CardId = string;
 export type TeamId = string;
+export type Difficulty = 'easy' | 'normal' | 'hard';
 
 export interface TireAllocation {
   soft: number;
@@ -49,6 +50,7 @@ export interface RaceState {
   scenarioId: string;
   teamId: TeamId;
   seed: number;
+  difficulty: Difficulty;
 
   position: number;
   tireWear: number;
@@ -75,7 +77,6 @@ export interface RaceState {
   mulliganUsed: boolean;
   emergencyMulliganUsed: boolean;
   turnsSkipped: number;
-  trackLimitViolations: number;
 
   objectivesCompleted: string[];
   cardsPlayedTotal: CardId[];

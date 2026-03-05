@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type {
   CardId,
+  Difficulty,
   GameCatalogData,
   RaceDebrief,
   RaceEvent,
@@ -40,6 +41,10 @@ interface GameState {
 
   // Game mode
   mode: GameMode;
+
+  // Difficulty
+  difficulty: Difficulty;
+  setDifficulty: (d: Difficulty) => void;
 
   // Race state
   raceState: RaceState | null;
@@ -104,6 +109,9 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   mode: 'idle',
 
+  difficulty: 'normal' as Difficulty,
+  setDifficulty: (d) => set({ difficulty: d }),
+
   raceState: null,
   scenario: null,
   team: null,
@@ -125,7 +133,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   seasonRuns: [],
 
   startRace: (scenarioId, seed, startingCompound, tireAllocation) => {
-    const { catalog, selectedTeamId, currentDeck } = get();
+    const { catalog, selectedTeamId, currentDeck, difficulty } = get();
     if (!catalog || !selectedTeamId) return;
 
     const scenario = catalog.scenarios.find((s) => s.id === scenarioId);
@@ -138,6 +146,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       scenario, team, catalog, raceSeed, rng,
       startingCompound ?? 'soft',
       tireAllocation ?? { soft: 1, medium: 1, hard: 1 },
+      difficulty,
     );
 
     // Override deck with player's 9-card selection

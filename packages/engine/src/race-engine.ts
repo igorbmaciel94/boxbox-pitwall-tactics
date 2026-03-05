@@ -1,4 +1,5 @@
 import type {
+  Difficulty,
   GameCatalogData,
   PlayerAgent,
   RaceDebrief,
@@ -26,6 +27,7 @@ export function initializeRaceState(
   rng: SeededRng,
   startingCompound: TireCompound = 'soft',
   tireAllocation: TireAllocation = { soft: 1, medium: 1, hard: 1 },
+  difficulty: Difficulty = 'normal',
 ): RaceState {
   const allCardIds = catalog.cards.map((c) => c.id);
   const shuffledDeck = rng.fork(0).shuffle(allCardIds);
@@ -34,6 +36,7 @@ export function initializeRaceState(
     scenarioId: scenario.id,
     teamId: team.id,
     seed,
+    difficulty,
     position: scenario.params.startingPosition,
     tireWear: scenario.params.baseTireWear,
     tireCompound: startingCompound,
@@ -55,7 +58,6 @@ export function initializeRaceState(
     mulliganUsed: false,
     emergencyMulliganUsed: false,
     turnsSkipped: 0,
-    trackLimitViolations: 0,
     objectivesCompleted: [],
     cardsPlayedTotal: [],
     turnPhase: 'start',
@@ -116,13 +118,13 @@ export function runTurn(
   // Phase 5: Resolve - apply penalties & clamp
   s = { ...s, turnPhase: 'resolve' };
   const raining = isCurrentlyRaining(s);
-  s = applyEndOfTurnPenalties(s, raining, s.underSafetyCar);
+  s = applyEndOfTurnPenalties(s, raining, s.underSafetyCar, s.difficulty);
   s = clampRaceState(s);
 
   // Crash check (after all effects are resolved)
   if (actionCard) {
     const crashRng = rng.fork(s.currentTurn * 100 + 50);
-    s = applyCrashCheck(s, actionCard, catalog, raining, crashRng);
+    s = applyCrashCheck(s, actionCard, catalog, raining, crashRng, s.difficulty);
     s = clampRaceState(s);
   }
 
@@ -156,9 +158,10 @@ export function runRace(
   agent: PlayerAgent,
   seed: number,
   config: ScoringConfig = { styleBonusesEnabled: false },
+  difficulty: Difficulty = 'normal',
 ): RaceDebrief {
   const rng = createRng(seed);
-  let state = initializeRaceState(scenario, team, catalog, seed, rng);
+  let state = initializeRaceState(scenario, team, catalog, seed, rng, 'soft', { soft: 1, medium: 1, hard: 1 }, difficulty);
   const turnLog: TurnSummary[] = [];
 
   for (let turn = 0; turn < scenario.turns; turn++) {

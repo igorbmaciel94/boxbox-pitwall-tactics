@@ -210,11 +210,24 @@ export function TrackMap({ position, totalPositions = 20, currentEvent, teamColo
           <circle cx={points[0][0]} cy={points[0][1]} r={3} fill="rgba(255,255,255,0.3)" />
         )}
 
-        {/* Rival dots — colored by team */}
+        {/* Rival dots — colored by team, with position labels */}
         {rivals && rivals.map((r, i) => {
           const pos = getCarPos(r.position);
+          const labelY = pos.y < 20 ? pos.y + 10 : pos.y - 6;
           return (
-            <circle key={i} cx={pos.x} cy={pos.y} r={2.5} fill={r.color} opacity={0.45} />
+            <g key={i}>
+              <circle cx={pos.x} cy={pos.y} r={2.5} fill={r.color} opacity={0.45} />
+              <text
+                x={pos.x}
+                y={labelY}
+                textAnchor="middle"
+                fill={r.color}
+                opacity={0.55}
+                style={{ fontSize: '5px', fontFamily: 'monospace', fontWeight: 'bold' }}
+              >
+                {r.position}
+              </text>
+            </g>
           );
         })}
 

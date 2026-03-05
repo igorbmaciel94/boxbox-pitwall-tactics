@@ -10,6 +10,7 @@ function makeState(overrides: Partial<RaceState> = {}): RaceState {
     scenarioId: 'monaco',
     teamId: 'crimson',
     seed: 42,
+    difficulty: 'normal',
     position: 10,
     tireWear: 50,
     tireCompound: 'medium',
@@ -31,7 +32,7 @@ function makeState(overrides: Partial<RaceState> = {}): RaceState {
     mulliganUsed: false,
     emergencyMulliganUsed: false,
     turnsSkipped: 0,
-    trackLimitViolations: 0,
+
     objectivesCompleted: [],
     cardsPlayedTotal: [],
     turnPhase: 'play-card',

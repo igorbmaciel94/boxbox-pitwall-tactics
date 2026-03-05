@@ -183,13 +183,13 @@ export function useTurnStepper() {
 
     // Phase 5: Apply penalties & clamp
     const raining = isCurrentlyRaining(state);
-    let s = applyEndOfTurnPenalties(state, raining, state.underSafetyCar);
+    let s = applyEndOfTurnPenalties(state, raining, state.underSafetyCar, state.difficulty);
     s = clampRaceState(s);
 
     // Crash check
     if (actionCardRef.current && rngRef.current) {
       const crashRng = rngRef.current.fork(s.currentTurn * 100 + 50);
-      s = applyCrashCheck(s, actionCardRef.current, catalog, raining, crashRng);
+      s = applyCrashCheck(s, actionCardRef.current, catalog, raining, crashRng, state.difficulty);
       s = clampRaceState(s);
     }
 

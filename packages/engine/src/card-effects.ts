@@ -64,16 +64,6 @@ export function applyCardEffect(
     updated = { ...updated, position: updated.position + scOvertakePenalty };
   }
 
-  // Black & White flag: aggressive cards trigger track limit violations
-  if (card.tags.includes('aggressive') && !state.underSafetyCar) {
-    const newViolations = updated.trackLimitViolations + 1;
-    updated = { ...updated, trackLimitViolations: newViolations };
-    // 4th+ violation: +3 position penalty
-    if (newViolations >= 4) {
-      updated = { ...updated, position: updated.position + 3 };
-    }
-  }
-
   // Pit stop: reset tire wear and change compound
   if (isPitStopCard(cardId, catalog)) {
     // Under SC: free pit stop (restore position to before card)

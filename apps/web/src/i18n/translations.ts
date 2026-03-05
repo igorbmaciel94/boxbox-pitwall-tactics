@@ -114,7 +114,6 @@ export interface UIStrings {
     scFreePit: string;
     scOvertakeWarning: string;
     scPlayAnyway: string;
-    bwFlagWarning: string;
   };
   deck: {
     title: string;
@@ -227,8 +226,6 @@ export interface UIStrings {
       skipTurnText: string;
       crashTitle: string;
       crashText: string;
-      bwFlagTitle: string;
-      bwFlagText: string;
       tipsTitle: string;
       tip1: string;
       tip2: string;
@@ -262,6 +259,15 @@ export interface UIStrings {
     'tire-heavy': string;
     'technical': string;
     'mechanical-risk': string;
+  };
+  difficulty: {
+    title: string;
+    easy: string;
+    normal: string;
+    hard: string;
+    easyDesc: string;
+    normalDesc: string;
+    hardDesc: string;
   };
   stats: {
     pos: string;
@@ -444,7 +450,6 @@ const EN_UI: UIStrings = {
     scFreePit: 'Free pit under SC',
     scOvertakeWarning: 'Overtaking under SC! +3 position penalty if you play this card.',
     scPlayAnyway: 'Play Anyway (+3 penalty)',
-    bwFlagWarning: 'Black & White Flag! Next violation = time penalty.',
   },
   deck: {
     title: 'Deck Builder',
@@ -557,8 +562,6 @@ const EN_UI: UIStrings = {
       skipTurnText: 'If you have no pit card when mandatory pit is needed, you get an emergency redraw. If still no pit card, you can skip your turn (no card played). Skipping avoids crash risk but you still take tire degradation penalties.',
       crashTitle: 'Crash / DNF Risk',
       crashText: 'Aggressive cards on worn tires, rain on dry tires, and mechanical issues increase crash risk. A crash can cause heavy damage (+8 positions, +30 wear) or a DNF (race over). Under Safety Car there is no crash risk.',
-      bwFlagTitle: 'Black & White Flag',
-      bwFlagText: 'Each aggressive card played (outside of Safety Car) counts as a track limits violation. After 3 violations you receive a Black & White Flag warning. Any further violation results in a +3 position penalty. Balance your aggression!',
       tipsTitle: 'Strategy Tips',
       tip1: 'Balance your deck - do not go all-in on one card type.',
       tip2: 'Watch your tire wear - at 100 you get a tire blowout penalty.',
@@ -592,6 +595,15 @@ const EN_UI: UIStrings = {
     'tire-heavy': 'High Tire Wear',
     'technical': 'Technical',
     'mechanical-risk': 'Mech. Risk',
+  },
+  difficulty: {
+    title: 'Difficulty',
+    easy: 'Easy',
+    normal: 'Normal',
+    hard: 'Hard',
+    easyDesc: 'Relaxed experience. Less tire wear, fewer crashes. Great for learning the game.',
+    normalDesc: 'Balanced challenge. Standard tire wear and crash risk. The intended experience.',
+    hardDesc: 'Punishing conditions. Tires degrade fast, crashes are frequent. For experienced strategists.',
   },
   stats: {
     pos: 'POS',
@@ -705,7 +717,6 @@ const PT_BR_UI: UIStrings = {
     scFreePit: 'Pit gratis sob SC',
     scOvertakeWarning: 'Ultrapassagem sob SC! +3 penalidade de posicao se jogar esta carta.',
     scPlayAnyway: 'Jogar Mesmo Assim (+3 penalidade)',
-    bwFlagWarning: 'Bandeira Preta e Branca! Proxima violacao = penalidade de tempo.',
   },
   deck: {
     title: 'Construtor de Deck',
@@ -818,8 +829,6 @@ const PT_BR_UI: UIStrings = {
       skipTurnText: 'Se voce nao tiver carta de pit quando o pit e obrigatorio, ganha uma troca extra de mao. Se ainda nao tiver, pode passar a vez (sem jogar carta). Passar evita risco de batida mas voce ainda sofre penalidades de desgaste.',
       crashTitle: 'Risco de Batida / DNF',
       crashText: 'Cartas agressivas com pneus gastos, chuva em pneus secos e problemas mecanicos aumentam o risco de batida. Uma batida causa dano pesado (+8 posicoes, +30 desgaste) ou DNF (corrida encerrada). Sob Safety Car nao ha risco de batida.',
-      bwFlagTitle: 'Bandeira Preta e Branca',
-      bwFlagText: 'Cada carta agressiva jogada (fora do Safety Car) conta como violacao de limites de pista. Apos 3 violacoes voce recebe aviso de Bandeira Preta e Branca. Qualquer violacao seguinte resulta em penalidade de +3 posicoes. Equilibre sua agressividade!',
       tipsTitle: 'Dicas de Estrategia',
       tip1: 'Equilibre o deck - nao aposte tudo em um unico tipo de carta.',
       tip2: 'Fique de olho no desgaste - ao chegar a 100 voce sofre penalidade por estouro de pneu.',
@@ -853,6 +862,15 @@ const PT_BR_UI: UIStrings = {
     'tire-heavy': 'Alto Desgaste',
     'technical': 'Tecnico',
     'mechanical-risk': 'Risco Mecanico',
+  },
+  difficulty: {
+    title: 'Dificuldade',
+    easy: 'Facil',
+    normal: 'Normal',
+    hard: 'Dificil',
+    easyDesc: 'Experiencia relaxada. Menos desgaste de pneu, menos batidas. Otimo para aprender o jogo.',
+    normalDesc: 'Desafio equilibrado. Desgaste e risco de batida padrao. A experiencia planejada.',
+    hardDesc: 'Condicoes punitivas. Pneus se desgastam rapido, batidas sao frequentes. Para estrategistas experientes.',
   },
   stats: {
     pos: 'POS',

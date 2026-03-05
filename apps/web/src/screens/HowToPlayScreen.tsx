@@ -106,10 +106,6 @@ export function HowToPlayScreen() {
         <p>{t('howToPlay.sections.crashText')}</p>
       </Section>
 
-      <Section title={t('howToPlay.sections.bwFlagTitle')}>
-        <p>{t('howToPlay.sections.bwFlagText')}</p>
-      </Section>
-
       <Section title={t('howToPlay.sections.eventsTitle')}>
         <div className="space-y-2 rounded-xl bg-white/[0.04] p-3">
           <Term label="SC">{t('howToPlay.sections.sc')}</Term>

@@ -259,7 +259,7 @@ export function RaceScreen() {
   const isRain = currentEvent?.type === 'rain';
 
   return (
-    <div className="relative flex min-h-dvh flex-col">
+    <div className="relative flex h-dvh flex-col overflow-hidden">
       {isSC && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
         <div className="pointer-events-none fixed inset-0 z-30 bg-hud-yellow/8 animate-sc-pulse" />
       )}
@@ -330,16 +330,10 @@ export function RaceScreen() {
         </div>
       )}
 
-      <div className={`flex flex-col gap-2 px-5 py-2 ${
+      <div className={`flex flex-1 flex-col gap-2 overflow-y-auto px-5 py-2 ${
         (turnPhaseUI === 'await-action-card' && selectedHandIndex !== null) ? 'pb-20' : 'pb-4'
       }`}>
         <HUD state={raceState} previousPosition={previousPosition} />
-
-        {raceState.trackLimitViolations >= 3 && turnPhaseUI === 'await-action-card' && (
-          <div className="rounded-lg bg-white/10 border border-white/30 px-3 py-1.5 text-center text-[11px] text-white animate-fade-in">
-            {t('race.bwFlagWarning')} ({raceState.trackLimitViolations}x)
-          </div>
-        )}
 
         {currentEvent && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
           <EventCard event={currentEvent} animated={turnPhaseUI === 'reveal-event'} />

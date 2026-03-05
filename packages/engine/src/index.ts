@@ -21,6 +21,7 @@ export type {
   TireAllocation,
   TireCompound,
   SeasonTireBank,
+  Difficulty,
   TurnSummary,
 } from './types.js';
 

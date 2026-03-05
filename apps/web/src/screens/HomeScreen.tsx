@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { useI18n } from '../i18n';
 import { useAudio } from '../hooks/use-audio';
+import type { Difficulty } from '@boxbox/engine';
+
+const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard'];
 
 const MENU_ITEMS = [
   { labelKey: 'home.menu.quickRaceLabel', descKey: 'home.menu.quickRaceDesc', path: '/race', icon: 'RACE', accent: 'text-hud-green', needsDeck: true },
@@ -21,6 +24,9 @@ export function HomeScreen() {
   const catalog = useGameStore((s) => s.catalog);
   const audio = useAudio();
   const [muted, setMuted] = useState(() => audio.isMuted());
+
+  const difficulty = useGameStore((s) => s.difficulty);
+  const setDifficulty = useGameStore((s) => s.setDifficulty);
 
   const team = catalog?.teams.find((t) => t.id === selectedTeamId);
   const ready = !!selectedTeamId && currentDeck.length === 9;
@@ -81,6 +87,29 @@ export function HomeScreen() {
             {currentDeck.length === 9 ? t('home.deckReady') : t('home.deckNotBuilt')}
           </span>
         </div>
+      </div>
+
+      {/* Difficulty selector */}
+      <div className="mb-5 rounded-2xl bg-white/5 px-4 py-3">
+        <div className="mb-2 text-[11px] uppercase tracking-wider text-metal-light">{t('difficulty.title')}</div>
+        <div className="flex gap-2">
+          {DIFFICULTIES.map((d) => (
+            <button
+              key={d}
+              onClick={() => setDifficulty(d)}
+              className={`flex-1 rounded-xl px-3 py-2 text-center transition-all ${
+                difficulty === d
+                  ? d === 'easy' ? 'bg-hud-green/20 ring-1 ring-hud-green/50 text-hud-green'
+                  : d === 'normal' ? 'bg-hud-amber/20 ring-1 ring-hud-amber/50 text-hud-amber'
+                  : 'bg-hud-red/20 ring-1 ring-hud-red/50 text-hud-red'
+                  : 'bg-white/5 text-metal-light hover:bg-white/10'
+              }`}
+            >
+              <div className="font-display text-xs font-bold uppercase tracking-wide">{t(`difficulty.${d}`)}</div>
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-[11px] leading-relaxed text-metal-light">{t(`difficulty.${difficulty}Desc`)}</p>
       </div>
 
       {/* Menu */}
