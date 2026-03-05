@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import type { TireCompound, TireAllocation, SeasonTireBank } from '@boxbox/engine';
+import type { TireCompound, TireAllocation, SeasonTireBank, Difficulty } from '@boxbox/engine';
 import { Button } from '../shared/Button';
 import { useI18n } from '../../i18n';
+import { useGameStore } from '../../stores/game-store';
+
+const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard'];
 
 interface PreRaceTireSetupProps {
   onConfirm: (allocation: TireAllocation, startingCompound: TireCompound) => void;
@@ -24,6 +27,8 @@ const TOTAL_SETS = 3;
 
 export function PreRaceTireSetup({ onConfirm, seasonTireBank }: PreRaceTireSetupProps) {
   const { t } = useI18n();
+  const difficulty = useGameStore((s) => s.difficulty);
+  const setDifficulty = useGameStore((s) => s.setDifficulty);
   const [allocation, setAllocation] = useState<TireAllocation>({ soft: 1, medium: 1, hard: 1 });
   const [startingCompound, setStartingCompound] = useState<TireCompound>('soft');
 
@@ -145,6 +150,29 @@ export function PreRaceTireSetup({ onConfirm, seasonTireBank }: PreRaceTireSetup
         <span className="text-[11px] text-metal-light">
           {t('tireSetup.rainInfo')}
         </span>
+      </div>
+
+      {/* Difficulty selector */}
+      <div className="rounded-xl bg-white/[0.04] px-4 py-3">
+        <div className="mb-2 text-[11px] uppercase tracking-wider text-metal-light">{t('difficulty.title')}</div>
+        <div className="flex gap-2">
+          {DIFFICULTIES.map((d) => (
+            <button
+              key={d}
+              onClick={() => setDifficulty(d)}
+              className={`flex-1 rounded-xl px-3 py-2 text-center transition-all ${
+                difficulty === d
+                  ? d === 'easy' ? 'bg-hud-green/20 ring-1 ring-hud-green/50 text-hud-green'
+                  : d === 'normal' ? 'bg-hud-amber/20 ring-1 ring-hud-amber/50 text-hud-amber'
+                  : 'bg-hud-red/20 ring-1 ring-hud-red/50 text-hud-red'
+                  : 'bg-white/5 text-metal-light hover:bg-white/10'
+              }`}
+            >
+              <div className="font-display text-xs font-bold uppercase tracking-wide">{t(`difficulty.${d}`)}</div>
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-[11px] leading-relaxed text-metal-light">{t(`difficulty.${difficulty}Desc`)}</p>
       </div>
 
       <Button

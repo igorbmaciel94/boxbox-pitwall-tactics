@@ -114,6 +114,8 @@ export interface UIStrings {
     scFreePit: string;
     scOvertakeWarning: string;
     scPlayAnyway: string;
+    p1NoOvertake: string;
+    pLastNoLose: string;
   };
   deck: {
     title: string;
@@ -450,6 +452,8 @@ const EN_UI: UIStrings = {
     scFreePit: 'Free pit under SC',
     scOvertakeWarning: 'Overtaking under SC! +3 position penalty if you play this card.',
     scPlayAnyway: 'Play Anyway (+3 penalty)',
+    p1NoOvertake: 'You\'re P1! Overtake cards won\'t gain positions. Consider pit stop or skip.',
+    pLastNoLose: 'You\'re last — this card won\'t lose positions.',
   },
   deck: {
     title: 'Deck Builder',
@@ -717,6 +721,8 @@ const PT_BR_UI: UIStrings = {
     scFreePit: 'Pit gratis sob SC',
     scOvertakeWarning: 'Ultrapassagem sob SC! +3 penalidade de posicao se jogar esta carta.',
     scPlayAnyway: 'Jogar Mesmo Assim (+3 penalidade)',
+    p1NoOvertake: 'Voce esta em P1! Cartas de ultrapassagem nao ganham posicoes. Considere pit stop ou pular turno.',
+    pLastNoLose: 'Voce esta em ultimo — esta carta nao vai perder posicoes.',
   },
   deck: {
     title: 'Construtor de Deck',

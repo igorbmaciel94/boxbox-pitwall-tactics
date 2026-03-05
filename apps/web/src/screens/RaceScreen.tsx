@@ -386,8 +386,23 @@ export function RaceScreen() {
               />
               {/* Fixed bottom buttons */}
               <div className={`fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-carbon via-carbon/95 to-transparent px-5 pb-4 pt-3 ${selectedHandIndex !== null || canEmergencyMulligan || canSkipTurn || showSkipAlways ? 'animate-slide-up' : 'hidden'}`}>
-                {selectedHandIndex !== null && (
+                {selectedHandIndex !== null && (() => {
+                  const posChange = selectedCardData?.effect.position ?? 0;
+                  const atP1 = raceState.position === 1 && posChange < 0;
+                  const atPLast = raceState.position >= 18 && posChange > 0;
+                  return (
                   <>
+                    {/* Position boundary hint */}
+                    {atP1 && (
+                      <div className="mb-2 rounded-lg bg-hud-cyan/10 border border-hud-cyan/30 px-3 py-2 text-center text-xs text-hud-cyan">
+                        {t('race.p1NoOvertake')}
+                      </div>
+                    )}
+                    {atPLast && !atP1 && (
+                      <div className="mb-2 rounded-lg bg-metal-light/10 border border-metal-light/30 px-3 py-2 text-center text-xs text-metal-light">
+                        {t('race.pLastNoLose')}
+                      </div>
+                    )}
                     {/* SC overtake warning — visible on easy (always) and normal (once) */}
                     {showScWarning && (
                       <div className="mb-3 rounded-xl border-2 border-hud-yellow bg-hud-yellow/20 px-4 py-3 text-center animate-fade-in">
@@ -415,7 +430,8 @@ export function RaceScreen() {
                       {isScOvertakeCard ? t('race.scPlayAnyway') : t('race.playCard')}
                     </Button>
                   </>
-                )}
+                  );
+                })()}
                 {selectedHandIndex === null && (canEmergencyMulligan || canSkipTurn || showSkipAlways) && (
                   <div className="flex gap-2">
                     {canEmergencyMulligan && (

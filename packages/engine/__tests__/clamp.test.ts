@@ -50,12 +50,12 @@ function makeState(overrides: Partial<RaceState> = {}): RaceState {
 }
 
 describe('clampRaceState', () => {
-  it('clamps position to 1-20 range', () => {
+  it('clamps position to 1-18 range', () => {
     const low = clampRaceState(makeState({ position: -5 }));
     expect(low.position).toBe(1);
 
     const high = clampRaceState(makeState({ position: 25 }));
-    expect(high.position).toBe(20);
+    expect(high.position).toBe(18);
   });
 
   it('clamps tire wear to 0-100 range', () => {
@@ -95,8 +95,8 @@ describe('applyEndOfTurnPenalties', () => {
   it('applies rain multiplier on dry tires', () => {
     const state = makeState({ tireWear: 30, tireCompound: 'soft' });
     const updated = applyEndOfTurnPenalties(state, true);
-    // soft rain: 7 * 1.8 = 12.6 ≈ 13
-    expect(updated.tireWear).toBe(43); // 30 + 13
+    // soft rain: 7 * 2.5 = 17.5 ≈ 18
+    expect(updated.tireWear).toBe(48); // 30 + 18
   });
 
   it('applies degradation penalty at wear >= 55', () => {
@@ -226,7 +226,7 @@ describe('applyCrashCheck', () => {
     expect(damageFound).toBe(true);
   });
 
-  it('crash DNF: race over, position = 20', () => {
+  it('crash DNF: race over, position = 18', () => {
     let dnfFound = false;
     for (let seed = 1; seed <= 500; seed++) {
       const state = makeState({
@@ -241,7 +241,7 @@ describe('applyCrashCheck', () => {
       const updated = applyCrashCheck(state, 'push-hard', catalog, true, rng);
       if (updated.lastCrashSeverity === 'dnf') {
         expect(updated.isDNF).toBe(true);
-        expect(updated.position).toBe(20);
+        expect(updated.position).toBe(18);
         dnfFound = true;
         break;
       }

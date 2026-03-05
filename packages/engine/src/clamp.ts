@@ -15,11 +15,11 @@ export const COMPOUND_WEAR_PER_TURN: Record<TireCompound, number> = {
 
 /** Wear multiplier when using wrong compound for conditions */
 export const COMPOUND_WRONG_CONDITION_WEAR: Record<TireCompound, { dry: number; rain: number }> = {
-  soft: { dry: 1.0, rain: 1.8 },
-  medium: { dry: 1.0, rain: 1.5 },
-  hard: { dry: 1.0, rain: 1.3 },
-  intermediate: { dry: 1.5, rain: 1.0 },
-  wet: { dry: 2.0, rain: 0.8 },
+  soft: { dry: 1.0, rain: 2.5 },
+  medium: { dry: 1.0, rain: 2.0 },
+  hard: { dry: 1.0, rain: 1.6 },
+  intermediate: { dry: 2.5, rain: 1.0 },
+  wet: { dry: 3.0, rain: 0.8 },
 };
 
 /** Difficulty scaling factors */
@@ -34,10 +34,13 @@ const DIFFICULTY_CONFIG: Record<Difficulty, {
   hard: { wearMultiplier: 1.4, degradationReduction: 0, crashMultiplier: 1.6, blowoutPenalty: 7 },
 };
 
+/** Max grid position (18 cars = 6 teams × 3 drivers) */
+const MAX_POSITION = 18;
+
 export function clampRaceState(state: RaceState): RaceState {
   return {
     ...state,
-    position: clamp(state.position, 1, 20),
+    position: clamp(state.position, 1, MAX_POSITION),
     tireWear: clamp(state.tireWear, 0, 100),
     maxTireWearReached: Math.max(state.maxTireWearReached, state.tireWear),
   };
@@ -150,7 +153,7 @@ export function applyCrashCheck(
   const severityRoll = rng.nextInt(1, 100);
   if (severityRoll <= 30) {
     // DNF - race over
-    return { ...state, isDNF: true, position: 20, lastCrashSeverity: 'dnf' };
+    return { ...state, isDNF: true, position: MAX_POSITION, lastCrashSeverity: 'dnf' };
   } else {
     // Damage - survivable but costly
     return {
