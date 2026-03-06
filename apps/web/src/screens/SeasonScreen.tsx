@@ -8,14 +8,6 @@ import { getPositionColor } from '../lib/constants';
 import type { CardId } from '@boxbox/engine';
 import { useI18n } from '../i18n';
 
-function hashCombine(a: number, b: number): number {
-  let h = (a ^ (b * 0x9e3779b9 + 0x6d2b79f5)) | 0;
-  h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
-  h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
-  h = h ^ (h >>> 16);
-  return h >>> 0;
-}
-
 export function SeasonScreen() {
   const navigate = useNavigate();
   const { t, getScenarioName, getScenarioCircuit, getTeamName, getCardName } = useI18n();
@@ -28,19 +20,15 @@ export function SeasonScreen() {
 
   const [showCardSwap, setShowCardSwap] = useState(false);
   const [swapDeck, setSwapDeck] = useState<CardId[]>([]);
-  const [initialized, setInitialized] = useState(false);
 
   const isComplete = seasonProgress ? seasonProgress.currentRaceIndex >= (seasonProgress.raceOrder?.length ?? 0) : false;
 
-  // Initialize season on mount (only once)
+  // Redirect to setup if no season in progress
   useEffect(() => {
-    if (!initialized) {
-      setInitialized(true);
-      if (!useGameStore.getState().seasonProgress) {
-        useGameStore.getState().startSeason();
-      }
+    if (!seasonProgress) {
+      navigate('/season/setup', { replace: true });
     }
-  }, [initialized]);
+  }, [seasonProgress, navigate]);
 
   // Card swap trigger at race 4
   useEffect(() => {
@@ -73,26 +61,17 @@ export function SeasonScreen() {
     );
   }
 
-  if (!seasonProgress) {
-    return (
-      <div className="flex h-64 items-center justify-center text-sm text-metal-light">
-        {t('season.loadingSeason')}
-      </div>
-    );
-  }
-
-  if (isComplete) {
+  if (!seasonProgress || isComplete) {
     return null;
   }
 
-  const { raceOrder, currentRaceIndex, raceResults, cumulativeScore } = seasonProgress;
+  const { raceOrder, currentRaceIndex, raceResults, cumulativeScore, initialTireBank } = seasonProgress;
 
   const currentScenarioId = raceOrder[currentRaceIndex];
   const currentScenario = catalog.scenarios.find((s) => s.id === currentScenarioId);
   const team = catalog.teams.find((t) => t.id === selectedTeamId);
 
   const handleStartNextRace = () => {
-    // Navigate to race screen - tire setup will be shown there before race starts
     navigate('/race');
   };
 
@@ -221,6 +200,11 @@ export function SeasonScreen() {
             <span className="font-mono text-xs">H: {seasonProgress.tireBank.hard}</span>
           </div>
         </div>
+        {initialTireBank && (
+          <div className="mt-2 text-[10px] text-metal-light">
+            {t('season.initialBudget')}: S:{initialTireBank.soft} M:{initialTireBank.medium} H:{initialTireBank.hard}
+          </div>
+        )}
       </div>
 
       <Button variant="primary" size="lg" className="w-full" onClick={handleStartNextRace}>

@@ -1,6 +1,7 @@
-import { get, set } from 'idb-keyval';
+import { get, set, del } from 'idb-keyval';
 import type { CardId, RaceDebrief, TeamId } from '@boxbox/engine';
 import type { BestScore, RunHistoryEntry, SavedDeck, SeasonRunEntry } from '../lib/types';
+import type { SeasonProgress } from './game-store';
 import { calculateMedal } from '../lib/constants';
 import type { Locale } from '../i18n';
 
@@ -12,6 +13,7 @@ const KEYS = {
   bestScores: 'boxbox-best-scores',
   runHistory: 'boxbox-run-history',
   seasonRuns: 'boxbox-season-runs',
+  seasonProgress: 'boxbox-season-progress',
 } as const;
 
 // --- Team ---
@@ -109,9 +111,22 @@ export async function addSeasonRun(entry: SeasonRunEntry): Promise<SeasonRunEntr
   return runs;
 }
 
+// --- Season Progress ---
+export async function saveSeasonProgress(progress: SeasonProgress | null): Promise<void> {
+  if (progress) {
+    await set(KEYS.seasonProgress, progress);
+  } else {
+    await del(KEYS.seasonProgress);
+  }
+}
+
+export async function loadSeasonProgress(): Promise<SeasonProgress | null> {
+  return (await get<SeasonProgress>(KEYS.seasonProgress)) ?? null;
+}
+
 // --- Load all persisted data at startup ---
 export async function loadAllPersistedData() {
-  const [selectedTeam, locale, currentDeck, savedDecks, bestScores, runHistory, seasonRuns] =
+  const [selectedTeam, locale, currentDeck, savedDecks, bestScores, runHistory, seasonRuns, seasonProgress] =
     await Promise.all([
       loadSelectedTeam(),
       loadLocale(),
@@ -120,7 +135,8 @@ export async function loadAllPersistedData() {
       loadBestScores(),
       loadRunHistory(),
       loadSeasonRuns(),
+      loadSeasonProgress(),
     ]);
 
-  return { selectedTeam, locale, currentDeck, savedDecks, bestScores, runHistory, seasonRuns };
+  return { selectedTeam, locale, currentDeck, savedDecks, bestScores, runHistory, seasonRuns, seasonProgress };
 }

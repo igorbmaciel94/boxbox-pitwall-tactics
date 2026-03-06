@@ -18,7 +18,13 @@ import type {
 import { createRng, initializeRaceState } from '@boxbox/engine';
 import type { TurnPhaseUI, GameMode, SavedDeck, BestScore, RunHistoryEntry, SeasonRunEntry } from '../lib/types';
 
-interface SeasonProgress {
+export const SEASON_TIRE_TOTALS: Record<Difficulty, number> = {
+  easy: 24,
+  normal: 21,
+  hard: 18,
+};
+
+export interface SeasonProgress {
   raceOrder: string[];
   currentRaceIndex: number;
   raceResults: RaceDebrief[];
@@ -26,6 +32,9 @@ interface SeasonProgress {
   cardSwapDone: boolean;
   seed: number;
   tireBank: SeasonTireBank;
+  difficulty: Difficulty;
+  initialTireBank: SeasonTireBank;
+  pendingTireAllocation: TireAllocation | null;
 }
 
 interface GameState {
@@ -81,10 +90,13 @@ interface GameState {
   setLastDebrief: (debrief: RaceDebrief) => void;
 
   // Actions — season
-  startSeason: (seed?: number) => void;
+  startSeason: (difficulty: Difficulty, tireBank: SeasonTireBank, seed?: number) => void;
   advanceSeasonRace: (debrief: RaceDebrief) => void;
   setSeasonCardSwapDone: () => void;
   deductTireBank: (allocation: TireAllocation) => void;
+  restoreAbandonedTires: () => void;
+  setSeasonProgress: (progress: SeasonProgress) => void;
+  clearSeasonProgress: () => void;
 
   // Actions — persistence
   setSavedDecks: (decks: SavedDeck[]) => void;
@@ -177,7 +189,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   setPreviousPosition: (pos) => set({ previousPosition: pos }),
   setLastDebrief: (debrief) => set({ lastDebrief: debrief }),
 
-  startSeason: (seed) => {
+  startSeason: (difficulty, tireBank, seed) => {
     const { catalog, selectedTeamId } = get();
     if (!catalog || !selectedTeamId) return;
 
@@ -188,6 +200,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     set({
       mode: 'season',
+      difficulty,
       seasonProgress: {
         raceOrder,
         currentRaceIndex: 0,
@@ -195,7 +208,10 @@ export const useGameStore = create<GameState>((set, get) => ({
         cumulativeScore: 0,
         cardSwapDone: false,
         seed: seasonSeed,
-        tireBank: { soft: 8, medium: 8, hard: 8 },
+        tireBank: { ...tireBank },
+        difficulty,
+        initialTireBank: { ...tireBank },
+        pendingTireAllocation: null,
       },
     });
   },
@@ -210,6 +226,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           raceResults: results,
           currentRaceIndex: s.seasonProgress.currentRaceIndex + 1,
           cumulativeScore: results.reduce((sum, r) => sum + r.totalScore, 0),
+          pendingTireAllocation: null,
         },
       };
     });
@@ -236,10 +253,34 @@ export const useGameStore = create<GameState>((set, get) => ({
             medium: bank.medium - allocation.medium,
             hard: bank.hard - allocation.hard,
           },
+          pendingTireAllocation: { ...allocation },
         },
       };
     });
   },
+
+  restoreAbandonedTires: () => {
+    set((s) => {
+      if (!s.seasonProgress || !s.seasonProgress.pendingTireAllocation) return s;
+      const bank = s.seasonProgress.tireBank;
+      const pending = s.seasonProgress.pendingTireAllocation;
+      return {
+        seasonProgress: {
+          ...s.seasonProgress,
+          tireBank: {
+            soft: bank.soft + pending.soft,
+            medium: bank.medium + pending.medium,
+            hard: bank.hard + pending.hard,
+          },
+          pendingTireAllocation: null,
+        },
+      };
+    });
+  },
+
+  setSeasonProgress: (progress) => set({ seasonProgress: progress, mode: 'season' }),
+
+  clearSeasonProgress: () => set({ seasonProgress: null, mode: 'idle' }),
 
   setSavedDecks: (decks) => set({ savedDecks: decks }),
   addSavedDeck: (deck) => set((s) => ({ savedDecks: [...s.savedDecks, deck] })),

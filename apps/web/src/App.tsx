@@ -7,12 +7,13 @@ import { DeckBuilderScreen } from './screens/DeckBuilderScreen';
 import { RaceScreen } from './screens/RaceScreen';
 import { DebriefScreen } from './screens/DebriefScreen';
 import { SeasonScreen } from './screens/SeasonScreen';
+import { SeasonSetupScreen } from './screens/SeasonSetupScreen';
 import { SeasonResultsScreen } from './screens/SeasonResultsScreen';
 import { GarageScreen } from './screens/GarageScreen';
 import { HowToPlayScreen } from './screens/HowToPlayScreen';
 import { useGameStore } from './stores/game-store';
 import { loadBrowserCatalog } from './catalog/browser-loader';
-import { loadAllPersistedData, saveLocale, saveSelectedTeam, saveCurrentDeck, saveBestScore, addRunHistoryEntry } from './stores/persistence';
+import { loadAllPersistedData, saveLocale, saveSelectedTeam, saveCurrentDeck, saveBestScore, addRunHistoryEntry, saveSeasonProgress } from './stores/persistence';
 import { useI18n } from './i18n';
 import { useAudio } from './hooks/use-audio';
 
@@ -36,6 +37,7 @@ export function App() {
       if (data.bestScores.length > 0) store.setBestScores(data.bestScores);
       if (data.runHistory.length > 0) store.setRunHistory(data.runHistory);
       if (data.seasonRuns.length > 0) store.setSeasonRuns(data.seasonRuns);
+      if (data.seasonProgress) store.setSeasonProgress(data.seasonProgress);
     });
 
     // Subscribe to store changes and persist
@@ -49,6 +51,9 @@ export function App() {
       if (state.lastDebrief && state.lastDebrief !== prev.lastDebrief) {
         saveBestScore(state.lastDebrief).then((scores) => useGameStore.getState().setBestScores(scores));
         addRunHistoryEntry(state.lastDebrief).then((history) => useGameStore.getState().setRunHistory(history));
+      }
+      if (state.seasonProgress !== prev.seasonProgress) {
+        saveSeasonProgress(state.seasonProgress);
       }
     });
 
@@ -73,6 +78,7 @@ export function App() {
         <Route path="/race" element={<RaceScreen />} />
         <Route path="/debrief" element={<DebriefScreen />} />
         <Route path="/season" element={<SeasonScreen />} />
+        <Route path="/season/setup" element={<SeasonSetupScreen />} />
         <Route path="/season/results" element={<SeasonResultsScreen />} />
         <Route path="/garage" element={<GarageScreen />} />
         <Route path="/how-to-play" element={<HowToPlayScreen />} />

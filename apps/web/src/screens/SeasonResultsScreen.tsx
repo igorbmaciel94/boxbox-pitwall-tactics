@@ -84,7 +84,7 @@ export function SeasonResultsScreen() {
         <Button variant="ghost" size="md" className="flex-1" onClick={() => { resetAll(); navigate('/'); }}>
           {t('common.home')}
         </Button>
-        <Button variant="primary" size="md" className="flex-1" onClick={() => { resetAll(); navigate('/season'); }}>
+        <Button variant="primary" size="md" className="flex-1" onClick={() => { resetAll(); navigate('/season/setup'); }}>
           {t('seasonResults.newSeason')}
         </Button>
       </div>

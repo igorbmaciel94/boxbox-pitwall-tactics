@@ -165,6 +165,17 @@ export interface UIStrings {
     currentDeck: string;
     allCards: string;
     raceResultsTitle: string;
+    continueOrNew: string;
+    continueOrNewDesc: string;
+    continueSeason: string;
+    newSeason: string;
+    setupTitle: string;
+    tireBudget: string;
+    tireBudgetDesc: string;
+    totalSets: string;
+    startSeason: string;
+    minOneTire: string;
+    initialBudget: string;
   };
   seasonResults: {
     title: string;
@@ -503,6 +514,17 @@ const EN_UI: UIStrings = {
     currentDeck: 'Current Deck',
     allCards: 'All Cards',
     raceResultsTitle: 'Race Results',
+    continueOrNew: 'Season in Progress',
+    continueOrNewDesc: 'You have an active season. Continue or start fresh?',
+    continueSeason: 'Continue Season',
+    newSeason: 'New Season',
+    setupTitle: 'Season Setup',
+    tireBudget: 'Tire Budget',
+    tireBudgetDesc: 'Distribute {{total}} tire sets across compounds.',
+    totalSets: '{{current}} / {{total}} sets',
+    startSeason: 'Start Season',
+    minOneTire: 'At least 1 set of each compound required',
+    initialBudget: 'Initial Budget',
   },
   seasonResults: {
     title: 'Season Results',
@@ -772,6 +794,17 @@ const PT_BR_UI: UIStrings = {
     currentDeck: 'Deck Atual',
     allCards: 'Todas as Cartas',
     raceResultsTitle: 'Resultados das Corridas',
+    continueOrNew: 'Temporada em Andamento',
+    continueOrNewDesc: 'Voce tem uma temporada ativa. Continuar ou comecar nova?',
+    continueSeason: 'Continuar Temporada',
+    newSeason: 'Nova Temporada',
+    setupTitle: 'Configuracao da Temporada',
+    tireBudget: 'Orcamento de Pneus',
+    tireBudgetDesc: 'Distribua {{total}} jogos de pneus entre os compostos.',
+    totalSets: '{{current}} / {{total}} jogos',
+    startSeason: 'Iniciar Temporada',
+    minOneTire: 'Minimo de 1 jogo de cada composto',
+    initialBudget: 'Orcamento Inicial',
   },
   seasonResults: {
     title: 'Resultados da Temporada',
