@@ -216,6 +216,25 @@ describe('Season store actions', () => {
     });
   });
 
+  describe('startRace preserves season mode', () => {
+    it('keeps mode as season when starting race during season', () => {
+      useGameStore.getState().startSeason('normal', { soft: 7, medium: 7, hard: 7 }, 42);
+      expect(useGameStore.getState().mode).toBe('season');
+
+      const scenarioId = useGameStore.getState().seasonProgress!.raceOrder[0];
+      useGameStore.getState().startRace(scenarioId, 123);
+
+      expect(useGameStore.getState().mode).toBe('season');
+    });
+
+    it('sets mode to race for quick race', () => {
+      expect(useGameStore.getState().mode).toBe('idle');
+      useGameStore.getState().startRace('monaco', 123);
+
+      expect(useGameStore.getState().mode).toBe('race');
+    });
+  });
+
   describe('full season flow', () => {
     it('can complete a full season with tire tracking', () => {
       useGameStore.getState().startSeason('normal', { soft: 7, medium: 7, hard: 7 }, 42);

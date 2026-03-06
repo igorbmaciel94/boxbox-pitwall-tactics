@@ -45,6 +45,11 @@ export function DebriefScreen() {
     }
   };
 
+  const handleHome = () => {
+    resetRace();
+    navigate('/');
+  };
+
   return (
     <div className="flex flex-col px-5 pt-6">
       <h1 className="mb-1 font-display text-2xl font-bold uppercase tracking-wide">{t('debrief.title')}</h1>
@@ -151,12 +156,20 @@ export function DebriefScreen() {
 
       {/* Actions */}
       <div className="flex gap-2.5 pb-4">
-        <Button variant="ghost" size="md" className="flex-1" onClick={() => { resetRace(); navigate('/'); }}>
-          {t('common.home')}
-        </Button>
-        <Button variant="primary" size="md" className="flex-1" onClick={handleContinue}>
-          {mode === 'season' ? t('debrief.continueSeason') : t('common.done')}
-        </Button>
+        {mode === 'season' ? (
+          <>
+            <Button variant="ghost" size="md" className="flex-1" onClick={handleHome}>
+              {t('common.home')}
+            </Button>
+            <Button variant="primary" size="md" className="flex-1" onClick={handleContinue}>
+              {t('debrief.nextRace')}
+            </Button>
+          </>
+        ) : (
+          <Button variant="primary" size="lg" className="w-full" onClick={handleContinue}>
+            {t('common.done')}
+          </Button>
+        )}
       </div>
     </div>
   );

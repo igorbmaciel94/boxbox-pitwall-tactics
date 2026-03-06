@@ -7,12 +7,12 @@ import { Modal } from '../components/shared/Modal';
 import { Button } from '../components/shared/Button';
 
 const MENU_ITEMS = [
-  { labelKey: 'home.menu.quickRaceLabel', descKey: 'home.menu.quickRaceDesc', path: '/race', icon: 'RACE', accent: 'text-hud-green', needsDeck: true, isSeason: false },
-  { labelKey: 'home.menu.seasonLabel', descKey: 'home.menu.seasonDesc', path: '/season', icon: 'SZN', accent: 'text-f1-red', needsDeck: true, isSeason: true },
-  { labelKey: 'home.menu.deckBuilderLabel', descKey: 'home.menu.deckBuilderDesc', path: '/decks', icon: 'CARDS', accent: 'text-hud-amber', needsDeck: false, isSeason: false },
-  { labelKey: 'home.menu.selectTeamLabel', descKey: 'home.menu.selectTeamDesc', path: '/team', icon: 'TEAM', accent: 'text-hud-cyan', needsDeck: false, isSeason: false },
-  { labelKey: 'home.menu.garageLabel', descKey: 'home.menu.garageDesc', path: '/garage', icon: 'DATA', accent: 'text-metal-light', needsDeck: false, isSeason: false },
-  { labelKey: 'home.menu.howToPlayLabel', descKey: 'home.menu.howToPlayDesc', path: '/how-to-play', icon: 'GUIDE', accent: 'text-hud-blue', needsDeck: false, isSeason: false },
+  { labelKey: 'home.menu.quickRaceLabel', descKey: 'home.menu.quickRaceDesc', path: '/race', icon: '\u{1F3CE}\u{FE0F}', accent: 'text-hud-green', needsDeck: true, isSeason: false },
+  { labelKey: 'home.menu.seasonLabel', descKey: 'home.menu.seasonDesc', path: '/season', icon: '\u{1F3C6}', accent: 'text-f1-red', needsDeck: true, isSeason: true },
+  { labelKey: 'home.menu.deckBuilderLabel', descKey: 'home.menu.deckBuilderDesc', path: '/decks', icon: '\u{1F0CF}', accent: 'text-hud-amber', needsDeck: false, isSeason: false },
+  { labelKey: 'home.menu.selectTeamLabel', descKey: 'home.menu.selectTeamDesc', path: '/team', icon: '\u{1F3E2}', accent: 'text-hud-cyan', needsDeck: false, isSeason: false },
+  { labelKey: 'home.menu.garageLabel', descKey: 'home.menu.garageDesc', path: '/garage', icon: '\u{1F4CA}', accent: 'text-metal-light', needsDeck: false, isSeason: false },
+  { labelKey: 'home.menu.howToPlayLabel', descKey: 'home.menu.howToPlayDesc', path: '/how-to-play', icon: '\u{1F4D6}', accent: 'text-hud-blue', needsDeck: false, isSeason: false },
 ] as const;
 
 export function HomeScreen() {
@@ -31,12 +31,16 @@ export function HomeScreen() {
   const team = catalog?.teams.find((t) => t.id === selectedTeamId);
   const ready = !!selectedTeamId && currentDeck.length === 9;
 
-  const hasActiveSeason = seasonProgress && seasonProgress.currentRaceIndex < (seasonProgress.raceOrder?.length ?? 0);
+  const hasActiveSeason = seasonProgress
+    && seasonProgress.currentRaceIndex < (seasonProgress.raceOrder?.length ?? 0)
+    && seasonProgress.raceResults.length > 0;
 
   const handleSeasonClick = () => {
     if (hasActiveSeason) {
       setShowSeasonModal(true);
     } else {
+      // No completed races — clear stale progress and start fresh
+      if (seasonProgress) resetAll();
       navigate('/season/setup');
     }
   };
@@ -132,7 +136,7 @@ export function HomeScreen() {
                 ${disabled ? 'pointer-events-none opacity-40' : 'hover:bg-white/[0.08] active:scale-[0.98]'}`}
               style={{ animationDelay: `${idx * 40}ms` }}
             >
-              <span className={`flex h-10 w-10 items-center justify-center rounded-xl bg-white/8 font-mono text-[10px] font-bold tracking-wider ${item.accent}`}>
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/8 text-xl">
                 {item.icon}
               </span>
               <div className="flex-1 min-w-0">

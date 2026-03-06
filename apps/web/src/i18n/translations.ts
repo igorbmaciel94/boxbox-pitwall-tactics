@@ -151,6 +151,7 @@ export interface UIStrings {
     lapSummary: string;
     medalSuffix: string;
     continueSeason: string;
+    nextRace: string;
     perkActivated: string;
     qdPrefix: string;
   };
@@ -500,6 +501,7 @@ const EN_UI: UIStrings = {
     lapSummary: 'Lap Summary',
     medalSuffix: 'medal',
     continueSeason: 'Continue Season',
+    nextRace: 'Next Race',
     perkActivated: 'Perk!',
     qdPrefix: 'QD',
   },
@@ -780,6 +782,7 @@ const PT_BR_UI: UIStrings = {
     lapSummary: 'Resumo por Volta',
     medalSuffix: 'medalha',
     continueSeason: 'Continuar Temporada',
+    nextRace: 'Proxima Etapa',
     perkActivated: 'Perk!',
     qdPrefix: 'DR',
   },

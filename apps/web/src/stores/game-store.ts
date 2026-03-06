@@ -145,7 +145,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   seasonRuns: [],
 
   startRace: (scenarioId, seed, startingCompound, tireAllocation) => {
-    const { catalog, selectedTeamId, currentDeck, difficulty } = get();
+    const { catalog, selectedTeamId, currentDeck, difficulty, mode } = get();
     if (!catalog || !selectedTeamId) return;
 
     const scenario = catalog.scenarios.find((s) => s.id === scenarioId);
@@ -168,7 +168,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     const state: RaceState = { ...baseState, deck: shuffledDeck, hand: [], discard: [] };
 
     set({
-      mode: 'race',
+      mode: mode === 'season' ? 'season' : 'race',
       raceState: state,
       scenario,
       team,

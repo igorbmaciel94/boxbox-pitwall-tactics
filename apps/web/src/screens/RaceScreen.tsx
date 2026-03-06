@@ -256,6 +256,7 @@ export function RaceScreen() {
         <PreRaceTireSetup
           onConfirm={handleTireSetupConfirm}
           seasonTireBank={mode === 'season' ? seasonProgress?.tireBank ?? null : null}
+          hideDifficulty={mode === 'season'}
         />
       </div>
     );
