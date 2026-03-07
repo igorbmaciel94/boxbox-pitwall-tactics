@@ -11,8 +11,8 @@
     {
       "id": "box-box",
       "name": "Box Box",
-      "rulesText": "Pit stop! Fresh tires but lose track position: +4 pos loss, -80 tire wear.",
-      "effect": { "position": 4, "tireWear": -80 },
+      "rulesText": "Pit stop! Lose 4 positions but fresh tires with extra life.",
+      "effect": { "position": 4, "tireWear": -15 },
       "tags": ["pit"]
     },
     {
@@ -67,8 +67,8 @@
     {
       "id": "undercut",
       "name": "Undercut",
-      "rulesText": "Early pit strategy: gain 1 position, -40 tire wear.",
-      "effect": { "position": -1, "tireWear": -40 },
+      "rulesText": "Early pit strategy: gain 1 position, standard fresh tires.",
+      "effect": { "position": -1, "tireWear": 0 },
       "tags": ["pit", "aggressive"]
     },
     {
@@ -81,8 +81,8 @@
     {
       "id": "alternate-strategy",
       "name": "Alternate Strategy",
-      "rulesText": "Opposite strategy to rivals: lose 2 positions, -30 tire wear.",
-      "effect": { "position": 2, "tireWear": -30 },
+      "rulesText": "Opposite strategy to rivals: lose 2 positions, tires with extra life.",
+      "effect": { "position": 2, "tireWear": -10 },
       "tags": ["pit", "defensive"]
     }
   ]

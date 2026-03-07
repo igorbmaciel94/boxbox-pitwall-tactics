@@ -70,8 +70,8 @@ describe('Safety Car card effects', () => {
     expect(updated.position).toBe(8);
   });
 
-  it('pit card under SC: free pit (position restored)', () => {
-    // box-box: pit tag, position +4, tireWear -80
+  it('pit card under SC: free pit (position restored) with tire freshness bonus', () => {
+    // box-box: pit tag, position +4, tireWear -15
     const state = makeState({
       underSafetyCar: true,
       position: 6,
@@ -81,12 +81,12 @@ describe('Safety Car card effects', () => {
 
     // Free pit: position restored to original (6)
     expect(updated.position).toBe(6);
-    // Tire wear reset to 0
-    expect(updated.tireWear).toBe(0);
+    // Fresh tires with bonus from card's wear value
+    expect(updated.tireWear).toBe(-15);
     expect(updated.hasPitted).toBe(true);
   });
 
-  it('pit card without SC: loses positions normally', () => {
+  it('pit card without SC: loses positions normally with tire freshness bonus', () => {
     const state = makeState({
       underSafetyCar: false,
       position: 6,
@@ -96,7 +96,8 @@ describe('Safety Car card effects', () => {
 
     // box-box: position +4, so 6 + 4 = 10
     expect(updated.position).toBe(10);
-    expect(updated.tireWear).toBe(0);
+    // Fresh tires with bonus from card's wear value (-15)
+    expect(updated.tireWear).toBe(-15);
     expect(updated.hasPitted).toBe(true);
   });
 

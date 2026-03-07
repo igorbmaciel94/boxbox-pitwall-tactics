@@ -45,13 +45,32 @@ describe('applyCardEffect', () => {
     expect(updated.cardsPlayedTotal).toContain('push-hard');
   });
 
-  it('applies box-box effect correctly', () => {
+  it('applies box-box effect correctly — tire freshness bonus', () => {
     const state = makeBaseState({ tireWear: 80 });
     const updated = applyCardEffect(state, 'box-box', catalog);
 
     expect(updated.position).toBe(14); // 10 + 4
-    expect(updated.tireWear).toBe(0); // 80 + (-80)
+    expect(updated.tireWear).toBe(-15); // pit: fresh tires with -15 bonus
+    expect(updated.hasPitted).toBe(true);
     expect(updated.hand).toHaveLength(2);
+  });
+
+  it('applies undercut — gain position, standard fresh tires', () => {
+    const state = makeBaseState({ hand: ['undercut', 'box-box', 'overtake'], tireWear: 60 });
+    const updated = applyCardEffect(state, 'undercut', catalog);
+
+    expect(updated.position).toBe(9); // 10 + (-1)
+    expect(updated.tireWear).toBe(0); // pit: standard fresh tires (no bonus)
+    expect(updated.hasPitted).toBe(true);
+  });
+
+  it('applies alternate-strategy — moderate loss, tire bonus', () => {
+    const state = makeBaseState({ hand: ['alternate-strategy', 'box-box', 'overtake'], tireWear: 70 });
+    const updated = applyCardEffect(state, 'alternate-strategy', catalog);
+
+    expect(updated.position).toBe(12); // 10 + 2
+    expect(updated.tireWear).toBe(-10); // pit: fresh tires with -10 bonus
+    expect(updated.hasPitted).toBe(true);
   });
 
   it('throws if card not in hand', () => {

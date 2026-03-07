@@ -1,11 +1,11 @@
 import type { CardId, GameCatalogData, PlayerAgent, RaceState, TireCompound } from './types.js';
 import { applyEffect } from './clamp.js';
 
-/** Check if a card triggers a pit stop (has pit tag and reduces tire wear) */
+/** Check if a card triggers a pit stop (has pit tag) */
 function isPitStopCard(cardId: CardId, catalog: GameCatalogData): boolean {
   const card = catalog.cards.find((c) => c.id === cardId);
   if (!card) return false;
-  return card.tags.includes('pit') && (card.effect.tireWear ?? 0) < 0;
+  return card.tags.includes('pit');
 }
 
 export function applyCardEffect(
@@ -71,9 +71,12 @@ export function applyCardEffect(
       updated = { ...updated, position: state.position };
     }
     const newCompound = agent?.chooseCompound?.(updated) ?? 'medium';
+    // New tire freshness: card's negative wear becomes a tire life bonus
+    // e.g. Box Box (-15) → tire starts at -15 (lasts longer before degradation)
+    const tireFreshness = Math.min(0, effectToApply.tireWear ?? 0);
     updated = {
       ...updated,
-      tireWear: 0,
+      tireWear: tireFreshness,
       tireCompound: newCompound,
       hasPitted: true,
       pitStopsMade: updated.pitStopsMade + 1,
