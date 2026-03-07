@@ -5,7 +5,7 @@
       "id": "championship-contender",
       "tier": "top",
       "title": "Championship Contender",
-      "description": "Win the championship or finish on the podium (P1-P3)",
+      "description": "Finish on the championship podium (P1-P3)",
       "startingPositionRange": [1, 6],
       "evaluate": "championship-position",
       "params": { "maxPosition": 3 }

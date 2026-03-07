@@ -145,7 +145,6 @@ export function SeasonSetupScreen() {
                 </button>
               ))}
             </div>
-            <p className="mt-2 text-[11px] leading-relaxed text-metal-light">{t(`difficulty.${difficulty}Desc`)}</p>
           </div>
 
           <Button
