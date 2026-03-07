@@ -27,7 +27,6 @@ export function SeasonResultsScreen() {
 
   const { raceResults, cumulativeScore, championshipStandings, goalCardId, playerDriverId } = seasonProgress;
   const team = catalog.teams.find((t) => t.id === selectedTeamId);
-  const medal = calculateMedal(cumulativeScore);
 
   const bestRace = raceResults.reduce((best, r) => (r.totalScore > best.totalScore ? r : best), raceResults[0]);
   const worstRace = raceResults.reduce((worst, r) => (r.totalScore < worst.totalScore ? r : worst), raceResults[0]);
@@ -41,6 +40,7 @@ export function SeasonResultsScreen() {
   // Player championship position
   const playerStandingIdx = championshipStandings.findIndex((s) => s.driverId === playerDriverId);
   const championshipPosition = playerStandingIdx >= 0 ? playerStandingIdx + 1 : null;
+  const medal = calculateMedal(championshipPosition ?? 99);
 
   // Auto-save trophy and season run on mount (once)
   useEffect(() => {

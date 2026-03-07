@@ -226,6 +226,7 @@ export function useTurnStepper() {
       const debrief = calculateRaceScore(s, scenario, catalog, turnLogRef.current, {
         styleBonusesEnabled: true,
       });
+      debrief.seed = s.seed;
 
       // Simulate rival positions and build classification
       if (catalog.drivers && catalog.drivers.length > 0 && rngRef.current) {
@@ -234,7 +235,7 @@ export function useTurnStepper() {
           ?? catalog.drivers.find((d) => d.teamId === s.teamId)?.id
           ?? `player-${s.teamId}`;
         const playerDriver = catalog.drivers.find((d) => d.id === playerDriverId);
-        const playerAbbr = playerDriver?.abbreviation ?? 'PLY';
+        const playerAbbr = playerDriver?.abbreviation ?? 'YOU';
 
         const rivalRng = rngRef.current.fork(s.seed + 9999);
         const rivalResults = simulateRivalPositions(

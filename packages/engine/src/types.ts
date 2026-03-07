@@ -135,6 +135,7 @@ export interface RaceDebrief {
   turnLog: TurnSummary[];
   rivalResults?: RivalRaceResult[];
   fullClassification?: RivalRaceResult[];
+  seed?: number;
 }
 
 export interface SeasonState {

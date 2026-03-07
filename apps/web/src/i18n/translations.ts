@@ -426,7 +426,7 @@ const EN_UI: UIStrings = {
   },
   home: {
     title: 'Box Box',
-    subtitle: 'Racing Strategy Game',
+    subtitle: 'Racing Card Game',
     teamLabel: 'Team',
     teamNone: 'None',
     deckLabel: 'Deck',
@@ -744,7 +744,7 @@ const PT_BR_UI: UIStrings = {
   },
   home: {
     title: 'Box Box',
-    subtitle: 'Racing Strategy Game',
+    subtitle: 'Racing Card Game',
     teamLabel: 'Equipe',
     teamNone: 'Nenhuma',
     deckLabel: 'Deck',

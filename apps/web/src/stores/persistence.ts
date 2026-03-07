@@ -65,7 +65,7 @@ export async function saveBestScore(debrief: RaceDebrief): Promise<BestScore[]> 
     scenarioId: debrief.scenarioId,
     score: debrief.totalScore,
     position: debrief.finalPosition,
-    medal: calculateMedal(debrief.totalScore),
+    medal: calculateMedal(debrief.finalPosition),
     timestamp: Date.now(),
   };
 

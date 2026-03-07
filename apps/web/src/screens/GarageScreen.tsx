@@ -86,7 +86,7 @@ export function GarageScreen() {
         <div className="flex flex-col gap-2">
           {catalog?.scenarios.map((scenario) => {
             const best = bestScores.find((s) => s.scenarioId === scenario.id);
-            const medal = best ? calculateMedal(best.score) : null;
+            const medal = best ? calculateMedal(best.position) : null;
             return (
               <div
                 key={scenario.id}

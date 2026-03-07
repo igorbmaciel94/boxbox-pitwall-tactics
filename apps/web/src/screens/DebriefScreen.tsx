@@ -34,7 +34,7 @@ export function DebriefScreen() {
 
   const scenario = catalog.scenarios.find((s) => s.id === lastDebrief.scenarioId);
   const team = catalog.teams.find((t) => t.id === lastDebrief.teamId);
-  const medal = calculateMedal(lastDebrief.totalScore);
+  const medal = calculateMedal(lastDebrief.finalPosition);
 
   const handleContinue = () => {
     if (mode === 'season') {
@@ -163,6 +163,7 @@ export function DebriefScreen() {
             classification={lastDebrief.fullClassification}
             playerDriverId={seasonProgress?.playerDriverId ?? catalog.drivers.find((d) => d.teamId === lastDebrief.teamId)?.id ?? ''}
             teams={catalog.teams}
+            seed={lastDebrief.seed}
           />
         </div>
       )}
