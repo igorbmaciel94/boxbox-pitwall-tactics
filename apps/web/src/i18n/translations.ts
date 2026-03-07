@@ -27,6 +27,7 @@ export interface UIStrings {
     home: string;
     back: string;
     done: string;
+    next: string;
     loading: string;
     empty: string;
     scorePts: string;
@@ -136,9 +137,13 @@ export interface UIStrings {
     title: string;
     runHistory: string;
     bestScores: string;
+    trophies: string;
     noHistory: string;
     noRuns: string;
+    noTrophies: string;
     scorePrefix: string;
+    goalAchieved: string;
+    goalFailed: string;
   };
   debrief: {
     title: string;
@@ -163,6 +168,9 @@ export interface UIStrings {
     startRace: string;
     cardSwapTitle: string;
     cardSwapDesc: string;
+    cardSwapDescPerRace: string;
+    swapCards: string;
+    maxSwaps: string;
     currentDeck: string;
     allCards: string;
     raceResultsTitle: string;
@@ -171,6 +179,10 @@ export interface UIStrings {
     continueSeason: string;
     newSeason: string;
     setupTitle: string;
+    yourGoal: string;
+    chooseGoal: string;
+    chooseGoalDesc: string;
+    startRange: string;
     tireBudget: string;
     tireBudgetDesc: string;
     totalSets: string;
@@ -185,6 +197,16 @@ export interface UIStrings {
     seasonSuffix: string;
     raceResults: string;
     newSeason: string;
+    goalResult: string;
+    goalAchieved: string;
+    goalFailed: string;
+    championshipPosition: string;
+  };
+  classification: {
+    title: string;
+  };
+  standings: {
+    title: string;
   };
   howToPlay: {
     title: string;
@@ -247,6 +269,20 @@ export interface UIStrings {
       tip4: string;
       tip5: string;
       tip6: string;
+      seasonModeTitle: string;
+      seasonModeP1: string;
+      seasonModeP2: string;
+      rivalsTitle: string;
+      rivalsP1: string;
+      rivalsP2: string;
+      goalsTitle: string;
+      goalsP1: string;
+      goalTop: string;
+      goalMid: string;
+      goalBottom: string;
+      championshipTitle: string;
+      championshipP1: string;
+      championshipP2: string;
     };
   };
   tireSetup: {
@@ -377,6 +413,7 @@ const EN_UI: UIStrings = {
     home: 'Home',
     back: 'Back',
     done: 'Done',
+    next: 'Next',
     loading: 'Loading...',
     empty: 'Empty',
     scorePts: 'pts',
@@ -484,11 +521,15 @@ const EN_UI: UIStrings = {
   },
   garage: {
     title: 'Garage',
-    runHistory: 'Run History',
-    bestScores: 'Best Scores',
+    runHistory: 'History',
+    bestScores: 'Records',
+    trophies: 'Trophies',
     noHistory: 'No races completed yet. Start racing to see your history here.',
     noRuns: 'No runs',
+    noTrophies: 'No trophies yet. Complete a season to earn trophies.',
     scorePrefix: 'Score',
+    goalAchieved: 'Achieved',
+    goalFailed: 'Failed',
   },
   debrief: {
     title: 'Race Debrief',
@@ -511,8 +552,11 @@ const EN_UI: UIStrings = {
     completedRaces: 'Completed Races',
     raceOf: 'Race {{current}} of {{total}}',
     startRace: 'Start Race',
-    cardSwapTitle: 'Mid-Season Card Swap',
+    cardSwapTitle: 'Card Swap',
     cardSwapDesc: 'After 3 races, you may modify your deck for the remaining season.',
+    cardSwapDescPerRace: 'Swap up to 3 cards before the next race.',
+    swapCards: 'Swap Cards',
+    maxSwaps: 'Maximum 3 card swaps allowed.',
     currentDeck: 'Current Deck',
     allCards: 'All Cards',
     raceResultsTitle: 'Race Results',
@@ -521,6 +565,10 @@ const EN_UI: UIStrings = {
     continueSeason: 'Continue Season',
     newSeason: 'New Season',
     setupTitle: 'Season Setup',
+    yourGoal: 'Your Goal',
+    chooseGoal: 'Choose Your Goal',
+    chooseGoalDesc: 'Select a season objective. Your goal determines starting position range.',
+    startRange: 'Start Range',
     tireBudget: 'Tire Budget',
     tireBudgetDesc: 'Distribute {{total}} tire sets across compounds.',
     totalSets: '{{current}} / {{total}} sets',
@@ -535,6 +583,16 @@ const EN_UI: UIStrings = {
     seasonSuffix: 'season',
     raceResults: 'Race Results',
     newSeason: 'New Season',
+    goalResult: 'Season Goal',
+    goalAchieved: 'Goal Achieved!',
+    goalFailed: 'Goal Not Achieved',
+    championshipPosition: 'Championship P{{position}}',
+  },
+  classification: {
+    title: 'Race Classification',
+  },
+  standings: {
+    title: 'Championship Standings',
   },
   howToPlay: {
     title: 'How to Play',
@@ -597,6 +655,20 @@ const EN_UI: UIStrings = {
       tip4: 'Save your team perk for a critical moment, not the first opportunity.',
       tip5: 'Study the circuit objectives before building your deck.',
       tip6: 'Some circuits have tougher tire wear - plan your pit stops accordingly.',
+      seasonModeTitle: 'Season Mode',
+      seasonModeP1: 'Race all 6 circuits in order. Your tire budget is shared across the entire season, so plan carefully. After each race you can swap up to 3 cards in your deck.',
+      seasonModeP2: 'At the start you choose difficulty (Easy/Normal/Hard) which sets your total tire budget. Your starting position each race is determined by your goal card tier.',
+      rivalsTitle: 'Rivals & Classification',
+      rivalsP1: '18 drivers from 6 teams compete alongside you. After each race, a full classification is shown with positions and championship points for all drivers.',
+      rivalsP2: 'On the mini-map, nearby rivals show 3-letter abbreviations and team colors. Higher-strength drivers tend to finish higher but results vary each race.',
+      goalsTitle: 'Season Goals',
+      goalsP1: 'Each team tier has a season goal that is automatically assigned based on your team:',
+      goalTop: 'Top teams (Onyx, Azure): Championship Contender - finish P1-P3 in the championship.',
+      goalMid: 'Mid teams (Crimson, Amber): Points Machine - finish top 5 AND score points every race.',
+      goalBottom: 'Lower teams (Emerald, Violet): Rising Star - beat your teammates AND score 20+ points.',
+      championshipTitle: 'Championship Points',
+      championshipP1: 'Points are awarded using the real F1 system: P1=25, P2=18, P3=15, P4=12, P5=10, P6=8, P7=6, P8=4, P9=2, P10=1. Positions 11-18 score 0 points.',
+      championshipP2: 'Championship standings accumulate across all 6 races. View standings from the season hub at any time. At season end, your goal is evaluated and a trophy is awarded.',
     },
   },
   tireSetup: {
@@ -658,6 +730,7 @@ const PT_BR_UI: UIStrings = {
     home: 'Inicio',
     back: 'Voltar',
     done: 'Concluir',
+    next: 'Proximo',
     loading: 'Carregando...',
     empty: 'Vazio',
     scorePts: 'pts',
@@ -766,10 +839,14 @@ const PT_BR_UI: UIStrings = {
   garage: {
     title: 'Garagem',
     runHistory: 'Historico',
-    bestScores: 'Melhores Pontos',
+    bestScores: 'Recordes',
+    trophies: 'Trofeus',
     noHistory: 'Nenhuma corrida concluida ainda. Corra para ver seu historico aqui.',
     noRuns: 'Sem corridas',
+    noTrophies: 'Nenhum trofeu ainda. Complete uma temporada para ganhar trofeus.',
     scorePrefix: 'Pontuacao',
+    goalAchieved: 'Alcancado',
+    goalFailed: 'Nao Alcancado',
   },
   debrief: {
     title: 'Debrief da Corrida',
@@ -792,8 +869,11 @@ const PT_BR_UI: UIStrings = {
     completedRaces: 'Corridas Concluidas',
     raceOf: 'Corrida {{current}} de {{total}}',
     startRace: 'Iniciar Corrida',
-    cardSwapTitle: 'Troca de Cartas no Meio da Temporada',
+    cardSwapTitle: 'Troca de Cartas',
     cardSwapDesc: 'Depois de 3 corridas, voce pode ajustar seu deck para o restante da temporada.',
+    cardSwapDescPerRace: 'Troque ate 3 cartas antes da proxima corrida.',
+    swapCards: 'Trocar Cartas',
+    maxSwaps: 'Maximo de 3 trocas de cartas permitidas.',
     currentDeck: 'Deck Atual',
     allCards: 'Todas as Cartas',
     raceResultsTitle: 'Resultados das Corridas',
@@ -802,6 +882,10 @@ const PT_BR_UI: UIStrings = {
     continueSeason: 'Continuar Temporada',
     newSeason: 'Nova Temporada',
     setupTitle: 'Configuracao da Temporada',
+    yourGoal: 'Seu Objetivo',
+    chooseGoal: 'Escolha Seu Objetivo',
+    chooseGoalDesc: 'Selecione um objetivo de temporada. O objetivo determina sua faixa de largada.',
+    startRange: 'Faixa de Largada',
     tireBudget: 'Orcamento de Pneus',
     tireBudgetDesc: 'Distribua {{total}} jogos de pneus entre os compostos.',
     totalSets: '{{current}} / {{total}} jogos',
@@ -816,6 +900,16 @@ const PT_BR_UI: UIStrings = {
     seasonSuffix: 'temporada',
     raceResults: 'Resultados das Corridas',
     newSeason: 'Nova Temporada',
+    goalResult: 'Objetivo da Temporada',
+    goalAchieved: 'Objetivo Alcancado!',
+    goalFailed: 'Objetivo Nao Alcancado',
+    championshipPosition: 'Campeonato P{{position}}',
+  },
+  classification: {
+    title: 'Classificacao da Corrida',
+  },
+  standings: {
+    title: 'Classificacao do Campeonato',
   },
   howToPlay: {
     title: 'Como Jogar',
@@ -878,6 +972,20 @@ const PT_BR_UI: UIStrings = {
       tip4: 'Guarde o perk da equipe para um momento critico, nao na primeira chance.',
       tip5: 'Estude os objetivos do circuito antes de montar o deck.',
       tip6: 'Circuitos com muita chuva (Spa, Interlagos) favorecem cartas de clima.',
+      seasonModeTitle: 'Modo Temporada',
+      seasonModeP1: 'Corra nos 6 circuitos em ordem. Seu orcamento de pneus e compartilhado em toda a temporada, entao planeje com cuidado. Apos cada corrida voce pode trocar ate 3 cartas do deck.',
+      seasonModeP2: 'No inicio voce escolhe a dificuldade (Facil/Normal/Dificil) que define o orcamento total de pneus. Sua posicao de largada em cada corrida e determinada pelo tier do seu objetivo.',
+      rivalsTitle: 'Rivais e Classificacao',
+      rivalsP1: '18 pilotos de 6 equipes competem ao seu lado. Apos cada corrida, a classificacao completa e exibida com posicoes e pontos do campeonato para todos os pilotos.',
+      rivalsP2: 'No mini-mapa, rivais proximos mostram abreviacoes de 3 letras e cores da equipe. Pilotos mais fortes tendem a terminar mais a frente, mas os resultados variam.',
+      goalsTitle: 'Objetivos da Temporada',
+      goalsP1: 'Cada tier de equipe tem um objetivo que e atribuido automaticamente:',
+      goalTop: 'Times top (Onyx, Azure): Candidato ao Titulo - terminar P1-P3 no campeonato.',
+      goalMid: 'Times medios (Crimson, Amber): Maquina de Pontos - terminar no top 5 E pontuar em toda corrida.',
+      goalBottom: 'Times menores (Emerald, Violet): Estrela em Ascensao - superar companheiros E marcar 20+ pontos.',
+      championshipTitle: 'Pontos do Campeonato',
+      championshipP1: 'Pontos sao dados usando o sistema real da F1: P1=25, P2=18, P3=15, P4=12, P5=10, P6=8, P7=6, P8=4, P9=2, P10=1. Posicoes 11-18 nao pontuam.',
+      championshipP2: 'A classificacao do campeonato acumula ao longo das 6 corridas. Veja a classificacao no hub da temporada a qualquer momento. No final, seu objetivo e avaliado e um trofeu e concedido.',
     },
   },
   tireSetup: {

@@ -3,25 +3,30 @@ export type {
   CardData,
   CardEffect,
   CardId,
+  Difficulty,
+  DriverData,
+  DriverStanding,
   EventType,
   GameCatalogData,
+  GoalCardData,
+  GoalCardTier,
   ObjectiveData,
   PlayerAgent,
   RaceDebrief,
   RaceEvent,
   RaceState,
+  RivalRaceResult,
   ScenarioData,
   ScoringConfig,
   SeasonResult,
   SeasonState,
+  SeasonTireBank,
   SeededRng,
   TeamData,
   TeamId,
-  TurnPhase,
   TireAllocation,
   TireCompound,
-  SeasonTireBank,
-  Difficulty,
+  TurnPhase,
   TurnSummary,
 } from './types.js';
 
@@ -39,3 +44,9 @@ export { maybeApplyTeamPerk } from './team-perks.js';
 export { clampRaceState, applyEffect, applyEndOfTurnPenalties, applyCrashCheck } from './clamp.js';
 export { getPositionScore, evaluateObjective, calculateRaceScore, calculateSeasonScore, POSITION_SCORE_TABLE } from './scoring.js';
 export { validateRaceState, validateCatalog } from './validators.js';
+
+// Rivals
+export { simulateRivalPositions, buildFullClassification, updateChampionshipStandings } from './rival-engine.js';
+
+// Goals
+export { evaluateGoalCard, getGoalCardForTeam, getGoalCardsForTeam, getTeamTier } from './goal-engine.js';

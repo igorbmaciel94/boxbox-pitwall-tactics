@@ -1,9 +1,12 @@
 export type {
   CardData,
   CardEffect,
+  DriverData,
   EventType,
   GameCatalogData,
   GameStringsData,
+  GoalCardData,
+  GoalCardTier,
   ObjectiveData,
   ScenarioData,
   ScenarioParamsData,
@@ -16,6 +19,10 @@ export {
   cardEffectSchema,
   cardSchema,
   cardsFileSchema,
+  driverSchema,
+  driversFileSchema,
+  goalCardSchema,
+  goalCardsFileSchema,
   objectiveSchema,
   scenarioParamsSchema,
   scenarioSchema,
@@ -26,4 +33,4 @@ export {
   teamsFileSchema,
 } from './schemas.js';
 
-export { loadCards, loadCatalog, loadScenarios, loadStrings, loadTeams } from './loader.js';
+export { loadCards, loadCatalog, loadDrivers, loadGoalCards, loadScenarios, loadStrings, loadTeams } from './loader.js';

@@ -14,6 +14,8 @@ import {
   performMulligan,
   performEmergencyMulligan,
   applyCrashCheck,
+  simulateRivalPositions,
+  buildFullClassification,
 } from '@boxbox/engine';
 import type {
   CardId,
@@ -224,6 +226,35 @@ export function useTurnStepper() {
       const debrief = calculateRaceScore(s, scenario, catalog, turnLogRef.current, {
         styleBonusesEnabled: true,
       });
+
+      // Simulate rival positions and build classification
+      if (catalog.drivers && catalog.drivers.length > 0 && rngRef.current) {
+        const { seasonProgress } = store.getState();
+        const playerDriverId = seasonProgress?.playerDriverId
+          ?? catalog.drivers.find((d) => d.teamId === s.teamId)?.id
+          ?? `player-${s.teamId}`;
+        const playerDriver = catalog.drivers.find((d) => d.id === playerDriverId);
+        const playerAbbr = playerDriver?.abbreviation ?? 'PLY';
+
+        const rivalRng = rngRef.current.fork(s.seed + 9999);
+        const rivalResults = simulateRivalPositions(
+          catalog.drivers,
+          playerDriverId,
+          s.position,
+          rivalRng,
+        );
+        const fullClassification = buildFullClassification(
+          playerDriverId,
+          playerAbbr,
+          s.teamId,
+          s.position,
+          rivalResults,
+        );
+
+        debrief.rivalResults = rivalResults;
+        debrief.fullClassification = fullClassification;
+      }
+
       store.getState().setLastDebrief(debrief);
       store.getState().setTurnPhaseUI('race-complete');
     } else {

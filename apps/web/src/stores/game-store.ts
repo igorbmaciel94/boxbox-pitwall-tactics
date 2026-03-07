@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type {
   CardId,
   Difficulty,
+  DriverStanding,
   GameCatalogData,
   RaceDebrief,
   RaceEvent,
@@ -15,8 +16,8 @@ import type {
   SeasonTireBank,
   SeededRng,
 } from '@boxbox/engine';
-import { createRng, initializeRaceState } from '@boxbox/engine';
-import type { TurnPhaseUI, GameMode, SavedDeck, BestScore, RunHistoryEntry, SeasonRunEntry } from '../lib/types';
+import { createRng, initializeRaceState, updateChampionshipStandings } from '@boxbox/engine';
+import type { TurnPhaseUI, GameMode, SavedDeck, BestScore, RunHistoryEntry, SeasonRunEntry, Trophy } from '../lib/types';
 
 export const SEASON_TIRE_TOTALS: Record<Difficulty, number> = {
   easy: 24,
@@ -35,6 +36,9 @@ export interface SeasonProgress {
   difficulty: Difficulty;
   initialTireBank: SeasonTireBank;
   pendingTireAllocation: TireAllocation | null;
+  playerDriverId: string;
+  goalCardId: string | null;
+  championshipStandings: DriverStanding[];
 }
 
 interface GameState {
@@ -79,6 +83,7 @@ interface GameState {
   bestScores: BestScore[];
   runHistory: RunHistoryEntry[];
   seasonRuns: SeasonRunEntry[];
+  trophies: Trophy[];
 
   // Actions — race
   startRace: (scenarioId: string, seed?: number, startingCompound?: TireCompound, tireAllocation?: TireAllocation) => void;
@@ -90,7 +95,7 @@ interface GameState {
   setLastDebrief: (debrief: RaceDebrief) => void;
 
   // Actions — season
-  startSeason: (difficulty: Difficulty, tireBank: SeasonTireBank, seed?: number) => void;
+  startSeason: (difficulty: Difficulty, tireBank: SeasonTireBank, goalCardId: string | null, seed?: number) => void;
   advanceSeasonRace: (debrief: RaceDebrief) => void;
   setSeasonCardSwapDone: () => void;
   deductTireBank: (allocation: TireAllocation) => void;
@@ -104,6 +109,7 @@ interface GameState {
   setBestScores: (scores: BestScore[]) => void;
   setRunHistory: (history: RunHistoryEntry[]) => void;
   setSeasonRuns: (runs: SeasonRunEntry[]) => void;
+  setTrophies: (trophies: Trophy[]) => void;
 
   // Reset
   resetRace: () => void;
@@ -143,6 +149,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   bestScores: [],
   runHistory: [],
   seasonRuns: [],
+  trophies: [],
 
   startRace: (scenarioId, seed, startingCompound, tireAllocation) => {
     const { catalog, selectedTeamId, currentDeck, difficulty, mode } = get();
@@ -189,14 +196,17 @@ export const useGameStore = create<GameState>((set, get) => ({
   setPreviousPosition: (pos) => set({ previousPosition: pos }),
   setLastDebrief: (debrief) => set({ lastDebrief: debrief }),
 
-  startSeason: (difficulty, tireBank, seed) => {
+  startSeason: (difficulty, tireBank, goalCardId, seed) => {
     const { catalog, selectedTeamId } = get();
     if (!catalog || !selectedTeamId) return;
 
     const seasonSeed = seed ?? Math.floor(Math.random() * 2147483647);
-    const rng = createRng(seasonSeed);
-    const scenarioIds = catalog.scenarios.map((s) => s.id);
-    const raceOrder = rng.shuffle(scenarioIds);
+    // Fixed race order — use scenario list order
+    const raceOrder = catalog.scenarios.map((s) => s.id);
+
+    // Determine player driver (first driver of selected team)
+    const playerDriver = catalog.drivers.find((d) => d.teamId === selectedTeamId);
+    const playerDriverId = playerDriver?.id ?? `player-${selectedTeamId}`;
 
     set({
       mode: 'season',
@@ -212,6 +222,9 @@ export const useGameStore = create<GameState>((set, get) => ({
         difficulty,
         initialTireBank: { ...tireBank },
         pendingTireAllocation: null,
+        playerDriverId,
+        goalCardId,
+        championshipStandings: [],
       },
     });
   },
@@ -220,6 +233,11 @@ export const useGameStore = create<GameState>((set, get) => ({
     set((s) => {
       if (!s.seasonProgress) return s;
       const results = [...s.seasonProgress.raceResults, debrief];
+      // Update championship standings if classification data exists
+      let standings = s.seasonProgress.championshipStandings;
+      if (debrief.fullClassification) {
+        standings = updateChampionshipStandings(standings, debrief.fullClassification);
+      }
       return {
         seasonProgress: {
           ...s.seasonProgress,
@@ -227,6 +245,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           currentRaceIndex: s.seasonProgress.currentRaceIndex + 1,
           cumulativeScore: results.reduce((sum, r) => sum + r.totalScore, 0),
           pendingTireAllocation: null,
+          championshipStandings: standings,
         },
       };
     });
@@ -287,6 +306,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   setBestScores: (scores) => set({ bestScores: scores }),
   setRunHistory: (history) => set({ runHistory: history }),
   setSeasonRuns: (runs) => set({ seasonRuns: runs }),
+  setTrophies: (trophies) => set({ trophies }),
 
   resetRace: () =>
     set({

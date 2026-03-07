@@ -41,4 +41,16 @@ export interface SeasonRunEntry {
   races: RaceDebrief[];
   finalScore: number;
   timestamp: number;
+  goalCardId?: string | null;
+  goalAchieved?: boolean;
+  championshipPosition?: number;
+}
+
+export interface Trophy {
+  goalCardId: string;
+  teamId: TeamId;
+  championshipPosition: number;
+  goalAchieved: boolean;
+  finalScore: number;
+  timestamp: number;
 }

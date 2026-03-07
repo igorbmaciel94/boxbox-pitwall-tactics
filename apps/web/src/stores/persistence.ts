@@ -1,6 +1,6 @@
 import { get, set, del } from 'idb-keyval';
 import type { CardId, RaceDebrief, TeamId } from '@boxbox/engine';
-import type { BestScore, RunHistoryEntry, SavedDeck, SeasonRunEntry } from '../lib/types';
+import type { BestScore, RunHistoryEntry, SavedDeck, SeasonRunEntry, Trophy } from '../lib/types';
 import type { SeasonProgress } from './game-store';
 import { calculateMedal } from '../lib/constants';
 import type { Locale } from '../i18n';
@@ -14,6 +14,7 @@ const KEYS = {
   runHistory: 'boxbox-run-history',
   seasonRuns: 'boxbox-season-runs',
   seasonProgress: 'boxbox-season-progress',
+  trophies: 'boxbox-trophies',
 } as const;
 
 // --- Team ---
@@ -111,6 +112,19 @@ export async function addSeasonRun(entry: SeasonRunEntry): Promise<SeasonRunEntr
   return runs;
 }
 
+// --- Trophies ---
+export async function loadTrophies(): Promise<Trophy[]> {
+  return (await get<Trophy[]>(KEYS.trophies)) ?? [];
+}
+
+export async function addTrophy(trophy: Trophy): Promise<Trophy[]> {
+  const trophies = await loadTrophies();
+  trophies.unshift(trophy);
+  if (trophies.length > 20) trophies.length = 20;
+  await set(KEYS.trophies, trophies);
+  return trophies;
+}
+
 // --- Season Progress ---
 export async function saveSeasonProgress(progress: SeasonProgress | null): Promise<void> {
   if (progress) {
@@ -121,12 +135,20 @@ export async function saveSeasonProgress(progress: SeasonProgress | null): Promi
 }
 
 export async function loadSeasonProgress(): Promise<SeasonProgress | null> {
-  return (await get<SeasonProgress>(KEYS.seasonProgress)) ?? null;
+  const raw = await get<SeasonProgress>(KEYS.seasonProgress);
+  if (!raw) return null;
+  // Migration: add defaults for new fields from older saves
+  return {
+    ...raw,
+    playerDriverId: raw.playerDriverId ?? '',
+    goalCardId: raw.goalCardId ?? null,
+    championshipStandings: raw.championshipStandings ?? [],
+  };
 }
 
 // --- Load all persisted data at startup ---
 export async function loadAllPersistedData() {
-  const [selectedTeam, locale, currentDeck, savedDecks, bestScores, runHistory, seasonRuns, seasonProgress] =
+  const [selectedTeam, locale, currentDeck, savedDecks, bestScores, runHistory, seasonRuns, seasonProgress, trophies] =
     await Promise.all([
       loadSelectedTeam(),
       loadLocale(),
@@ -136,7 +158,8 @@ export async function loadAllPersistedData() {
       loadRunHistory(),
       loadSeasonRuns(),
       loadSeasonProgress(),
+      loadTrophies(),
     ]);
 
-  return { selectedTeam, locale, currentDeck, savedDecks, bestScores, runHistory, seasonRuns, seasonProgress };
+  return { selectedTeam, locale, currentDeck, savedDecks, bestScores, runHistory, seasonRuns, seasonProgress, trophies };
 }

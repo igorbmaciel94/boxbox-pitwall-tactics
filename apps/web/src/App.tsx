@@ -37,6 +37,7 @@ export function App() {
       if (data.bestScores.length > 0) store.setBestScores(data.bestScores);
       if (data.runHistory.length > 0) store.setRunHistory(data.runHistory);
       if (data.seasonRuns.length > 0) store.setSeasonRuns(data.seasonRuns);
+      if (data.trophies.length > 0) store.setTrophies(data.trophies);
       if (data.seasonProgress) store.setSeasonProgress(data.seasonProgress);
     });
 

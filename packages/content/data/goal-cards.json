@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0",
+  "goalCards": [
+    {
+      "id": "championship-contender",
+      "tier": "top",
+      "title": "Championship Contender",
+      "description": "Win the championship or finish on the podium (P1-P3)",
+      "startingPositionRange": [1, 6],
+      "evaluate": "championship-position",
+      "params": { "maxPosition": 3 }
+    },
+    {
+      "id": "points-machine",
+      "tier": "mid",
+      "title": "Points Machine",
+      "description": "Finish in the top 5 and score points in every race",
+      "startingPositionRange": [7, 12],
+      "evaluate": "top5-and-points-every-race",
+      "params": { "maxPosition": 5 }
+    },
+    {
+      "id": "rising-star",
+      "tier": "bottom",
+      "title": "Rising Star",
+      "description": "Beat your teammates and score at least 20 points",
+      "startingPositionRange": [13, 18],
+      "evaluate": "beat-teammates-and-min-points",
+      "params": { "minPoints": 20 }
+    }
+  ]
+}

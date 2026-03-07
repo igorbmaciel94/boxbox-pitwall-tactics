@@ -1,0 +1,149 @@
+{
+  "version": "1.0.0",
+  "drivers": [
+    {
+      "id": "ony-1",
+      "firstName": "Viktor",
+      "lastName": "Harkov",
+      "abbreviation": "HAR",
+      "teamId": "onyx",
+      "strength": 95
+    },
+    {
+      "id": "ony-2",
+      "firstName": "Kenji",
+      "lastName": "Tanaka",
+      "abbreviation": "TAN",
+      "teamId": "onyx",
+      "strength": 90
+    },
+    {
+      "id": "ony-3",
+      "firstName": "Matteo",
+      "lastName": "Rossi",
+      "abbreviation": "ROS",
+      "teamId": "onyx",
+      "strength": 86
+    },
+    {
+      "id": "azu-1",
+      "firstName": "Leon",
+      "lastName": "Brenner",
+      "abbreviation": "BRE",
+      "teamId": "azure",
+      "strength": 93
+    },
+    {
+      "id": "azu-2",
+      "firstName": "Santiago",
+      "lastName": "Reyes",
+      "abbreviation": "REY",
+      "teamId": "azure",
+      "strength": 89
+    },
+    {
+      "id": "azu-3",
+      "firstName": "Aarav",
+      "lastName": "Sharma",
+      "abbreviation": "SHA",
+      "teamId": "azure",
+      "strength": 84
+    },
+    {
+      "id": "cri-1",
+      "firstName": "Marcus",
+      "lastName": "Draven",
+      "abbreviation": "DRA",
+      "teamId": "crimson",
+      "strength": 82
+    },
+    {
+      "id": "cri-2",
+      "firstName": "Luca",
+      "lastName": "Ferreira",
+      "abbreviation": "FER",
+      "teamId": "crimson",
+      "strength": 77
+    },
+    {
+      "id": "cri-3",
+      "firstName": "Jin",
+      "lastName": "Nakamura",
+      "abbreviation": "NAK",
+      "teamId": "crimson",
+      "strength": 72
+    },
+    {
+      "id": "amb-1",
+      "firstName": "Oscar",
+      "lastName": "Van Dijk",
+      "abbreviation": "VDJ",
+      "teamId": "amber",
+      "strength": 80
+    },
+    {
+      "id": "amb-2",
+      "firstName": "Rafael",
+      "lastName": "Moreno",
+      "abbreviation": "MOR",
+      "teamId": "amber",
+      "strength": 75
+    },
+    {
+      "id": "amb-3",
+      "firstName": "Yuki",
+      "lastName": "Hayashi",
+      "abbreviation": "HAY",
+      "teamId": "amber",
+      "strength": 68
+    },
+    {
+      "id": "eme-1",
+      "firstName": "Noah",
+      "lastName": "Eriksson",
+      "abbreviation": "ERI",
+      "teamId": "emerald",
+      "strength": 67
+    },
+    {
+      "id": "eme-2",
+      "firstName": "Diego",
+      "lastName": "Castillo",
+      "abbreviation": "CAS",
+      "teamId": "emerald",
+      "strength": 62
+    },
+    {
+      "id": "eme-3",
+      "firstName": "Ali",
+      "lastName": "Rahimi",
+      "abbreviation": "RAH",
+      "teamId": "emerald",
+      "strength": 57
+    },
+    {
+      "id": "vio-1",
+      "firstName": "Theo",
+      "lastName": "Laurent",
+      "abbreviation": "LAU",
+      "teamId": "violet",
+      "strength": 65
+    },
+    {
+      "id": "vio-2",
+      "firstName": "Andrei",
+      "lastName": "Volkov",
+      "abbreviation": "VOL",
+      "teamId": "violet",
+      "strength": 60
+    },
+    {
+      "id": "vio-3",
+      "firstName": "Kofi",
+      "lastName": "Mensah",
+      "abbreviation": "MEN",
+      "teamId": "violet",
+      "strength": 55
+    }
+  ]
+}

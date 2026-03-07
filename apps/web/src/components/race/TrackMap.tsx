@@ -4,6 +4,7 @@ import type { RaceEvent, TireCompound } from '@boxbox/engine';
 export interface RivalDot {
   position: number;
   color: string;
+  abbreviation?: string;
 }
 
 interface TrackMapProps {
@@ -210,23 +211,26 @@ export function TrackMap({ position, totalPositions = 20, currentEvent, teamColo
           <circle cx={points[0][0]} cy={points[0][1]} r={3} fill="rgba(255,255,255,0.3)" />
         )}
 
-        {/* Rival dots — colored by team, with position labels */}
+        {/* Rival dots — colored by team, with abbreviation labels for nearby drivers */}
         {rivals && rivals.map((r, i) => {
           const pos = getCarPos(r.position);
+          const isNearby = Math.abs(r.position - position) <= 3;
           const labelY = pos.y < 20 ? pos.y + 12 : pos.y - 8;
           return (
             <g key={i}>
-              <circle cx={pos.x} cy={pos.y} r={3.5} fill={r.color} opacity={0.75} />
-              <text
-                x={pos.x}
-                y={labelY}
-                textAnchor="middle"
-                fill="white"
-                opacity={0.85}
-                style={{ fontSize: '6px', fontFamily: 'monospace', fontWeight: 'bold' }}
-              >
-                P{r.position}
-              </text>
+              <circle cx={pos.x} cy={pos.y} r={isNearby ? 4 : 3} fill={r.color} opacity={isNearby ? 0.9 : 0.5} />
+              {isNearby && r.abbreviation && (
+                <text
+                  x={pos.x}
+                  y={labelY}
+                  textAnchor="middle"
+                  fill="white"
+                  opacity={0.9}
+                  style={{ fontSize: '6px', fontFamily: 'monospace', fontWeight: 'bold' }}
+                >
+                  {r.abbreviation}
+                </text>
+              )}
             </g>
           );
         })}

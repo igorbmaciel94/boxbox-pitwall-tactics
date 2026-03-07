@@ -96,3 +96,28 @@ const CIRCUIT_GRADIENTS: Record<string, string> = {
 export function getCircuitFallbackGradient(scenarioId: string): string {
   return CIRCUIT_GRADIENTS[scenarioId] ?? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)';
 }
+
+// ---------------------------------------------------------------------------
+// Goal card images
+// ---------------------------------------------------------------------------
+// Filename format:  public/images/goal-cards/{id}.webp
+//
+// win-championship.webp  | podium-finish.webp  | top-five.webp
+// points-scorer.webp     | beat-teammate.webp  | score-points.webp
+
+export function getGoalCardImageUrl(goalCardId: string): string {
+  return `/images/goal-cards/${goalCardId}.webp`;
+}
+
+const GOAL_CARD_GRADIENTS: Record<string, string> = {
+  'win-championship': 'linear-gradient(135deg, #fbbf24 0%, #92400e 100%)',
+  'podium-finish': 'linear-gradient(135deg, #f59e0b 0%, #78350f 100%)',
+  'top-five': 'linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%)',
+  'points-scorer': 'linear-gradient(135deg, #10b981 0%, #064e3b 100%)',
+  'beat-teammate': 'linear-gradient(135deg, #8b5cf6 0%, #4c1d95 100%)',
+  'score-points': 'linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%)',
+};
+
+export function getGoalCardFallbackGradient(goalCardId: string): string {
+  return GOAL_CARD_GRADIENTS[goalCardId] ?? 'linear-gradient(135deg, #374151 0%, #111827 100%)';
+}

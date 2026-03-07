@@ -1,15 +1,18 @@
 import type {
   CardData,
   CardEffect,
+  DriverData,
   EventType,
   GameCatalogData,
+  GoalCardData,
+  GoalCardTier,
   ObjectiveData,
   ScenarioData,
   TeamData,
   TireCompound,
 } from '@boxbox/content';
 
-export type { CardData, CardEffect, EventType, GameCatalogData, ObjectiveData, ScenarioData, TeamData, TireCompound };
+export type { CardData, CardEffect, DriverData, EventType, GameCatalogData, GoalCardData, GoalCardTier, ObjectiveData, ScenarioData, TeamData, TireCompound };
 
 export type CardId = string;
 export type TeamId = string;
@@ -100,6 +103,22 @@ export interface TurnSummary {
   };
 }
 
+export interface RivalRaceResult {
+  driverId: string;
+  abbreviation: string;
+  teamId: TeamId;
+  position: number;
+  points: number;
+}
+
+export interface DriverStanding {
+  driverId: string;
+  abbreviation: string;
+  teamId: TeamId;
+  totalPoints: number;
+  racePositions: number[];
+}
+
 export interface RaceDebrief {
   scenarioId: string;
   teamId: TeamId;
@@ -114,6 +133,8 @@ export interface RaceDebrief {
   perkUsed: boolean;
   hasPitted: boolean;
   turnLog: TurnSummary[];
+  rivalResults?: RivalRaceResult[];
+  fullClassification?: RivalRaceResult[];
 }
 
 export interface SeasonState {

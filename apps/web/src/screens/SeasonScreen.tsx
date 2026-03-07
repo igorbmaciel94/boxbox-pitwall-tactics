@@ -4,6 +4,7 @@ import { useGameStore } from '../stores/game-store';
 import { Button } from '../components/shared/Button';
 import { Modal } from '../components/shared/Modal';
 import { CardComponent } from '../components/race/CardComponent';
+import { ChampionshipStandings } from '../components/season/ChampionshipStandings';
 import { getPositionColor } from '../lib/constants';
 import type { CardId } from '@boxbox/engine';
 import { useI18n } from '../i18n';
@@ -16,10 +17,10 @@ export function SeasonScreen() {
   const seasonProgress = useGameStore((s) => s.seasonProgress);
   const currentDeck = useGameStore((s) => s.currentDeck);
   const setDeck = useGameStore((s) => s.setDeck);
-  const setSeasonCardSwapDone = useGameStore((s) => s.setSeasonCardSwapDone);
 
   const [showCardSwap, setShowCardSwap] = useState(false);
   const [swapDeck, setSwapDeck] = useState<CardId[]>([]);
+  const [showStandings, setShowStandings] = useState(false);
 
   const isComplete = seasonProgress ? seasonProgress.currentRaceIndex >= (seasonProgress.raceOrder?.length ?? 0) : false;
 
@@ -29,14 +30,6 @@ export function SeasonScreen() {
       navigate('/season/setup', { replace: true });
     }
   }, [seasonProgress, navigate]);
-
-  // Card swap trigger at race 4
-  useEffect(() => {
-    if (seasonProgress && seasonProgress.currentRaceIndex === 3 && !seasonProgress.cardSwapDone) {
-      setSwapDeck([...currentDeck]);
-      setShowCardSwap(true);
-    }
-  }, [seasonProgress?.currentRaceIndex, seasonProgress?.cardSwapDone, currentDeck]);
 
   // Navigate to results when complete
   useEffect(() => {
@@ -71,15 +64,22 @@ export function SeasonScreen() {
   const currentScenario = catalog.scenarios.find((s) => s.id === currentScenarioId);
   const team = catalog.teams.find((t) => t.id === selectedTeamId);
 
+  // Allow card swap after every race (up to 3 card changes)
+  const canSwapCards = currentRaceIndex > 0;
+
   const handleStartNextRace = () => {
     navigate('/race');
+  };
+
+  const handleOpenCardSwap = () => {
+    setSwapDeck([...currentDeck]);
+    setShowCardSwap(true);
   };
 
   const handleCardSwapConfirm = () => {
     if (swapDeck.length === 9) {
       setDeck(swapDeck);
     }
-    setSeasonCardSwapDone();
     setShowCardSwap(false);
   };
 
@@ -93,6 +93,23 @@ export function SeasonScreen() {
   const removeFromSwapDeck = (index: number) => {
     setSwapDeck(swapDeck.filter((_, i) => i !== index));
   };
+
+  // Count how many cards changed from current deck
+  const swapChanges = (() => {
+    if (swapDeck.length !== 9) return 0;
+    const oldSorted = [...currentDeck].sort();
+    const newSorted = [...swapDeck].sort();
+    let changes = 0;
+    let oi = 0;
+    let ni = 0;
+    while (oi < oldSorted.length && ni < newSorted.length) {
+      if (oldSorted[oi] === newSorted[ni]) { oi++; ni++; }
+      else if (oldSorted[oi] < newSorted[ni]) { changes++; oi++; }
+      else { changes++; ni++; }
+    }
+    changes += (oldSorted.length - oi) + (newSorted.length - ni);
+    return Math.ceil(changes / 2);
+  })();
 
   return (
     <div className="flex flex-col px-5 pt-6">
@@ -142,6 +159,28 @@ export function SeasonScreen() {
           );
         })}
       </div>
+
+      {/* Championship Standings toggle */}
+      {seasonProgress.championshipStandings.length > 0 && (
+        <div className="mb-4">
+          <button
+            onClick={() => setShowStandings(!showStandings)}
+            className="w-full flex items-center justify-between rounded-2xl bg-white/[0.04] p-3 text-xs font-display uppercase tracking-wider text-metal-light hover:bg-white/[0.06] transition-colors"
+          >
+            <span>{t('standings.title')}</span>
+            <span>{showStandings ? '\u25B2' : '\u25BC'}</span>
+          </button>
+          {showStandings && (
+            <div className="mt-2">
+              <ChampionshipStandings
+                standings={seasonProgress.championshipStandings}
+                playerDriverId={seasonProgress.playerDriverId}
+                teams={catalog.teams}
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Past results */}
       {raceResults.length > 0 && (
@@ -207,23 +246,31 @@ export function SeasonScreen() {
         )}
       </div>
 
-      <Button variant="primary" size="lg" className="w-full" onClick={handleStartNextRace}>
-        {t('season.startRace')}
-      </Button>
+      <div className="flex gap-2.5 mb-4">
+        {canSwapCards && (
+          <Button variant="ghost" size="md" className="flex-1" onClick={handleOpenCardSwap}>
+            {t('season.swapCards')}
+          </Button>
+        )}
+        <Button variant="primary" size="lg" className={canSwapCards ? 'flex-1' : 'w-full'} onClick={handleStartNextRace}>
+          {t('season.startRace')}
+        </Button>
+      </div>
 
       {/* Card Swap Modal */}
       <Modal
         open={showCardSwap}
         title={t('season.cardSwapTitle')}
-        onClose={() => {
-          setSeasonCardSwapDone();
-          setShowCardSwap(false);
-        }}
+        onClose={() => setShowCardSwap(false)}
       >
         <div className="space-y-4">
           <p className="text-sm text-metal-light">
-            {t('season.cardSwapDesc')}
+            {t('season.cardSwapDescPerRace')}
           </p>
+
+          {swapChanges > 3 && (
+            <p className="text-[11px] text-hud-red">{t('season.maxSwaps')}</p>
+          )}
 
           <div className="text-xs font-display uppercase tracking-wider text-metal-light">
             {t('season.currentDeck')} ({swapDeck.length}/9)
@@ -273,10 +320,10 @@ export function SeasonScreen() {
             variant="primary"
             size="md"
             className="w-full"
-            disabled={swapDeck.length !== 9}
+            disabled={swapDeck.length !== 9 || swapChanges > 3}
             onClick={handleCardSwapConfirm}
           >
-            {t('deck.confirmDeck')}
+            {t('deck.confirmDeck')} {swapChanges > 0 && `(${swapChanges}/3)`}
           </Button>
         </div>
       </Modal>

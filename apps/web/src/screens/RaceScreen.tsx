@@ -62,38 +62,50 @@ export function RaceScreen() {
 
   const hasTeamAndDeck = !!selectedTeamId && currentDeck.length === 9;
 
-  // Generate 18-position grid with shuffled rival positions each turn
-  // Player's team gets 2 rival slots (+ player dot = 3 total), other teams get 3
+  // Generate rival dots from actual driver data — positions shuffle each turn
   // Must be above early returns to satisfy Rules of Hooks
   const rivalDots: RivalDot[] = useMemo(() => {
     if (!catalog || !team || !raceState) return [];
-    const allSlots: { color: string }[] = [];
-    for (const t of catalog.teams) {
-      const count = t.id === team.id ? 2 : 3;
-      for (let i = 0; i < count; i++) {
-        allSlots.push({ color: t.color });
-      }
-    }
-    // Shuffle slots using seed + turn so rivals move around each lap
-    const seed = (raceState.seed ?? 42) + raceState.currentTurn * 7919;
-    let h = seed >>> 0;
-    for (let i = allSlots.length - 1; i > 0; i--) {
+
+    const playerDriverId = seasonProgress?.playerDriverId
+      ?? catalog.drivers.find((d) => d.teamId === team.id)?.id
+      ?? '';
+    const teamColorMap = new Map(catalog.teams.map((t) => [t.id, t.color]));
+
+    const rivals = catalog.drivers
+      .filter((d) => d.id !== playerDriverId)
+      .map((d) => ({
+        color: teamColorMap.get(d.teamId) ?? '#666',
+        abbreviation: d.abbreviation,
+        strength: d.strength,
+      }));
+
+    // Deterministic shuffle with strength-based ordering + variance
+    const turnSeed = (raceState.seed ?? 42) + raceState.currentTurn * 7919;
+    let h = turnSeed >>> 0;
+    const withScore = rivals.map((r) => {
       h = Math.imul(h ^ (h >>> 16), 0x45d9f3b) >>> 0;
-      const j = h % (i + 1);
-      [allSlots[i], allSlots[j]] = [allSlots[j], allSlots[i]];
-    }
+      const variance = (h % 30) - 15;
+      return { ...r, score: r.strength + variance };
+    });
+    withScore.sort((a, b) => b.score - a.score);
+
     // Assign positions 1..18, skip player position
     const dots: RivalDot[] = [];
-    let slotIdx = 0;
+    let rivalIdx = 0;
     for (let pos = 1; pos <= 18; pos++) {
       if (pos === raceState.position) continue;
-      if (slotIdx < allSlots.length) {
-        dots.push({ position: pos, color: allSlots[slotIdx].color });
-        slotIdx++;
+      if (rivalIdx < withScore.length) {
+        dots.push({
+          position: pos,
+          color: withScore[rivalIdx].color,
+          abbreviation: withScore[rivalIdx].abbreviation,
+        });
+        rivalIdx++;
       }
     }
     return dots;
-  }, [catalog, team, raceState?.position, raceState?.currentTurn, raceState?.seed]);
+  }, [catalog, team, raceState?.position, raceState?.currentTurn, raceState?.seed, seasonProgress?.playerDriverId]);
 
   // On mount: scroll to top and reset stale race state if needed
   useEffect(() => {

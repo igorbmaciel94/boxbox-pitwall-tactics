@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { getPositionColor, calculateMedal, MEDAL_COLORS, EVENT_ICONS } from '../lib/constants';
 import { Button } from '../components/shared/Button';
+import { RaceClassification } from '../components/race/RaceClassification';
 import { useI18n } from '../i18n';
 
 export function DebriefScreen() {
@@ -21,6 +22,7 @@ export function DebriefScreen() {
   const mode = useGameStore((s) => s.mode);
   const advanceSeasonRace = useGameStore((s) => s.advanceSeasonRace);
   const resetRace = useGameStore((s) => s.resetRace);
+  const seasonProgress = useGameStore((s) => s.seasonProgress);
 
   if (!lastDebrief || !catalog) {
     return (
@@ -153,6 +155,17 @@ export function DebriefScreen() {
           })}
         </div>
       </div>
+
+      {/* Race Classification */}
+      {lastDebrief.fullClassification && lastDebrief.fullClassification.length > 0 && (
+        <div className="mb-4">
+          <RaceClassification
+            classification={lastDebrief.fullClassification}
+            playerDriverId={seasonProgress?.playerDriverId ?? catalog.drivers.find((d) => d.teamId === lastDebrief.teamId)?.id ?? ''}
+            teams={catalog.teams}
+          />
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex gap-2.5 pb-4">

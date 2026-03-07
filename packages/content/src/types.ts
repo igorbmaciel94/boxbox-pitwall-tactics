@@ -70,10 +70,33 @@ export interface GameStringsData {
   };
 }
 
+export interface DriverData {
+  id: string;
+  firstName: string;
+  lastName: string;
+  abbreviation: string;
+  teamId: string;
+  strength: number;
+}
+
+export type GoalCardTier = 'top' | 'mid' | 'bottom';
+
+export interface GoalCardData {
+  id: string;
+  tier: GoalCardTier;
+  title: string;
+  description: string;
+  startingPositionRange: [number, number];
+  evaluate: string;
+  params: Record<string, number | string>;
+}
+
 export interface GameCatalogData {
   version: string;
   cards: CardData[];
   scenarios: ScenarioData[];
   teams: TeamData[];
+  drivers: DriverData[];
+  goalCards: GoalCardData[];
   strings: GameStringsData;
 }
