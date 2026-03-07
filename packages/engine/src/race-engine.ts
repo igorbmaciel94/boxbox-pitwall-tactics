@@ -95,11 +95,13 @@ export function runTurn(
   const event = selectEvent(s, scenario, eventRng, catalog);
   s = updateEventTracking(s, event);
   s = applyEventEffect(s, event);
+  s = clampRaceState(s);
 
   // Phase 3: Team perk (optional, once per race)
   s = { ...s, turnPhase: 'await-perk' };
   const perkUsedBefore = s.perkUsed;
   s = maybeApplyTeamPerk(s, team, agent);
+  s = clampRaceState(s);
   const perkActivated = !perkUsedBefore && s.perkUsed;
 
   // Phase 4: Play 1 action card
@@ -111,6 +113,7 @@ export function runTurn(
       actionCard = s.hand[0];
     }
     s = applyCardEffect(s, actionCard, catalog, agent);
+    s = clampRaceState(s);
   } else {
     actionCard = '';
   }

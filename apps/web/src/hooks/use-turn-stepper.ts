@@ -101,6 +101,7 @@ export function useTurnStepper() {
 
     if (usePerk && !state.perkUsed) {
       s = applyEffect(s, team.perk.effect);
+      s = clampRaceState(s);
       s = { ...s, perkUsed: true };
       perkActivatedRef.current = true;
     }
@@ -155,12 +156,13 @@ export function useTurnStepper() {
         usedCard = s.hand[0];
       }
       s = applyCardEffect(s, usedCard, catalog);
+      s = clampRaceState(s);
     }
     actionCardRef.current = usedCard;
 
     // Check if this was a pit stop card — if so, show compound selector
     const card = catalog.cards.find((c) => c.id === usedCard);
-    const isPit = card && card.tags.includes('pit') && (card.effect.tireWear ?? 0) < 0;
+    const isPit = card && card.tags.includes('pit');
 
     store.getState().setRaceState(s);
     store.getState().setTurnPhaseUI(isPit ? 'await-compound' : 'resolving');
