@@ -24,9 +24,11 @@ export function SeasonScreen() {
 
   const isComplete = seasonProgress ? seasonProgress.currentRaceIndex >= (seasonProgress.raceOrder?.length ?? 0) : false;
 
-  // Redirect to setup if no season in progress
+  // Enter season mode and redirect to setup if no season in progress
   useEffect(() => {
-    if (!seasonProgress) {
+    if (seasonProgress) {
+      useGameStore.getState().setMode('season');
+    } else {
       navigate('/season/setup', { replace: true });
     }
   }, [seasonProgress, navigate]);

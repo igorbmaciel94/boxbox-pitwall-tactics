@@ -54,6 +54,7 @@ interface GameState {
 
   // Game mode
   mode: GameMode;
+  setMode: (mode: GameMode) => void;
 
   // Difficulty
   difficulty: Difficulty;
@@ -126,6 +127,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   setDeck: (cards) => set({ currentDeck: cards }),
 
   mode: 'idle',
+  setMode: (mode) => set({ mode }),
 
   difficulty: 'normal' as Difficulty,
   setDifficulty: (d) => set({ difficulty: d }),
@@ -297,7 +299,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     });
   },
 
-  setSeasonProgress: (progress) => set({ seasonProgress: progress, mode: 'season' }),
+  setSeasonProgress: (progress) => set({ seasonProgress: progress }),
 
   clearSeasonProgress: () => set({ seasonProgress: null, mode: 'idle' }),
 

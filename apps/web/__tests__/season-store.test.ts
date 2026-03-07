@@ -195,7 +195,7 @@ describe('Season store actions', () => {
   });
 
   describe('setSeasonProgress', () => {
-    it('restores season progress and sets mode to season', () => {
+    it('restores season progress without changing mode (used by persistence load)', () => {
       const progress: SeasonProgress = {
         raceOrder: ['monaco', 'spa', 'monza', 'silverstone', 'suzuka', 'interlagos'],
         currentRaceIndex: 2,
@@ -212,7 +212,8 @@ describe('Season store actions', () => {
       useGameStore.getState().setSeasonProgress(progress);
 
       expect(useGameStore.getState().seasonProgress).toEqual(progress);
-      expect(useGameStore.getState().mode).toBe('season');
+      // mode stays idle — it's only set to 'season' when user navigates to SeasonScreen
+      expect(useGameStore.getState().mode).toBe('idle');
     });
   });
 
