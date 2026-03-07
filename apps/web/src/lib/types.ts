@@ -16,6 +16,7 @@ export type TurnPhaseUI =
 export type GameMode = 'idle' | 'race' | 'season';
 
 export interface SavedDeck {
+  id: string;
   name: string;
   cards: CardId[];
   createdAt: number;
@@ -39,6 +40,18 @@ export interface RunHistoryEntry {
 export interface SeasonRunEntry {
   teamId: TeamId;
   races: RaceDebrief[];
+  finalScore: number;
+  timestamp: number;
+  goalCardId?: string | null;
+  goalAchieved?: boolean;
+  championshipPosition?: number;
+}
+
+export interface Trophy {
+  goalCardId: string;
+  teamId: TeamId;
+  championshipPosition: number;
+  goalAchieved: boolean;
   finalScore: number;
   timestamp: number;
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { useUIStore } from '../stores/ui-store';
@@ -11,9 +11,11 @@ import { HandDisplay } from '../components/race/HandDisplay';
 import { PerkButton } from '../components/race/PerkButton';
 import { TrackMap } from '../components/race/TrackMap';
 import type { RivalDot } from '../components/race/TrackMap';
+import { TimingTower, buildTimingEntries } from '../components/race/TimingTower';
 import { CompoundSelector } from '../components/race/CompoundSelector';
 import { PreRaceTireSetup } from '../components/race/PreRaceTireSetup';
 import { Button } from '../components/shared/Button';
+import { ConfirmDialog } from '../components/shared/ConfirmDialog';
 import { useAudio } from '../hooks/use-audio';
 import { getCircuitImageUrl, getCircuitFallbackGradient } from '../lib/images';
 import { handHasPitCard } from '@boxbox/engine';
@@ -59,41 +61,91 @@ export function RaceScreen() {
   const [pendingScenarioId, setPendingScenarioId] = useState<string | null>(null);
   const [pendingRaceSeed, setPendingRaceSeed] = useState<number | undefined>(undefined);
   const [muted, setMuted] = useState(() => audio.isMuted());
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+  const [showTimingTower, setShowTimingTower] = useState(false);
+  const frozenTimingEntries = useRef<{ position: number; abbreviation: string; teamColor: string; gap: string; isPlayer: boolean }[]>([]);
 
   const hasTeamAndDeck = !!selectedTeamId && currentDeck.length === 9;
 
-  // Generate 18-position grid with shuffled rival positions each turn
-  // Player's team gets 2 rival slots (+ player dot = 3 total), other teams get 3
+  // Generate rival dots from actual driver data — positions shuffle each turn
   // Must be above early returns to satisfy Rules of Hooks
   const rivalDots: RivalDot[] = useMemo(() => {
     if (!catalog || !team || !raceState) return [];
-    const allSlots: { color: string }[] = [];
-    for (const t of catalog.teams) {
-      const count = t.id === team.id ? 2 : 3;
-      for (let i = 0; i < count; i++) {
-        allSlots.push({ color: t.color });
-      }
-    }
-    // Shuffle slots using seed + turn so rivals move around each lap
-    const seed = (raceState.seed ?? 42) + raceState.currentTurn * 7919;
-    let h = seed >>> 0;
-    for (let i = allSlots.length - 1; i > 0; i--) {
+
+    const playerDriverId = seasonProgress?.playerDriverId
+      ?? catalog.drivers.find((d) => d.teamId === team.id)?.id
+      ?? '';
+    const teamColorMap = new Map(catalog.teams.map((t) => [t.id, t.color]));
+
+    const rivals = catalog.drivers
+      .filter((d) => d.id !== playerDriverId)
+      .map((d) => ({
+        color: teamColorMap.get(d.teamId) ?? '#666',
+        abbreviation: d.abbreviation,
+        strength: d.strength,
+      }));
+
+    // Deterministic shuffle with strength-based ordering + variance
+    const turnSeed = (raceState.seed ?? 42) + raceState.currentTurn * 7919;
+    let h = turnSeed >>> 0;
+    const withScore = rivals.map((r) => {
       h = Math.imul(h ^ (h >>> 16), 0x45d9f3b) >>> 0;
-      const j = h % (i + 1);
-      [allSlots[i], allSlots[j]] = [allSlots[j], allSlots[i]];
-    }
+      const variance = (h % 30) - 15;
+      return { ...r, score: r.strength + variance };
+    });
+    withScore.sort((a, b) => b.score - a.score);
+
     // Assign positions 1..18, skip player position
     const dots: RivalDot[] = [];
-    let slotIdx = 0;
+    let rivalIdx = 0;
     for (let pos = 1; pos <= 18; pos++) {
       if (pos === raceState.position) continue;
-      if (slotIdx < allSlots.length) {
-        dots.push({ position: pos, color: allSlots[slotIdx].color });
-        slotIdx++;
+      if (rivalIdx < withScore.length) {
+        dots.push({
+          position: pos,
+          color: withScore[rivalIdx].color,
+          abbreviation: withScore[rivalIdx].abbreviation,
+          strength: withScore[rivalIdx].strength,
+        });
+        rivalIdx++;
       }
     }
     return dots;
-  }, [catalog, team, raceState?.position, raceState?.currentTurn, raceState?.seed]);
+  }, [catalog, team, raceState?.position, raceState?.currentTurn, raceState?.seed, seasonProgress?.playerDriverId]);
+
+  // Player abbreviation — used in both timing tower and track map
+  const playerAbbreviation = useMemo(() => {
+    if (!catalog || !team) return 'YOU';
+    const playerDriverId = seasonProgress?.playerDriverId
+      ?? catalog.drivers.find((d) => d.teamId === team.id)?.id ?? '';
+    const playerDriver = catalog.drivers.find((d) => d.id === playerDriverId);
+    return playerDriver?.abbreviation ?? 'YOU';
+  }, [catalog, team, seasonProgress?.playerDriverId]);
+
+  // Build timing tower entries from rival data + player (shown at turn summary)
+  const timingEntries = useMemo(() => {
+    if (!catalog || !team || !raceState || rivalDots.length === 0) return [];
+
+    const playerDriverId = seasonProgress?.playerDriverId
+      ?? catalog.drivers.find((d) => d.teamId === team.id)?.id ?? '';
+    const playerDriver = catalog.drivers.find((d) => d.id === playerDriverId);
+
+    const rivals = rivalDots.map((r) => ({
+      position: r.position,
+      abbreviation: r.abbreviation ?? '???',
+      color: r.color,
+      strength: r.strength ?? 70,
+    }));
+
+    const player = {
+      position: raceState.position,
+      abbreviation: playerDriver?.abbreviation ?? 'YOU',
+      color: team.color,
+      strength: playerDriver?.strength ?? 80,
+    };
+
+    return buildTimingEntries(rivals, player, raceState.seed ?? 42, raceState.currentTurn);
+  }, [rivalDots, raceState, team, catalog, seasonProgress?.playerDriverId]);
 
   // On mount: scroll to top and reset stale race state if needed
   useEffect(() => {
@@ -148,6 +200,13 @@ export function RaceScreen() {
       case 'resolving':
         timer = setTimeout(() => stepper.advanceToResult(), 500);
         break;
+      case 'turn-summary':
+        // Show timing tower overlay (async — doesn't block game)
+        frozenTimingEntries.current = timingEntries;
+        setShowTimingTower(true);
+        setSelectedHandIndex(null);
+        stepper.startNextTurn();
+        break;
       case 'race-complete':
         sendRadio('generic');
         break;
@@ -155,6 +214,13 @@ export function RaceScreen() {
 
     return () => clearTimeout(timer);
   }, [turnPhaseUI]);
+
+  // Auto-hide timing tower after 3 seconds (independent of turn phase)
+  useEffect(() => {
+    if (!showTimingTower) return;
+    const t = setTimeout(() => setShowTimingTower(false), 3000);
+    return () => clearTimeout(t);
+  }, [showTimingTower]);
 
   const handleStartScenario = useCallback(
     (scenarioId: string, raceSeed?: number) => {
@@ -256,6 +322,7 @@ export function RaceScreen() {
         <PreRaceTireSetup
           onConfirm={handleTireSetupConfirm}
           seasonTireBank={mode === 'season' ? seasonProgress?.tireBank ?? null : null}
+          hideDifficulty={mode === 'season'}
         />
       </div>
     );
@@ -274,42 +341,49 @@ export function RaceScreen() {
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden">
-      {isSC && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
+      {isSC && turnPhaseUI !== 'idle' && (
         <div className="pointer-events-none fixed inset-0 z-30 bg-hud-yellow/8 animate-sc-pulse" />
       )}
-      {isRain && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
+      {isRain && turnPhaseUI !== 'idle' && (
         <div className="pointer-events-none fixed inset-0 z-30 bg-hud-cyan/5 animate-rain-flash" />
       )}
 
       <ScenarioStrip
         scenario={scenario}
         turn={raceState.currentTurn}
-        onQuit={() => {
-          if (window.confirm(t('race.abandonConfirm'))) {
-            useGameStore.getState().resetRace();
-            navigate('/');
-          }
-        }}
+        onQuit={() => setShowQuitConfirm(true)}
         onToggleMute={() => setMuted(audio.toggleMute())}
         isMuted={muted}
       />
 
-      <div className="relative px-5 py-1">
-        <TrackMap
-          position={raceState.position}
-          totalPositions={18}
-          currentEvent={currentEvent}
-          teamColor={team.color}
-          circuitId={scenario.id}
-          tireCompound={raceState.tireCompound}
-          rivals={rivalDots}
-        />
+      {/* Fixed-height wrapper so timing tower and mini-map occupy the same space */}
+      <div className="relative px-3 py-1" style={{ minHeight: '9.5rem' }}>
+        {showTimingTower && frozenTimingEntries.current.length > 0 ? (
+          <div className="mx-auto flex h-full w-full max-w-sm flex-col items-center justify-center animate-fade-in">
+            <div className="mb-1 text-center font-display text-xs font-bold uppercase tracking-wide text-metal-light">
+              {t('race.lapComplete', { lap: Math.max(1, raceState.currentTurn - 1) })}
+            </div>
+            <div className="flex w-full justify-center">
+              <TimingTower entries={frozenTimingEntries.current} />
+            </div>
+          </div>
+        ) : (
+          <TrackMap
+            position={raceState.position}
+            totalPositions={18}
+            teamColor={team.color}
+            circuitId={scenario.id}
+            tireCompound={raceState.tireCompound}
+            rivals={rivalDots}
+            playerAbbreviation={playerAbbreviation}
+          />
+        )}
       </div>
 
-      {/* Mulligan bottom sheet overlay */}
+      {/* Mulligan bottom sheet overlay — no backdrop so timing tower / mini-map stays visible */}
       {turnPhaseUI === 'await-mulligan' && (
-        <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 animate-fade-in">
-          <div className="w-full max-w-lg rounded-t-3xl bg-carbon px-5 pb-6 pt-4 animate-slide-up">
+        <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center animate-fade-in">
+          <div className="w-full max-w-lg rounded-t-3xl bg-carbon px-5 pb-6 pt-4 shadow-2xl animate-slide-up">
             <div className="mb-3 text-center text-xs font-display uppercase tracking-wider text-metal-light">
               {t('race.yourHand')}
             </div>
@@ -349,7 +423,7 @@ export function RaceScreen() {
       }`}>
         <HUD state={raceState} previousPosition={previousPosition} />
 
-        {currentEvent && turnPhaseUI !== 'idle' && turnPhaseUI !== 'turn-summary' && (
+        {currentEvent && turnPhaseUI !== 'idle' && (
           <EventCard event={currentEvent} animated={turnPhaseUI === 'reveal-event'} />
         )}
 
@@ -495,25 +569,6 @@ export function RaceScreen() {
           </div>
         )}
 
-        {turnPhaseUI === 'turn-summary' && (
-          <div className="animate-panel-pop space-y-3 rounded-2xl bg-white/[0.04] p-5 text-center">
-            <div className="font-display text-base font-bold uppercase tracking-wide text-metal-light">
-              {t('race.lapComplete', { lap: raceState.currentTurn })}
-            </div>
-            <Button
-              variant="primary"
-              size="lg"
-              className="w-full"
-              onClick={() => {
-                setSelectedHandIndex(null);
-                stepper.startNextTurn();
-              }}
-            >
-              {t('race.nextLap')}
-            </Button>
-          </div>
-        )}
-
         {turnPhaseUI === 'idle' && raceState.currentTurn === 0 && (
           <div className="animate-panel-pop space-y-3 rounded-2xl bg-white/[0.04] py-6 text-center">
             <div className="font-display text-xl font-bold uppercase tracking-wide">
@@ -556,6 +611,21 @@ export function RaceScreen() {
         )}
 
       </div>
+
+      <ConfirmDialog
+        open={showQuitConfirm}
+        title={t('race.abandon')}
+        message={t('race.abandonConfirm')}
+        confirmLabel={t('race.abandon')}
+        cancelLabel={t('race.abandonCancel')}
+        variant="danger"
+        onCancel={() => setShowQuitConfirm(false)}
+        onConfirm={() => {
+          setShowQuitConfirm(false);
+          useGameStore.getState().resetRace();
+          navigate('/');
+        }}
+      />
     </div>
   );
 }

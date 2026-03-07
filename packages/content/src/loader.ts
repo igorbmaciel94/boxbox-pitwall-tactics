@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { CardData, GameCatalogData, GameStringsData, ScenarioData, TeamData } from './types.js';
-import { cardsFileSchema, scenariosFileSchema, stringsFileSchema, teamsFileSchema } from './schemas.js';
+import type { CardData, DriverData, GameCatalogData, GameStringsData, GoalCardData, ScenarioData, TeamData } from './types.js';
+import { cardsFileSchema, driversFileSchema, goalCardsFileSchema, scenariosFileSchema, stringsFileSchema, teamsFileSchema } from './schemas.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(__dirname, '..', 'data');
@@ -32,17 +32,31 @@ export function loadStrings(): { version: string } & GameStringsData {
   return stringsFileSchema.parse(data);
 }
 
+export function loadDrivers(): { version: string; drivers: DriverData[] } {
+  const data = loadJson('drivers.json');
+  return driversFileSchema.parse(data);
+}
+
+export function loadGoalCards(): { version: string; goalCards: GoalCardData[] } {
+  const data = loadJson('goal-cards.json');
+  return goalCardsFileSchema.parse(data);
+}
+
 export function loadCatalog(): GameCatalogData {
   const cardsFile = loadCards();
   const scenariosFile = loadScenarios();
   const teamsFile = loadTeams();
   const stringsFile = loadStrings();
+  const driversFile = loadDrivers();
+  const goalCardsFile = loadGoalCards();
 
   return {
     version: cardsFile.version,
     cards: cardsFile.cards,
     scenarios: scenariosFile.scenarios,
     teams: teamsFile.teams,
+    drivers: driversFile.drivers,
+    goalCards: goalCardsFile.goalCards,
     strings: {
       events: stringsFile.events,
       radio: stringsFile.radio,

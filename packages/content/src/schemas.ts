@@ -83,6 +83,37 @@ export const teamsFileSchema = z.object({
   teams: z.array(teamSchema).min(1),
 });
 
+export const driverSchema = z.object({
+  id: z.string().min(1),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  abbreviation: z.string().length(3),
+  teamId: z.string().min(1),
+  strength: z.number().int().min(1).max(100),
+});
+
+export const driversFileSchema = z.object({
+  version: z.string().min(1),
+  drivers: z.array(driverSchema).length(18),
+});
+
+const goalCardTiers = ['top', 'mid', 'bottom'] as const;
+
+export const goalCardSchema = z.object({
+  id: z.string().min(1),
+  tier: z.enum(goalCardTiers),
+  title: z.string().min(1),
+  description: z.string().min(1),
+  startingPositionRange: z.tuple([z.number().int().min(1).max(18), z.number().int().min(1).max(18)]),
+  evaluate: z.string().min(1),
+  params: z.record(z.union([z.number(), z.string()])),
+});
+
+export const goalCardsFileSchema = z.object({
+  version: z.string().min(1),
+  goalCards: z.array(goalCardSchema).min(1),
+});
+
 const eventStringsSchema = z.object(
   Object.fromEntries(eventTypes.map((t) => [t, z.array(z.string().min(1)).min(1)])) as Record<
     (typeof eventTypes)[number],

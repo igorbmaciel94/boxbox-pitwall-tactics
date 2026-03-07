@@ -9,6 +9,7 @@ const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard'];
 interface PreRaceTireSetupProps {
   onConfirm: (allocation: TireAllocation, startingCompound: TireCompound) => void;
   seasonTireBank?: SeasonTireBank | null;
+  hideDifficulty?: boolean;
 }
 
 const DRY_COMPOUNDS: {
@@ -25,7 +26,7 @@ const DRY_COMPOUNDS: {
 
 const TOTAL_SETS = 3;
 
-export function PreRaceTireSetup({ onConfirm, seasonTireBank }: PreRaceTireSetupProps) {
+export function PreRaceTireSetup({ onConfirm, seasonTireBank, hideDifficulty }: PreRaceTireSetupProps) {
   const { t } = useI18n();
   const difficulty = useGameStore((s) => s.difficulty);
   const setDifficulty = useGameStore((s) => s.setDifficulty);
@@ -141,39 +142,29 @@ export function PreRaceTireSetup({ onConfirm, seasonTireBank }: PreRaceTireSetup
         </div>
       )}
 
-      {/* Inter/Wet info */}
-      <div className="flex items-center gap-2 rounded-lg bg-blue-500/5 border border-blue-500/20 px-3 py-2">
-        <div className="flex gap-1">
-          <div className="h-3.5 w-3.5 rounded-full bg-green-500" />
-          <div className="h-3.5 w-3.5 rounded-full bg-blue-500" />
+      {/* Difficulty selector — hidden in season mode (chosen at setup) */}
+      {!hideDifficulty && (
+        <div className="rounded-xl bg-white/[0.04] px-4 py-3">
+          <div className="mb-2 text-[11px] uppercase tracking-wider text-metal-light">{t('difficulty.title')}</div>
+          <div className="flex gap-2">
+            {DIFFICULTIES.map((d) => (
+              <button
+                key={d}
+                onClick={() => setDifficulty(d)}
+                className={`flex-1 rounded-xl px-3 py-2 text-center transition-all ${
+                  difficulty === d
+                    ? d === 'easy' ? 'bg-hud-green/20 ring-1 ring-hud-green/50 text-hud-green'
+                    : d === 'normal' ? 'bg-hud-amber/20 ring-1 ring-hud-amber/50 text-hud-amber'
+                    : 'bg-hud-red/20 ring-1 ring-hud-red/50 text-hud-red'
+                    : 'bg-white/5 text-metal-light hover:bg-white/10'
+                }`}
+              >
+                <div className="font-display text-xs font-bold uppercase tracking-wide">{t(`difficulty.${d}`)}</div>
+              </button>
+            ))}
+          </div>
         </div>
-        <span className="text-[11px] text-metal-light">
-          {t('tireSetup.rainInfo')}
-        </span>
-      </div>
-
-      {/* Difficulty selector */}
-      <div className="rounded-xl bg-white/[0.04] px-4 py-3">
-        <div className="mb-2 text-[11px] uppercase tracking-wider text-metal-light">{t('difficulty.title')}</div>
-        <div className="flex gap-2">
-          {DIFFICULTIES.map((d) => (
-            <button
-              key={d}
-              onClick={() => setDifficulty(d)}
-              className={`flex-1 rounded-xl px-3 py-2 text-center transition-all ${
-                difficulty === d
-                  ? d === 'easy' ? 'bg-hud-green/20 ring-1 ring-hud-green/50 text-hud-green'
-                  : d === 'normal' ? 'bg-hud-amber/20 ring-1 ring-hud-amber/50 text-hud-amber'
-                  : 'bg-hud-red/20 ring-1 ring-hud-red/50 text-hud-red'
-                  : 'bg-white/5 text-metal-light hover:bg-white/10'
-              }`}
-            >
-              <div className="font-display text-xs font-bold uppercase tracking-wide">{t(`difficulty.${d}`)}</div>
-            </button>
-          ))}
-        </div>
-        <p className="mt-2 text-[11px] leading-relaxed text-metal-light">{t(`difficulty.${difficulty}Desc`)}</p>
-      </div>
+      )}
 
       <Button
         variant="primary"

@@ -1,78 +1,86 @@
 import { useMemo } from 'react';
-import type { RaceEvent, TireCompound } from '@boxbox/engine';
+import type { TireCompound } from '@boxbox/engine';
 
 export interface RivalDot {
   position: number;
   color: string;
+  abbreviation?: string;
+  strength?: number;
 }
 
 interface TrackMapProps {
   position: number;
   totalPositions?: number;
-  currentEvent: RaceEvent | null;
   teamColor: string;
   circuitId?: string;
   tireCompound?: TireCompound;
   rivals?: RivalDot[];
+  playerAbbreviation?: string;
 }
 
-// Simplified but recognizable circuit layouts as polyline points
-// Each circuit is defined within a 320×140 viewBox, coordinates clockwise from start/finish
+// Stylized circuit layouts — each unique and loosely inspired by real tracks
+// Defined within a 320×140 viewBox, coordinates trace the circuit clockwise from start/finish
 const CIRCUIT_PATHS: Record<string, [number, number][]> = {
-  // Monaco: Tight hairpins, narrow street circuit
+  // Monaco: Tight street circuit with sharp hairpin and chicanes
   monaco: [
-    [280, 30], [300, 40], [300, 60], [280, 70],
-    [240, 65], [220, 80], [200, 100], [180, 110],
-    [140, 115], [100, 110], [80, 95], [60, 80],
-    [40, 60], [30, 40], [40, 25], [60, 20],
-    [80, 30], [100, 45], [120, 50], [140, 45],
-    [160, 35], [180, 25], [200, 20], [240, 22],
+    [260, 28], [280, 25], [295, 32], [300, 48],
+    [295, 62], [278, 68], [255, 65], [235, 72],
+    [215, 85], [195, 100], [170, 110], [140, 115],
+    [110, 112], [85, 102], [65, 88], [50, 72],
+    [38, 55], [30, 40], [32, 28], [45, 20],
+    [65, 18], [85, 24], [105, 38], [120, 45],
+    [140, 42], [165, 35], [190, 26], [220, 22],
+    [245, 24],
   ],
-  // Spa: Eau Rouge sweeps, long Kemmel straight, La Source hairpin
+  // Spa: Flowing elevation changes, Eau Rouge sweep, La Source hairpin
   spa: [
-    [280, 35], [300, 50], [290, 70], [260, 85],
-    [230, 95], [200, 105], [170, 110], [140, 108],
-    [110, 100], [80, 85], [55, 65], [40, 50],
-    [30, 35], [40, 25], [60, 20], [90, 22],
-    [120, 30], [140, 40], [155, 55], [165, 45],
-    [175, 30], [195, 22], [220, 20], [250, 25],
+    [275, 32], [295, 42], [298, 58], [288, 72],
+    [265, 82], [240, 92], [210, 100], [178, 108],
+    [148, 110], [120, 105], [95, 95], [72, 80],
+    [52, 62], [38, 45], [30, 32], [35, 22],
+    [52, 18], [75, 20], [100, 25], [122, 35],
+    [138, 48], [148, 58], [158, 48], [170, 35],
+    [188, 25], [210, 20], [235, 22], [258, 26],
   ],
-  // Monza: Very fast, long straights, few chicanes
+  // Monza: Temple of speed — long straights, tight chicanes
   monza: [
-    [290, 50], [300, 65], [295, 80], [280, 90],
-    [250, 95], [200, 98], [150, 100], [100, 98],
-    [60, 90], [40, 75], [30, 60], [35, 45],
-    [50, 35], [70, 30], [90, 35], [100, 45],
-    [105, 38], [115, 32], [140, 28], [180, 25],
-    [220, 22], [250, 25], [270, 32], [280, 40],
+    [285, 45], [298, 55], [300, 68], [292, 80],
+    [275, 88], [248, 94], [210, 98], [165, 100],
+    [120, 98], [80, 92], [52, 82], [35, 68],
+    [28, 52], [32, 40], [45, 32], [62, 30],
+    [78, 36], [88, 44], [92, 36], [102, 28],
+    [125, 22], [160, 18], [200, 18], [235, 22],
+    [260, 28], [275, 36],
   ],
   // Silverstone: Fast flowing corners, Maggots-Becketts complex
   silverstone: [
-    [280, 55], [290, 70], [280, 85], [260, 95],
-    [230, 100], [200, 105], [170, 100], [145, 90],
-    [120, 75], [100, 60], [80, 50], [55, 45],
-    [35, 50], [30, 65], [40, 75], [60, 70],
-    [80, 60], [100, 48], [130, 40], [160, 35],
-    [190, 30], [220, 28], [250, 32], [270, 42],
+    [275, 50], [288, 62], [285, 78], [268, 90],
+    [245, 98], [215, 104], [185, 102], [158, 95],
+    [132, 82], [112, 68], [92, 55], [72, 48],
+    [50, 45], [35, 52], [30, 65], [38, 75],
+    [55, 72], [75, 62], [95, 50], [118, 42],
+    [145, 36], [172, 32], [200, 28], [228, 26],
+    [252, 30], [268, 40],
   ],
-  // Suzuka: Figure-8 layout with crossover
+  // Suzuka: Figure-8 with distinctive crossover
   suzuka: [
-    [280, 60], [295, 75], [290, 90], [270, 100],
-    [240, 105], [210, 100], [185, 90], [165, 75],
-    [150, 60], [140, 45], [125, 35], [100, 30],
-    [75, 32], [55, 40], [40, 55], [35, 70],
-    [40, 85], [55, 95], [75, 100], [100, 98],
-    [130, 88], [155, 72], [175, 58], [200, 45],
-    [225, 35], [250, 38], [268, 48],
+    [270, 55], [288, 65], [292, 80], [282, 92],
+    [262, 100], [238, 105], [212, 102], [190, 92],
+    [172, 78], [158, 62], [148, 48], [135, 38],
+    [115, 32], [92, 30], [72, 35], [55, 45],
+    [42, 58], [35, 72], [38, 86], [50, 96],
+    [68, 102], [90, 104], [112, 98], [132, 88],
+    [152, 72], [168, 55], [185, 42], [205, 34],
+    [228, 30], [250, 35], [265, 45],
   ],
-  // Interlagos: Counter-clockwise, short, technical
+  // Interlagos: Counter-clockwise, short and punchy
   interlagos: [
-    [270, 40], [290, 55], [295, 75], [280, 90],
-    [255, 100], [225, 105], [190, 108], [155, 105],
-    [120, 95], [90, 80], [65, 65], [45, 50],
-    [30, 38], [35, 25], [55, 18], [85, 15],
-    [120, 18], [155, 22], [190, 28], [220, 30],
-    [250, 33],
+    [265, 38], [285, 48], [292, 65], [285, 80],
+    [268, 92], [242, 100], [212, 105], [178, 106],
+    [145, 102], [115, 92], [88, 78], [65, 62],
+    [48, 48], [35, 35], [32, 24], [42, 16],
+    [60, 14], [85, 16], [115, 20], [148, 24],
+    [182, 28], [215, 30], [242, 33],
   ],
 };
 
@@ -120,30 +128,38 @@ function getPointAtDistance(points: [number, number][], distance: number): { x: 
   return { x: points[0][0], y: points[0][1] };
 }
 
-/** Build SVG path string from points (closed) */
-function buildPathD(points: [number, number][]): string {
-  if (points.length === 0) return '';
-  const parts = [`M ${points[0][0]} ${points[0][1]}`];
-  for (let i = 1; i < points.length; i++) {
-    parts.push(`L ${points[i][0]} ${points[i][1]}`);
+/** Build smooth SVG path from points using Catmull-Rom splines (closed) */
+function buildSmoothPath(points: [number, number][]): string {
+  if (points.length < 3) return '';
+  const n = points.length;
+  const tension = 0.3;
+
+  let d = `M ${points[0][0]} ${points[0][1]}`;
+
+  for (let i = 0; i < n; i++) {
+    const p0 = points[(i - 1 + n) % n];
+    const p1 = points[i];
+    const p2 = points[(i + 1) % n];
+    const p3 = points[(i + 2) % n];
+
+    const cp1x = p1[0] + (p2[0] - p0[0]) * tension;
+    const cp1y = p1[1] + (p2[1] - p0[1]) * tension;
+    const cp2x = p2[0] - (p3[0] - p1[0]) * tension;
+    const cp2y = p2[1] - (p3[1] - p1[1]) * tension;
+
+    d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2[0]} ${p2[1]}`;
   }
-  parts.push('Z');
-  return parts.join(' ');
+
+  return d;
 }
 
-/** Calculate center of mass of points */
-function getCenter(points: [number, number][]): { x: number; y: number } {
-  const sum = points.reduce((acc, p) => ({ x: acc.x + p[0], y: acc.y + p[1] }), { x: 0, y: 0 });
-  return { x: sum.x / points.length, y: sum.y / points.length };
-}
-
-export function TrackMap({ position, totalPositions = 20, currentEvent, teamColor, circuitId, tireCompound, rivals }: TrackMapProps) {
+export function TrackMap({ position, totalPositions = 18, teamColor, circuitId, tireCompound, rivals, playerAbbreviation = 'YOU' }: TrackMapProps) {
   const width = 320;
   const height = 140;
 
   const points = circuitId && CIRCUIT_PATHS[circuitId] ? CIRCUIT_PATHS[circuitId] : null;
 
-  const { getCarPos, pathD, center } = useMemo(() => {
+  const { getCarPos, pathD } = useMemo(() => {
     if (!points) {
       // Fallback oval
       const cx = width / 2;
@@ -157,7 +173,6 @@ export function TrackMap({ position, totalPositions = 20, currentEvent, teamColo
           return { x: cx + rx * Math.cos(angle), y: cy + ry * Math.sin(angle) };
         },
         pathD: null,
-        center: { x: cx, y: cy },
       };
     }
 
@@ -167,15 +182,23 @@ export function TrackMap({ position, totalPositions = 20, currentEvent, teamColo
         const fraction = (pos - 1) / totalPositions;
         return getPointAtDistance(points, fraction * totalLen);
       },
-      pathD: buildPathD(points),
-      center: getCenter(points),
+      pathD: buildSmoothPath(points),
     };
   }, [points, totalPositions]);
 
   const playerPos = getCarPos(position);
   const compoundColor = tireCompound ? COMPOUND_COLORS[tireCompound] : null;
 
-  const eventIcon = currentEvent ? getEventIcon(currentEvent.type) : null;
+  // Pre-compute rival positions
+  const rivalPositions = useMemo(() => {
+    if (!rivals) return [];
+    return rivals.map(r => ({
+      ...getCarPos(r.position),
+      color: r.color,
+      position: r.position,
+      abbreviation: r.abbreviation ?? '???',
+    }));
+  }, [rivals, getCarPos]);
 
   return (
     <div className="relative mx-auto w-full max-w-sm">
@@ -188,6 +211,7 @@ export function TrackMap({ position, totalPositions = 20, currentEvent, teamColo
               fill="none"
               stroke="rgba(255,255,255,0.06)"
               strokeWidth="16"
+              strokeLinecap="round"
               strokeLinejoin="round"
             />
             <path
@@ -195,6 +219,7 @@ export function TrackMap({ position, totalPositions = 20, currentEvent, teamColo
               fill="none"
               stroke="rgba(255,255,255,0.12)"
               strokeWidth="10"
+              strokeLinecap="round"
               strokeLinejoin="round"
             />
           </>
@@ -210,97 +235,51 @@ export function TrackMap({ position, totalPositions = 20, currentEvent, teamColo
           <circle cx={points[0][0]} cy={points[0][1]} r={3} fill="rgba(255,255,255,0.3)" />
         )}
 
-        {/* Rival dots — colored by team, with position labels */}
-        {rivals && rivals.map((r, i) => {
-          const pos = getCarPos(r.position);
-          const labelY = pos.y < 20 ? pos.y + 12 : pos.y - 8;
-          return (
-            <g key={i}>
-              <circle cx={pos.x} cy={pos.y} r={3.5} fill={r.color} opacity={0.75} />
-              <text
-                x={pos.x}
-                y={labelY}
-                textAnchor="middle"
-                fill="white"
-                opacity={0.85}
-                style={{ fontSize: '6px', fontFamily: 'monospace', fontWeight: 'bold' }}
-              >
-                P{r.position}
-              </text>
-            </g>
-          );
-        })}
+        {/* Rival dots — F1 style: white circle with abbreviation */}
+        {rivalPositions.map((r, i) => (
+          <g key={`rival-${i}`}>
+            <circle cx={r.x} cy={r.y} r={7} fill="white" />
+            <text
+              x={r.x}
+              y={r.y + 2}
+              textAnchor="middle"
+              fill="black"
+              style={{ fontSize: '5.5px', fontFamily: 'monospace', fontWeight: 700 }}
+            >
+              {r.abbreviation}
+            </text>
+          </g>
+        ))}
 
-        {/* Player car - larger, colored with compound ring */}
+        {/* Player car — F1 style: white circle with abbreviation + compound/team ring */}
         <circle
           cx={playerPos.x}
           cy={playerPos.y}
-          r={5}
-          fill={teamColor}
+          r={10}
+          fill="none"
+          stroke={compoundColor ?? teamColor}
+          strokeWidth="1.5"
+          opacity={compoundColor ? 0.7 : 0.5}
           className="transition-all duration-500"
         />
-        {compoundColor && (
-          <circle
-            cx={playerPos.x}
-            cy={playerPos.y}
-            r={8}
-            fill="none"
-            stroke={compoundColor}
-            strokeWidth="1.5"
-            opacity="0.6"
-            className="transition-all duration-500"
-          />
-        )}
-        {!compoundColor && (
-          <circle
-            cx={playerPos.x}
-            cy={playerPos.y}
-            r={8}
-            fill="none"
-            stroke={teamColor}
-            strokeWidth="1.5"
-            opacity="0.4"
-            className="transition-all duration-500"
-          />
-        )}
-
-        {/* Position label near player — below dot when near top edge */}
+        <circle
+          cx={playerPos.x}
+          cy={playerPos.y}
+          r={7}
+          fill="white"
+          className="transition-all duration-500"
+        />
         <text
           x={playerPos.x}
-          y={playerPos.y < 25 ? playerPos.y + 18 : playerPos.y - 13}
+          y={playerPos.y + 2}
           textAnchor="middle"
-          className="fill-white text-[9px] font-bold"
-          style={{ fontFamily: 'monospace' }}
+          fill="black"
+          className="transition-all duration-500"
+          style={{ fontSize: '5.5px', fontFamily: 'monospace', fontWeight: 700 }}
         >
-          P{position}
+          {playerAbbreviation}
         </text>
-
-        {/* Event icon in center */}
-        {eventIcon && (
-          <text
-            x={center.x}
-            y={center.y + 4}
-            textAnchor="middle"
-            className="fill-white/40 text-[10px] font-bold uppercase"
-            style={{ fontFamily: 'monospace' }}
-          >
-            {eventIcon}
-          </text>
-        )}
       </svg>
     </div>
   );
-}
-
-function getEventIcon(type: string): string | null {
-  switch (type) {
-    case 'safety-car': return '\u{1F6A8}';        // 🚨
-    case 'rain': return '\u{1F327}\u{FE0F}';      // 🌧️
-    case 'rival-pits': return '\u{1F527}';         // 🔧
-    case 'rival-overtake': return '\u{1F3CE}\u{FE0F}'; // 🏎️
-    case 'traffic': return '\u{1F6A7}';            // 🚧
-    case 'clear-air': return '\u{1F4A8}';          // 💨
-    case 'mechanical-issue': return '\u{26A0}\u{FE0F}'; // ⚠️
-    default: return null;
-  }
 }

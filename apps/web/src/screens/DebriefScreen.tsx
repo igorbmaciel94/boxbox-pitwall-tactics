@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { getPositionColor, calculateMedal, MEDAL_COLORS, EVENT_ICONS } from '../lib/constants';
 import { Button } from '../components/shared/Button';
+import { RaceClassification } from '../components/race/RaceClassification';
 import { useI18n } from '../i18n';
 
 export function DebriefScreen() {
@@ -21,6 +22,7 @@ export function DebriefScreen() {
   const mode = useGameStore((s) => s.mode);
   const advanceSeasonRace = useGameStore((s) => s.advanceSeasonRace);
   const resetRace = useGameStore((s) => s.resetRace);
+  const seasonProgress = useGameStore((s) => s.seasonProgress);
 
   if (!lastDebrief || !catalog) {
     return (
@@ -32,7 +34,7 @@ export function DebriefScreen() {
 
   const scenario = catalog.scenarios.find((s) => s.id === lastDebrief.scenarioId);
   const team = catalog.teams.find((t) => t.id === lastDebrief.teamId);
-  const medal = calculateMedal(lastDebrief.totalScore);
+  const medal = calculateMedal(lastDebrief.finalPosition);
 
   const handleContinue = () => {
     if (mode === 'season') {
@@ -43,6 +45,14 @@ export function DebriefScreen() {
       resetRace();
       navigate('/');
     }
+  };
+
+  const handleHome = () => {
+    if (mode === 'season') {
+      advanceSeasonRace(lastDebrief);
+    }
+    resetRace();
+    navigate('/');
   };
 
   return (
@@ -149,14 +159,36 @@ export function DebriefScreen() {
         </div>
       </div>
 
+      {/* Race Classification */}
+      {lastDebrief.fullClassification && lastDebrief.fullClassification.length > 0 && (
+        <div className="mb-4">
+          <RaceClassification
+            classification={lastDebrief.fullClassification}
+            playerDriverId={seasonProgress?.playerDriverId ?? catalog.drivers.find((d) => d.teamId === lastDebrief.teamId)?.id ?? ''}
+            teams={catalog.teams}
+            seed={lastDebrief.seed}
+          />
+        </div>
+      )}
+
       {/* Actions */}
       <div className="flex gap-2.5 pb-4">
-        <Button variant="ghost" size="md" className="flex-1" onClick={() => { resetRace(); navigate('/'); }}>
-          {t('common.home')}
-        </Button>
-        <Button variant="primary" size="md" className="flex-1" onClick={handleContinue}>
-          {mode === 'season' ? t('debrief.continueSeason') : t('common.done')}
-        </Button>
+        {mode === 'season' ? (
+          <>
+            <Button variant="ghost" size="md" className="flex-1" onClick={handleHome}>
+              {t('common.home')}
+            </Button>
+            <Button variant="primary" size="md" className="flex-1" onClick={handleContinue}>
+              {seasonProgress && seasonProgress.currentRaceIndex >= seasonProgress.raceOrder.length - 1
+                ? t('debrief.seasonComplete')
+                : t('debrief.nextRace')}
+            </Button>
+          </>
+        ) : (
+          <Button variant="primary" size="lg" className="w-full" onClick={handleContinue}>
+            {t('common.done')}
+          </Button>
+        )}
       </div>
     </div>
   );

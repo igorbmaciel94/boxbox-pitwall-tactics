@@ -58,9 +58,12 @@ describe('clampRaceState', () => {
     expect(high.position).toBe(18);
   });
 
-  it('clamps tire wear to 0-100 range', () => {
+  it('clamps tire wear to -20..100 range (negative = freshness bonus)', () => {
     const low = clampRaceState(makeState({ tireWear: -10 }));
-    expect(low.tireWear).toBe(0);
+    expect(low.tireWear).toBe(-10); // allowed: freshness bonus
+
+    const tooLow = clampRaceState(makeState({ tireWear: -30 }));
+    expect(tooLow.tireWear).toBe(-20); // clamped to max bonus
 
     const high = clampRaceState(makeState({ tireWear: 150 }));
     expect(high.tireWear).toBe(100);

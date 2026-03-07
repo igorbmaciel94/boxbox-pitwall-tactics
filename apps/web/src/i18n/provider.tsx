@@ -20,6 +20,8 @@ interface I18nContextValue {
   getEventName: (eventType: EventType, fallback?: string) => string;
   getEventFlavor: (eventType: EventType, flavorIndex: number, fallback?: string) => string;
   getRadioMessage: (context: RadioContext, flavorIndex: number, fallback?: string) => string;
+  getCardPros: (cardId: string) => string[];
+  getCardCons: (cardId: string) => string[];
   getTagLabel: (tag: string, fallback?: string) => string;
   getFilterLabel: (filterKey: 'all' | 'drive' | 'pit' | 'tactics', fallback?: string) => string;
   getMedalLabel: (medal: Medal, fallback?: string) => string;
@@ -71,6 +73,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       t,
       getCardName: (cardId, fallback = cardId) => dictionary.content.cards[cardId]?.name ?? fallback,
       getCardRulesText: (cardId, fallback = '') => dictionary.content.cards[cardId]?.rulesText ?? fallback,
+      getCardPros: (cardId) => dictionary.content.cards[cardId]?.pros ?? [],
+      getCardCons: (cardId) => dictionary.content.cards[cardId]?.cons ?? [],
       getTeamName: (teamId, fallback = teamId) => dictionary.content.teams[teamId]?.name ?? fallback,
       getPerkName: (perkId, fallback = perkId) => dictionary.content.perks[perkId]?.name ?? fallback,
       getPerkDescription: (perkId, fallback = '') => dictionary.content.perks[perkId]?.description ?? fallback,

@@ -24,10 +24,10 @@ export function getWearColor(wear: number): string {
   return 'bg-hud-red';
 }
 
-export function calculateMedal(score: number): 'gold' | 'silver' | 'bronze' | null {
-  if (score >= 30) return 'gold';
-  if (score >= 20) return 'silver';
-  if (score >= 10) return 'bronze';
+export function calculateMedal(position: number): 'gold' | 'silver' | 'bronze' | null {
+  if (position === 1) return 'gold';
+  if (position === 2) return 'silver';
+  if (position === 3) return 'bronze';
   return null;
 }
 

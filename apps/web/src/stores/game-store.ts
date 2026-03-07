@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type {
   CardId,
   Difficulty,
+  DriverStanding,
   GameCatalogData,
   RaceDebrief,
   RaceEvent,
@@ -15,17 +16,28 @@ import type {
   SeasonTireBank,
   SeededRng,
 } from '@boxbox/engine';
-import { createRng, initializeRaceState } from '@boxbox/engine';
-import type { TurnPhaseUI, GameMode, SavedDeck, BestScore, RunHistoryEntry, SeasonRunEntry } from '../lib/types';
+import { createRng, initializeRaceState, updateChampionshipStandings } from '@boxbox/engine';
+import type { TurnPhaseUI, GameMode, SavedDeck, BestScore, RunHistoryEntry, SeasonRunEntry, Trophy } from '../lib/types';
 
-interface SeasonProgress {
+export const SEASON_TIRE_TOTALS: Record<Difficulty, number> = {
+  easy: 24,
+  normal: 21,
+  hard: 18,
+};
+
+export interface SeasonProgress {
   raceOrder: string[];
   currentRaceIndex: number;
   raceResults: RaceDebrief[];
   cumulativeScore: number;
-  cardSwapDone: boolean;
   seed: number;
   tireBank: SeasonTireBank;
+  difficulty: Difficulty;
+  initialTireBank: SeasonTireBank;
+  pendingTireAllocation: TireAllocation | null;
+  playerDriverId: string;
+  goalCardId: string | null;
+  championshipStandings: DriverStanding[];
 }
 
 interface GameState {
@@ -41,6 +53,7 @@ interface GameState {
 
   // Game mode
   mode: GameMode;
+  setMode: (mode: GameMode) => void;
 
   // Difficulty
   difficulty: Difficulty;
@@ -70,6 +83,7 @@ interface GameState {
   bestScores: BestScore[];
   runHistory: RunHistoryEntry[];
   seasonRuns: SeasonRunEntry[];
+  trophies: Trophy[];
 
   // Actions — race
   startRace: (scenarioId: string, seed?: number, startingCompound?: TireCompound, tireAllocation?: TireAllocation) => void;
@@ -81,17 +95,26 @@ interface GameState {
   setLastDebrief: (debrief: RaceDebrief) => void;
 
   // Actions — season
-  startSeason: (seed?: number) => void;
+  startSeason: (difficulty: Difficulty, tireBank: SeasonTireBank, goalCardId: string | null, seed?: number) => void;
   advanceSeasonRace: (debrief: RaceDebrief) => void;
-  setSeasonCardSwapDone: () => void;
   deductTireBank: (allocation: TireAllocation) => void;
+  restoreAbandonedTires: () => void;
+  setSeasonProgress: (progress: SeasonProgress) => void;
+  clearSeasonProgress: () => void;
 
-  // Actions — persistence
+  // Actions — deck management
   setSavedDecks: (decks: SavedDeck[]) => void;
   addSavedDeck: (deck: SavedDeck) => void;
+  createSavedDeck: (name: string, cards: CardId[]) => string;
+  updateSavedDeck: (id: string, name: string, cards: CardId[]) => void;
+  deleteSavedDeck: (id: string) => void;
+  loadDeckForPlay: (deckId: string) => void;
+
+  // Actions — persistence
   setBestScores: (scores: BestScore[]) => void;
   setRunHistory: (history: RunHistoryEntry[]) => void;
   setSeasonRuns: (runs: SeasonRunEntry[]) => void;
+  setTrophies: (trophies: Trophy[]) => void;
 
   // Reset
   resetRace: () => void;
@@ -108,6 +131,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   setDeck: (cards) => set({ currentDeck: cards }),
 
   mode: 'idle',
+  setMode: (mode) => set({ mode }),
 
   difficulty: 'normal' as Difficulty,
   setDifficulty: (d) => set({ difficulty: d }),
@@ -131,9 +155,10 @@ export const useGameStore = create<GameState>((set, get) => ({
   bestScores: [],
   runHistory: [],
   seasonRuns: [],
+  trophies: [],
 
   startRace: (scenarioId, seed, startingCompound, tireAllocation) => {
-    const { catalog, selectedTeamId, currentDeck, difficulty } = get();
+    const { catalog, selectedTeamId, currentDeck, difficulty, mode } = get();
     if (!catalog || !selectedTeamId) return;
 
     const scenario = catalog.scenarios.find((s) => s.id === scenarioId);
@@ -156,7 +181,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     const state: RaceState = { ...baseState, deck: shuffledDeck, hand: [], discard: [] };
 
     set({
-      mode: 'race',
+      mode: mode === 'season' ? 'season' : 'race',
       raceState: state,
       scenario,
       team,
@@ -177,25 +202,34 @@ export const useGameStore = create<GameState>((set, get) => ({
   setPreviousPosition: (pos) => set({ previousPosition: pos }),
   setLastDebrief: (debrief) => set({ lastDebrief: debrief }),
 
-  startSeason: (seed) => {
+  startSeason: (difficulty, tireBank, goalCardId, seed) => {
     const { catalog, selectedTeamId } = get();
     if (!catalog || !selectedTeamId) return;
 
     const seasonSeed = seed ?? Math.floor(Math.random() * 2147483647);
-    const rng = createRng(seasonSeed);
-    const scenarioIds = catalog.scenarios.map((s) => s.id);
-    const raceOrder = rng.shuffle(scenarioIds);
+    // Fixed race order — use scenario list order
+    const raceOrder = catalog.scenarios.map((s) => s.id);
+
+    // Determine player driver (first driver of selected team)
+    const playerDriver = catalog.drivers.find((d) => d.teamId === selectedTeamId);
+    const playerDriverId = playerDriver?.id ?? `player-${selectedTeamId}`;
 
     set({
       mode: 'season',
+      difficulty,
       seasonProgress: {
         raceOrder,
         currentRaceIndex: 0,
         raceResults: [],
         cumulativeScore: 0,
-        cardSwapDone: false,
         seed: seasonSeed,
-        tireBank: { soft: 8, medium: 8, hard: 8 },
+        tireBank: { ...tireBank },
+        difficulty,
+        initialTireBank: { ...tireBank },
+        pendingTireAllocation: null,
+        playerDriverId,
+        goalCardId,
+        championshipStandings: [],
       },
     });
   },
@@ -204,22 +238,20 @@ export const useGameStore = create<GameState>((set, get) => ({
     set((s) => {
       if (!s.seasonProgress) return s;
       const results = [...s.seasonProgress.raceResults, debrief];
+      // Update championship standings if classification data exists
+      let standings = s.seasonProgress.championshipStandings;
+      if (debrief.fullClassification) {
+        standings = updateChampionshipStandings(standings, debrief.fullClassification);
+      }
       return {
         seasonProgress: {
           ...s.seasonProgress,
           raceResults: results,
           currentRaceIndex: s.seasonProgress.currentRaceIndex + 1,
           cumulativeScore: results.reduce((sum, r) => sum + r.totalScore, 0),
+          pendingTireAllocation: null,
+          championshipStandings: standings,
         },
-      };
-    });
-  },
-
-  setSeasonCardSwapDone: () => {
-    set((s) => {
-      if (!s.seasonProgress) return s;
-      return {
-        seasonProgress: { ...s.seasonProgress, cardSwapDone: true },
       };
     });
   },
@@ -236,19 +268,75 @@ export const useGameStore = create<GameState>((set, get) => ({
             medium: bank.medium - allocation.medium,
             hard: bank.hard - allocation.hard,
           },
+          pendingTireAllocation: { ...allocation },
         },
       };
     });
   },
 
+  restoreAbandonedTires: () => {
+    set((s) => {
+      if (!s.seasonProgress || !s.seasonProgress.pendingTireAllocation) return s;
+      const bank = s.seasonProgress.tireBank;
+      const pending = s.seasonProgress.pendingTireAllocation;
+      return {
+        seasonProgress: {
+          ...s.seasonProgress,
+          tireBank: {
+            soft: bank.soft + pending.soft,
+            medium: bank.medium + pending.medium,
+            hard: bank.hard + pending.hard,
+          },
+          pendingTireAllocation: null,
+        },
+      };
+    });
+  },
+
+  setSeasonProgress: (progress) => set({ seasonProgress: progress }),
+
+  clearSeasonProgress: () => set({ seasonProgress: null, mode: 'idle' }),
+
   setSavedDecks: (decks) => set({ savedDecks: decks }),
   addSavedDeck: (deck) => set((s) => ({ savedDecks: [...s.savedDecks, deck] })),
+
+  createSavedDeck: (name, cards) => {
+    const id = crypto.randomUUID();
+    const deck: SavedDeck = { id, name, cards, createdAt: Date.now() };
+    set((s) => ({ savedDecks: [...s.savedDecks, deck] }));
+    return id;
+  },
+
+  updateSavedDeck: (id, name, cards) => {
+    set((s) => ({
+      savedDecks: s.savedDecks.map((d) =>
+        d.id === id ? { ...d, name, cards } : d,
+      ),
+    }));
+  },
+
+  deleteSavedDeck: (id) => {
+    set((s) => ({
+      savedDecks: s.savedDecks.filter((d) => d.id !== id),
+    }));
+  },
+
+  loadDeckForPlay: (deckId) => {
+    const { savedDecks } = get();
+    const deck = savedDecks.find((d) => d.id === deckId);
+    if (deck) {
+      set({ currentDeck: deck.cards });
+    }
+  },
+
   setBestScores: (scores) => set({ bestScores: scores }),
   setRunHistory: (history) => set({ runHistory: history }),
   setSeasonRuns: (runs) => set({ seasonRuns: runs }),
+  setTrophies: (trophies) => set({ trophies }),
 
   resetRace: () =>
     set({
+      mode: 'idle',
       raceState: null,
       scenario: null,
       team: null,

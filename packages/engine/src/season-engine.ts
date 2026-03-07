@@ -46,14 +46,6 @@ export function runSeason(
     // Derive per-race seed
     const raceSeed = hashCombine(seed, raceIndex);
 
-    // Mid-season card swap after race 3 (index 2)
-    if (raceIndex === 3 && agent.chooseCardSwap) {
-      const allCardIds = catalog.cards.map((c) => c.id);
-      agent.chooseCardSwap(allCardIds, allCardIds);
-      // Note: In M0 the card swap is a no-op for the deterministic agent.
-      // A real UI agent would modify the deck composition here.
-    }
-
     const debrief = runRace(scenario, team, catalog, agent, raceSeed, config);
     raceResults.push(debrief);
   }
@@ -84,7 +76,6 @@ export function initializeSeasonState(
     currentRaceIndex: 0,
     raceResults: [],
     cumulativeScore: 0,
-    cardSwapDone: false,
     availableCards: allCardIds,
     tireBank: { soft: 8, medium: 8, hard: 8 },
   };

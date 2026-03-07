@@ -122,6 +122,37 @@ export function HowToPlayScreen() {
         </div>
       </Section>
 
+      {/* Season Mode sections */}
+      <Section title={t('howToPlay.sections.seasonModeTitle')}>
+        <p>{t('howToPlay.sections.seasonModeP1')}</p>
+        <p>{t('howToPlay.sections.seasonModeP2')}</p>
+      </Section>
+
+      <Section title={t('howToPlay.sections.rivalsTitle')}>
+        <p>{t('howToPlay.sections.rivalsP1')}</p>
+        <p>{t('howToPlay.sections.rivalsP2')}</p>
+      </Section>
+
+      <Section title={t('howToPlay.sections.goalsTitle')}>
+        <p>{t('howToPlay.sections.goalsP1')}</p>
+        <div className="space-y-2">
+          <div className="rounded-xl bg-hud-amber/5 border border-hud-amber/15 p-3">
+            <span className="text-sm text-metal-light">{t('howToPlay.sections.goalTop')}</span>
+          </div>
+          <div className="rounded-xl bg-white/[0.04] border border-white/10 p-3">
+            <span className="text-sm text-metal-light">{t('howToPlay.sections.goalMid')}</span>
+          </div>
+          <div className="rounded-xl bg-hud-cyan/5 border border-hud-cyan/15 p-3">
+            <span className="text-sm text-metal-light">{t('howToPlay.sections.goalBottom')}</span>
+          </div>
+        </div>
+      </Section>
+
+      <Section title={t('howToPlay.sections.championshipTitle')}>
+        <p>{t('howToPlay.sections.championshipP1')}</p>
+        <p>{t('howToPlay.sections.championshipP2')}</p>
+      </Section>
+
       <Section title={t('howToPlay.sections.tipsTitle')}>
         <ul className="list-disc list-inside space-y-1.5 text-sm text-metal-light">
           <li>{t('howToPlay.sections.tip1')}</li>

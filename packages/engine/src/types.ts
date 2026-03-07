@@ -1,15 +1,18 @@
 import type {
   CardData,
   CardEffect,
+  DriverData,
   EventType,
   GameCatalogData,
+  GoalCardData,
+  GoalCardTier,
   ObjectiveData,
   ScenarioData,
   TeamData,
   TireCompound,
 } from '@boxbox/content';
 
-export type { CardData, CardEffect, EventType, GameCatalogData, ObjectiveData, ScenarioData, TeamData, TireCompound };
+export type { CardData, CardEffect, DriverData, EventType, GameCatalogData, GoalCardData, GoalCardTier, ObjectiveData, ScenarioData, TeamData, TireCompound };
 
 export type CardId = string;
 export type TeamId = string;
@@ -100,6 +103,22 @@ export interface TurnSummary {
   };
 }
 
+export interface RivalRaceResult {
+  driverId: string;
+  abbreviation: string;
+  teamId: TeamId;
+  position: number;
+  points: number;
+}
+
+export interface DriverStanding {
+  driverId: string;
+  abbreviation: string;
+  teamId: TeamId;
+  totalPoints: number;
+  racePositions: number[];
+}
+
 export interface RaceDebrief {
   scenarioId: string;
   teamId: TeamId;
@@ -114,6 +133,9 @@ export interface RaceDebrief {
   perkUsed: boolean;
   hasPitted: boolean;
   turnLog: TurnSummary[];
+  rivalResults?: RivalRaceResult[];
+  fullClassification?: RivalRaceResult[];
+  seed?: number;
 }
 
 export interface SeasonState {
@@ -123,7 +145,6 @@ export interface SeasonState {
   currentRaceIndex: number;
   raceResults: RaceDebrief[];
   cumulativeScore: number;
-  cardSwapDone: boolean;
   availableCards: CardId[];
   tireBank: SeasonTireBank;
 }
@@ -141,7 +162,6 @@ export interface ScoringConfig {
 export interface PlayerAgent {
   chooseTeamPerk(state: RaceState): boolean;
   chooseActionCard(state: RaceState): CardId;
-  chooseCardSwap?(availableCards: CardId[], currentDeck: CardId[]): CardId[];
   chooseMulligan?(state: RaceState): boolean;
   chooseCompound?(state: RaceState): TireCompound;
 }

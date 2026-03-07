@@ -3,27 +3,101 @@ import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { useI18n } from '../i18n';
 import { useAudio } from '../hooks/use-audio';
+import { Modal } from '../components/shared/Modal';
+import { Button } from '../components/shared/Button';
+import { DeckPickerModal } from '../components/shared/DeckPickerModal';
 
 const MENU_ITEMS = [
-  { labelKey: 'home.menu.quickRaceLabel', descKey: 'home.menu.quickRaceDesc', path: '/race', icon: 'RACE', accent: 'text-hud-green', needsDeck: true },
-  { labelKey: 'home.menu.seasonLabel', descKey: 'home.menu.seasonDesc', path: '/season', icon: 'SZN', accent: 'text-f1-red', needsDeck: true },
-  { labelKey: 'home.menu.deckBuilderLabel', descKey: 'home.menu.deckBuilderDesc', path: '/decks', icon: 'CARDS', accent: 'text-hud-amber', needsDeck: false },
-  { labelKey: 'home.menu.selectTeamLabel', descKey: 'home.menu.selectTeamDesc', path: '/team', icon: 'TEAM', accent: 'text-hud-cyan', needsDeck: false },
-  { labelKey: 'home.menu.garageLabel', descKey: 'home.menu.garageDesc', path: '/garage', icon: 'DATA', accent: 'text-metal-light', needsDeck: false },
-  { labelKey: 'home.menu.howToPlayLabel', descKey: 'home.menu.howToPlayDesc', path: '/how-to-play', icon: 'GUIDE', accent: 'text-hud-blue', needsDeck: false },
+  { labelKey: 'home.menu.quickRaceLabel', descKey: 'home.menu.quickRaceDesc', path: '/race', icon: '\u{1F3CE}\u{FE0F}', accent: 'text-hud-green', needsDeck: true, isSeason: false, isQuickRace: true },
+  { labelKey: 'home.menu.seasonLabel', descKey: 'home.menu.seasonDesc', path: '/season', icon: '\u{1F3C6}', accent: 'text-f1-red', needsDeck: true, isSeason: true, isQuickRace: false },
+  { labelKey: 'home.menu.deckBuilderLabel', descKey: 'home.menu.deckBuilderDesc', path: '/decks', icon: '\u{1F0CF}', accent: 'text-hud-amber', needsDeck: false, isSeason: false, isQuickRace: false },
+  { labelKey: 'home.menu.selectTeamLabel', descKey: 'home.menu.selectTeamDesc', path: '/team', icon: '\u{1F3E2}', accent: 'text-hud-cyan', needsDeck: false, isSeason: false, isQuickRace: false },
+  { labelKey: 'home.menu.garageLabel', descKey: 'home.menu.garageDesc', path: '/garage', icon: '\u{1F4CA}', accent: 'text-metal-light', needsDeck: false, isSeason: false, isQuickRace: false },
+  { labelKey: 'home.menu.howToPlayLabel', descKey: 'home.menu.howToPlayDesc', path: '/how-to-play', icon: '\u{1F4D6}', accent: 'text-hud-blue', needsDeck: false, isSeason: false, isQuickRace: false },
 ] as const;
 
 export function HomeScreen() {
   const navigate = useNavigate();
   const { t, getTeamName } = useI18n();
   const selectedTeamId = useGameStore((s) => s.selectedTeamId);
-  const currentDeck = useGameStore((s) => s.currentDeck);
+  const savedDecks = useGameStore((s) => s.savedDecks);
+  const loadDeckForPlay = useGameStore((s) => s.loadDeckForPlay);
   const catalog = useGameStore((s) => s.catalog);
+  const seasonProgress = useGameStore((s) => s.seasonProgress);
+  const restoreAbandonedTires = useGameStore((s) => s.restoreAbandonedTires);
+  const resetAll = useGameStore((s) => s.resetAll);
   const audio = useAudio();
   const [muted, setMuted] = useState(() => audio.isMuted());
+  const [showSeasonModal, setShowSeasonModal] = useState(false);
+  const [showDeckPicker, setShowDeckPicker] = useState(false);
+  const [deckPickerTarget, setDeckPickerTarget] = useState<'race' | 'season'>('race');
 
   const team = catalog?.teams.find((t) => t.id === selectedTeamId);
-  const ready = !!selectedTeamId && currentDeck.length === 9;
+  const validDecks = savedDecks.filter((d) => d.cards.length === 9);
+  const ready = !!selectedTeamId && validDecks.length > 0;
+
+  const hasActiveSeason = seasonProgress
+    && seasonProgress.currentRaceIndex < (seasonProgress.raceOrder?.length ?? 0)
+    && seasonProgress.raceResults.length > 0;
+
+  const handleQuickRaceClick = () => {
+    if (validDecks.length === 0) {
+      navigate('/decks/new');
+    } else {
+      setDeckPickerTarget('race');
+      setShowDeckPicker(true);
+    }
+  };
+
+  const handleSeasonClick = () => {
+    if (hasActiveSeason) {
+      setShowSeasonModal(true);
+    } else {
+      if (seasonProgress) resetAll();
+      if (validDecks.length === 0) {
+        navigate('/decks/new');
+      } else {
+        setDeckPickerTarget('season');
+        setShowDeckPicker(true);
+      }
+    }
+  };
+
+  const handleContinueSeason = () => {
+    restoreAbandonedTires();
+    setShowSeasonModal(false);
+    navigate('/season');
+  };
+
+  const handleNewSeason = () => {
+    resetAll();
+    setShowSeasonModal(false);
+    if (validDecks.length === 0) {
+      navigate('/decks/new');
+    } else {
+      setDeckPickerTarget('season');
+      setShowDeckPicker(true);
+    }
+  };
+
+  const handleDeckSelected = (_deckId: string) => {
+    setShowDeckPicker(false);
+    if (deckPickerTarget === 'race') {
+      navigate('/race');
+    } else {
+      navigate('/season/setup');
+    }
+  };
+
+  const handleMenuClick = (item: typeof MENU_ITEMS[number]) => {
+    if (item.isQuickRace) {
+      handleQuickRaceClick();
+    } else if (item.isSeason) {
+      handleSeasonClick();
+    } else {
+      navigate(item.path);
+    }
+  };
 
   return (
     <div className="relative flex min-h-dvh flex-col px-5 pt-10">
@@ -77,8 +151,10 @@ export function HomeScreen() {
         </div>
         <div>
           <span className="text-[11px] uppercase tracking-wider text-metal-light">{t('home.deckLabel')} </span>
-          <span className={`font-medium ${ready ? 'text-hud-green' : 'text-hud-amber'}`}>
-            {currentDeck.length === 9 ? t('home.deckReady') : t('home.deckNotBuilt')}
+          <span className={`font-medium ${validDecks.length > 0 ? 'text-hud-green' : 'text-hud-amber'}`}>
+            {validDecks.length > 0
+              ? `${validDecks.length} ${validDecks.length === 1 ? 'deck' : 'decks'}`
+              : t('home.deckNotBuilt')}
           </span>
         </div>
       </div>
@@ -90,13 +166,13 @@ export function HomeScreen() {
           return (
             <button
               key={item.path}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleMenuClick(item)}
               disabled={disabled}
               className={`animate-panel-pop flex items-center gap-4 rounded-2xl bg-white/[0.04] px-4 py-3.5 text-left transition-all duration-150
                 ${disabled ? 'pointer-events-none opacity-40' : 'hover:bg-white/[0.08] active:scale-[0.98]'}`}
               style={{ animationDelay: `${idx * 40}ms` }}
             >
-              <span className={`flex h-10 w-10 items-center justify-center rounded-xl bg-white/8 font-mono text-[10px] font-bold tracking-wider ${item.accent}`}>
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/8 text-xl">
                 {item.icon}
               </span>
               <div className="flex-1 min-w-0">
@@ -114,6 +190,44 @@ export function HomeScreen() {
           {t('home.readyHint')}
         </p>
       )}
+
+      {/* Deck Picker Modal */}
+      <DeckPickerModal
+        open={showDeckPicker}
+        onClose={() => setShowDeckPicker(false)}
+        onSelect={handleDeckSelected}
+      />
+
+      {/* Season Continue/New Modal */}
+      <Modal
+        open={showSeasonModal}
+        title={t('season.continueOrNew')}
+        onClose={() => setShowSeasonModal(false)}
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-metal-light">
+            {t('season.continueOrNewDesc')}
+          </p>
+          {seasonProgress && (
+            <div className="rounded-xl bg-white/[0.04] p-3 text-xs text-metal-light">
+              {t('season.raceOf', {
+                current: seasonProgress.currentRaceIndex + 1,
+                total: seasonProgress.raceOrder.length,
+              })}
+              {' — '}
+              {seasonProgress.cumulativeScore} {t('common.scorePts')}
+            </div>
+          )}
+          <div className="flex gap-2.5">
+            <Button variant="ghost" size="md" className="flex-1" onClick={handleNewSeason}>
+              {t('season.newSeason')}
+            </Button>
+            <Button variant="primary" size="md" className="flex-1" onClick={handleContinueSeason}>
+              {t('season.continueSeason')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

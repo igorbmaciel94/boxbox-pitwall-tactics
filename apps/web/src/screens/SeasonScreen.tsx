@@ -3,52 +3,30 @@ import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { Button } from '../components/shared/Button';
 import { Modal } from '../components/shared/Modal';
-import { CardComponent } from '../components/race/CardComponent';
+import { ChampionshipStandings } from '../components/season/ChampionshipStandings';
 import { getPositionColor } from '../lib/constants';
-import type { CardId } from '@boxbox/engine';
 import { useI18n } from '../i18n';
-
-function hashCombine(a: number, b: number): number {
-  let h = (a ^ (b * 0x9e3779b9 + 0x6d2b79f5)) | 0;
-  h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
-  h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
-  h = h ^ (h >>> 16);
-  return h >>> 0;
-}
 
 export function SeasonScreen() {
   const navigate = useNavigate();
-  const { t, getScenarioName, getScenarioCircuit, getTeamName, getCardName } = useI18n();
+  const { t, getScenarioName, getScenarioCircuit, getTeamName } = useI18n();
   const catalog = useGameStore((s) => s.catalog);
   const selectedTeamId = useGameStore((s) => s.selectedTeamId);
   const seasonProgress = useGameStore((s) => s.seasonProgress);
   const currentDeck = useGameStore((s) => s.currentDeck);
-  const setDeck = useGameStore((s) => s.setDeck);
-  const setSeasonCardSwapDone = useGameStore((s) => s.setSeasonCardSwapDone);
 
-  const [showCardSwap, setShowCardSwap] = useState(false);
-  const [swapDeck, setSwapDeck] = useState<CardId[]>([]);
-  const [initialized, setInitialized] = useState(false);
+  const [showStandings, setShowStandings] = useState(false);
 
   const isComplete = seasonProgress ? seasonProgress.currentRaceIndex >= (seasonProgress.raceOrder?.length ?? 0) : false;
 
-  // Initialize season on mount (only once)
+  // Enter season mode and redirect to setup if no season in progress
   useEffect(() => {
-    if (!initialized) {
-      setInitialized(true);
-      if (!useGameStore.getState().seasonProgress) {
-        useGameStore.getState().startSeason();
-      }
+    if (seasonProgress) {
+      useGameStore.getState().setMode('season');
+    } else {
+      navigate('/season/setup', { replace: true });
     }
-  }, [initialized]);
-
-  // Card swap trigger at race 4
-  useEffect(() => {
-    if (seasonProgress && seasonProgress.currentRaceIndex === 3 && !seasonProgress.cardSwapDone) {
-      setSwapDeck([...currentDeck]);
-      setShowCardSwap(true);
-    }
-  }, [seasonProgress?.currentRaceIndex, seasonProgress?.cardSwapDone, currentDeck]);
+  }, [seasonProgress, navigate]);
 
   // Navigate to results when complete
   useEffect(() => {
@@ -73,46 +51,18 @@ export function SeasonScreen() {
     );
   }
 
-  if (!seasonProgress) {
-    return (
-      <div className="flex h-64 items-center justify-center text-sm text-metal-light">
-        {t('season.loadingSeason')}
-      </div>
-    );
-  }
-
-  if (isComplete) {
+  if (!seasonProgress || isComplete) {
     return null;
   }
 
-  const { raceOrder, currentRaceIndex, raceResults, cumulativeScore } = seasonProgress;
+  const { raceOrder, currentRaceIndex, raceResults, cumulativeScore, initialTireBank } = seasonProgress;
 
   const currentScenarioId = raceOrder[currentRaceIndex];
   const currentScenario = catalog.scenarios.find((s) => s.id === currentScenarioId);
   const team = catalog.teams.find((t) => t.id === selectedTeamId);
 
   const handleStartNextRace = () => {
-    // Navigate to race screen - tire setup will be shown there before race starts
     navigate('/race');
-  };
-
-  const handleCardSwapConfirm = () => {
-    if (swapDeck.length === 9) {
-      setDeck(swapDeck);
-    }
-    setSeasonCardSwapDone();
-    setShowCardSwap(false);
-  };
-
-  const addToSwapDeck = (id: CardId) => {
-    if (swapDeck.length >= 9) return;
-    const count = swapDeck.filter((c) => c === id).length;
-    if (count >= 2) return;
-    setSwapDeck([...swapDeck, id]);
-  };
-
-  const removeFromSwapDeck = (index: number) => {
-    setSwapDeck(swapDeck.filter((_, i) => i !== index));
   };
 
   return (
@@ -163,6 +113,28 @@ export function SeasonScreen() {
           );
         })}
       </div>
+
+      {/* Championship Standings toggle */}
+      {seasonProgress.championshipStandings.length > 0 && (
+        <div className="mb-4">
+          <button
+            onClick={() => setShowStandings(!showStandings)}
+            className="w-full flex items-center justify-between rounded-2xl bg-white/[0.04] p-3 text-xs font-display uppercase tracking-wider text-metal-light hover:bg-white/[0.06] transition-colors"
+          >
+            <span>{t('standings.title')}</span>
+            <span>{showStandings ? '\u25B2' : '\u25BC'}</span>
+          </button>
+          {showStandings && (
+            <div className="mt-2">
+              <ChampionshipStandings
+                standings={seasonProgress.championshipStandings}
+                playerDriverId={seasonProgress.playerDriverId}
+                teams={catalog.teams}
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Past results */}
       {raceResults.length > 0 && (
@@ -221,81 +193,18 @@ export function SeasonScreen() {
             <span className="font-mono text-xs">H: {seasonProgress.tireBank.hard}</span>
           </div>
         </div>
+        {initialTireBank && (
+          <div className="mt-2 text-[10px] text-metal-light">
+            {t('season.initialBudget')}: S:{initialTireBank.soft} M:{initialTireBank.medium} H:{initialTireBank.hard}
+          </div>
+        )}
       </div>
 
-      <Button variant="primary" size="lg" className="w-full" onClick={handleStartNextRace}>
-        {t('season.startRace')}
-      </Button>
-
-      {/* Card Swap Modal */}
-      <Modal
-        open={showCardSwap}
-        title={t('season.cardSwapTitle')}
-        onClose={() => {
-          setSeasonCardSwapDone();
-          setShowCardSwap(false);
-        }}
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-metal-light">
-            {t('season.cardSwapDesc')}
-          </p>
-
-          <div className="text-xs font-display uppercase tracking-wider text-metal-light">
-            {t('season.currentDeck')} ({swapDeck.length}/9)
-          </div>
-          <div className="grid grid-cols-3 gap-1.5">
-            {Array.from({ length: 9 }).map((_, i) => {
-              const cardId = swapDeck[i];
-              const card = cardId ? catalog.cards.find((c) => c.id === cardId) : null;
-              return (
-                <button
-                  key={i}
-                  onClick={() => cardId && removeFromSwapDeck(i)}
-                  className={`flex min-h-[40px] items-center justify-center rounded-xl p-2 text-center text-[10px] font-mono
-                    ${
-                      card
-                        ? 'bg-white/8 hover:bg-hud-red/10'
-                        : 'border border-dashed border-white/10 text-white/20'
-                    }`}
-                >
-                  {card ? getCardName(card.id, card.name) : t('common.empty')}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="text-xs font-display uppercase tracking-wider text-metal-light">
-            {t('season.allCards')}
-          </div>
-          <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-            {catalog.cards.map((card) => {
-              const count = swapDeck.filter((c) => c === card.id).length;
-              const canAdd = swapDeck.length < 9 && count < 2;
-              return (
-                <CardComponent
-                  key={card.id}
-                  card={card}
-                  selected={count > 0}
-                  disabled={!canAdd && count === 0}
-                  compact
-                  onClick={() => canAdd && addToSwapDeck(card.id)}
-                />
-              );
-            })}
-          </div>
-
-          <Button
-            variant="primary"
-            size="md"
-            className="w-full"
-            disabled={swapDeck.length !== 9}
-            onClick={handleCardSwapConfirm}
-          >
-            {t('deck.confirmDeck')}
-          </Button>
-        </div>
-      </Modal>
+      <div className="mb-4">
+        <Button variant="primary" size="lg" className="w-full" onClick={handleStartNextRace}>
+          {t('season.startRace')}
+        </Button>
+      </div>
     </div>
   );
 }

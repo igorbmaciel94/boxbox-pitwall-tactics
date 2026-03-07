@@ -41,7 +41,7 @@ export function clampRaceState(state: RaceState): RaceState {
   return {
     ...state,
     position: clamp(state.position, 1, MAX_POSITION),
-    tireWear: clamp(state.tireWear, 0, 100),
+    tireWear: clamp(state.tireWear, -20, 100),
     maxTireWearReached: Math.max(state.maxTireWearReached, state.tireWear),
   };
 }

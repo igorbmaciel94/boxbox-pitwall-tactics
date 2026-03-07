@@ -63,7 +63,14 @@ export function HUD({ state, previousPosition }: HUDProps) {
       )}
 
       {/* Tire wear bar */}
-      <StatBar label={t('stats.wear')} value={state.tireWear} max={100} colorFn={getWearColor} flash={state.tireWear >= 80} />
+      <StatBar label={t('stats.wear')} value={Math.max(0, state.tireWear)} max={100} colorFn={getWearColor} flash={state.tireWear >= 80} showValue={state.tireWear >= 0} />
+      {/* Tire freshness bonus indicator */}
+      {state.tireWear < 0 && (
+        <div className="flex items-center gap-1 -mt-1 ml-[3.5rem]">
+          <span className="text-[10px] font-mono font-bold text-hud-green">{state.tireWear}</span>
+          <span className="text-[9px] text-hud-green/70 uppercase tracking-wider">fresh</span>
+        </div>
+      )}
 
       {/* Inline radio message */}
       {lastMsg && (

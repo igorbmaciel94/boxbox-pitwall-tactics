@@ -14,6 +14,8 @@ import {
   performMulligan,
   performEmergencyMulligan,
   applyCrashCheck,
+  simulateRivalPositions,
+  buildFullClassification,
 } from '@boxbox/engine';
 import type {
   CardId,
@@ -99,6 +101,7 @@ export function useTurnStepper() {
 
     if (usePerk && !state.perkUsed) {
       s = applyEffect(s, team.perk.effect);
+      s = clampRaceState(s);
       s = { ...s, perkUsed: true };
       perkActivatedRef.current = true;
     }
@@ -153,12 +156,13 @@ export function useTurnStepper() {
         usedCard = s.hand[0];
       }
       s = applyCardEffect(s, usedCard, catalog);
+      s = clampRaceState(s);
     }
     actionCardRef.current = usedCard;
 
     // Check if this was a pit stop card — if so, show compound selector
     const card = catalog.cards.find((c) => c.id === usedCard);
-    const isPit = card && card.tags.includes('pit') && (card.effect.tireWear ?? 0) < 0;
+    const isPit = card && card.tags.includes('pit');
 
     store.getState().setRaceState(s);
     store.getState().setTurnPhaseUI(isPit ? 'await-compound' : 'resolving');
@@ -224,6 +228,36 @@ export function useTurnStepper() {
       const debrief = calculateRaceScore(s, scenario, catalog, turnLogRef.current, {
         styleBonusesEnabled: true,
       });
+      debrief.seed = s.seed;
+
+      // Simulate rival positions and build classification
+      if (catalog.drivers && catalog.drivers.length > 0 && rngRef.current) {
+        const { seasonProgress } = store.getState();
+        const playerDriverId = seasonProgress?.playerDriverId
+          ?? catalog.drivers.find((d) => d.teamId === s.teamId)?.id
+          ?? `player-${s.teamId}`;
+        const playerDriver = catalog.drivers.find((d) => d.id === playerDriverId);
+        const playerAbbr = playerDriver?.abbreviation ?? 'YOU';
+
+        const rivalRng = rngRef.current.fork(s.seed + 9999);
+        const rivalResults = simulateRivalPositions(
+          catalog.drivers,
+          playerDriverId,
+          s.position,
+          rivalRng,
+        );
+        const fullClassification = buildFullClassification(
+          playerDriverId,
+          playerAbbr,
+          s.teamId,
+          s.position,
+          rivalResults,
+        );
+
+        debrief.rivalResults = rivalResults;
+        debrief.fullClassification = fullClassification;
+      }
+
       store.getState().setLastDebrief(debrief);
       store.getState().setTurnPhaseUI('race-complete');
     } else {
