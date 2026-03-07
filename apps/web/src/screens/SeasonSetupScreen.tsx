@@ -6,7 +6,6 @@ import { useI18n } from '../i18n';
 import { getGoalCardImageUrl, getGoalCardFallbackGradient } from '../lib/images';
 import { getGoalCardForTeam } from '@boxbox/engine';
 import type { Difficulty, SeasonTireBank } from '@boxbox/engine';
-import type { SavedDeck } from '../lib/types';
 
 const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard'];
 
@@ -26,7 +25,7 @@ function defaultBank(total: number): SeasonTireBank {
   };
 }
 
-type SetupStep = 'deck' | 'difficulty' | 'tires';
+type SetupStep = 'difficulty' | 'tires';
 
 export function SeasonSetupScreen() {
   const navigate = useNavigate();
@@ -35,14 +34,8 @@ export function SeasonSetupScreen() {
   const catalog = useGameStore((s) => s.catalog);
   const selectedTeamId = useGameStore((s) => s.selectedTeamId);
   const currentDeck = useGameStore((s) => s.currentDeck);
-  const savedDecks = useGameStore((s) => s.savedDecks);
-  const loadDeckForPlay = useGameStore((s) => s.loadDeckForPlay);
 
-  const validDecks = savedDecks.filter((d: SavedDeck) => d.cards.length === 9);
-
-  // Start on deck step if no deck is loaded yet, otherwise skip to difficulty
-  const [step, setStep] = useState<SetupStep>(currentDeck.length === 9 ? 'difficulty' : 'deck');
-  const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
+  const [step, setStep] = useState<SetupStep>('difficulty');
   const [difficulty, setDifficulty] = useState<Difficulty>('normal');
   const total = SEASON_TIRE_TOTALS[difficulty];
   const [bank, setBank] = useState<SeasonTireBank>(() => defaultBank(SEASON_TIRE_TOTALS['normal']));
@@ -78,15 +71,8 @@ export function SeasonSetupScreen() {
     navigate('/season');
   };
 
-  const handleSelectDeck = (deckId: string) => {
-    loadDeckForPlay(deckId);
-    setSelectedDeckId(deckId);
-    setStep('difficulty');
-  };
-
   const handleBack = () => {
     if (step === 'tires') setStep('difficulty');
-    else if (step === 'difficulty') setStep('deck');
     else navigate('/');
   };
 
@@ -121,8 +107,8 @@ export function SeasonSetupScreen() {
 
       {/* Step indicator */}
       <div className="mb-5 flex gap-1.5">
-        {(['deck', 'difficulty', 'tires'] as const).map((s, i) => {
-          const stepOrder = ['deck', 'difficulty', 'tires'] as const;
+        {(['difficulty', 'tires'] as const).map((s, i) => {
+          const stepOrder = ['difficulty', 'tires'] as const;
           const currentIdx = stepOrder.indexOf(step);
           return (
             <div
@@ -134,48 +120,6 @@ export function SeasonSetupScreen() {
           );
         })}
       </div>
-
-      {/* Step 0: Deck Selection */}
-      {step === 'deck' && (
-        <>
-          <div className="mb-6 rounded-2xl bg-white/[0.04] p-4">
-            <div className="mb-3 text-[11px] uppercase tracking-wider text-metal-light">
-              {t('deckPicker.title')}
-            </div>
-            <div className="space-y-2">
-              {validDecks.map((deck: SavedDeck) => (
-                <button
-                  key={deck.id}
-                  onClick={() => handleSelectDeck(deck.id)}
-                  className={`flex w-full items-center justify-between rounded-xl p-3 text-left transition-all ${
-                    selectedDeckId === deck.id
-                      ? 'bg-f1-red/20 ring-1 ring-f1-red/50'
-                      : 'bg-white/[0.06] hover:bg-white/[0.10]'
-                  }`}
-                >
-                  <div>
-                    <div className="font-display text-sm font-bold uppercase tracking-wide">
-                      {deck.name}
-                    </div>
-                    <div className="mt-0.5 text-[11px] text-metal-light">
-                      {deck.cards.length} cards
-                    </div>
-                  </div>
-                  <span className="text-sm text-white/30">&rsaquo;</span>
-                </button>
-              ))}
-            </div>
-            {validDecks.length === 0 && (
-              <div className="py-4 text-center">
-                <p className="text-sm text-metal-light mb-3">{t('deckMenu.noDecks')}</p>
-                <Button variant="primary" size="sm" onClick={() => navigate('/decks/new')}>
-                  {t('deckMenu.createNew')}
-                </Button>
-              </div>
-            )}
-          </div>
-        </>
-      )}
 
       {/* Step 1: Difficulty + Goal Card display */}
       {step === 'difficulty' && (

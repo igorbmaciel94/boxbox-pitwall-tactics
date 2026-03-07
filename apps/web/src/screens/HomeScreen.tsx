@@ -43,9 +43,6 @@ export function HomeScreen() {
   const handleQuickRaceClick = () => {
     if (validDecks.length === 0) {
       navigate('/decks/new');
-    } else if (validDecks.length === 1) {
-      loadDeckForPlay(validDecks[0].id);
-      navigate('/race');
     } else {
       setDeckPickerTarget('race');
       setShowDeckPicker(true);
@@ -57,7 +54,12 @@ export function HomeScreen() {
       setShowSeasonModal(true);
     } else {
       if (seasonProgress) resetAll();
-      navigate('/season/setup');
+      if (validDecks.length === 0) {
+        navigate('/decks/new');
+      } else {
+        setDeckPickerTarget('season');
+        setShowDeckPicker(true);
+      }
     }
   };
 
@@ -70,7 +72,12 @@ export function HomeScreen() {
   const handleNewSeason = () => {
     resetAll();
     setShowSeasonModal(false);
-    navigate('/season/setup');
+    if (validDecks.length === 0) {
+      navigate('/decks/new');
+    } else {
+      setDeckPickerTarget('season');
+      setShowDeckPicker(true);
+    }
   };
 
   const handleDeckSelected = (_deckId: string) => {

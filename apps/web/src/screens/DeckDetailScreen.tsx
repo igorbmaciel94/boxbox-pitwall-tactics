@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { CardComponent } from '../components/race/CardComponent';
@@ -14,9 +14,14 @@ export function DeckDetailScreen() {
   const catalog = useGameStore((s) => s.catalog);
   const savedDecks = useGameStore((s) => s.savedDecks);
   const deleteSavedDeck = useGameStore((s) => s.deleteSavedDeck);
+  const updateSavedDeck = useGameStore((s) => s.updateSavedDeck);
 
   const [focusedCardId, setFocusedCardId] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [nameError, setNameError] = useState('');
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const deck = savedDecks.find((d) => d.id === id);
 
@@ -40,6 +45,46 @@ export function DeckDetailScreen() {
     navigate('/decks');
   };
 
+  const handleStartEditing = () => {
+    setEditName(deck.name);
+    setNameError('');
+    setIsEditingName(true);
+  };
+
+  useEffect(() => {
+    if (isEditingName && nameInputRef.current) {
+      nameInputRef.current.focus();
+      nameInputRef.current.select();
+    }
+  }, [isEditingName]);
+
+  const handleSaveName = () => {
+    const trimmed = editName.trim();
+    if (!trimmed) {
+      setNameError(t('deckEditor.nameRequired'));
+      return;
+    }
+    const duplicate = savedDecks.some((d) => d.id !== deck.id && d.name.toLowerCase() === trimmed.toLowerCase());
+    if (duplicate) {
+      setNameError(t('deckEditor.nameTaken'));
+      return;
+    }
+    updateSavedDeck(deck.id, trimmed, deck.cards);
+    setIsEditingName(false);
+    setNameError('');
+  };
+
+  const handleCancelEditing = () => {
+    setIsEditingName(false);
+    setEditName('');
+    setNameError('');
+  };
+
+  const handleNameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSaveName();
+    if (e.key === 'Escape') handleCancelEditing();
+  };
+
   const createdDate = new Date(deck.createdAt).toLocaleDateString();
 
   return (
@@ -51,9 +96,52 @@ export function DeckDetailScreen() {
         &larr; {t('common.back')}
       </button>
 
-      <h1 className="font-display text-2xl font-bold uppercase tracking-wide mb-1">
-        {deck.name}
-      </h1>
+      {/* Editable deck name */}
+      {isEditingName ? (
+        <div className="mb-1">
+          <div className="flex items-center gap-2">
+            <input
+              ref={nameInputRef}
+              type="text"
+              value={editName}
+              onChange={(e) => { setEditName(e.target.value); setNameError(''); }}
+              onKeyDown={handleNameKeyDown}
+              onBlur={handleCancelEditing}
+              className="flex-1 rounded-lg border border-white/20 bg-white/[0.06] px-3 py-1.5 font-display text-xl font-bold uppercase tracking-wide text-white outline-none focus:border-f1-red/50"
+              maxLength={40}
+            />
+            <button
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleSaveName}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-hud-green/20 text-hud-green transition-colors hover:bg-hud-green/30"
+              title="Save"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </button>
+          </div>
+          {nameError && (
+            <p className="mt-1 text-xs text-hud-red">{nameError}</p>
+          )}
+        </div>
+      ) : (
+        <div className="mb-1 flex items-center gap-2">
+          <h1 className="font-display text-2xl font-bold uppercase tracking-wide">
+            {deck.name}
+          </h1>
+          <button
+            onClick={handleStartEditing}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-metal-light transition-colors hover:bg-white/10 hover:text-white"
+            title="Edit name"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+              <path d="m15 5 4 4" />
+            </svg>
+          </button>
+        </div>
+      )}
       <p className="mb-5 text-sm text-metal-light">
         {t('deckDetail.created')} {createdDate}
       </p>
