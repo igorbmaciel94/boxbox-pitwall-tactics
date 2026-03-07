@@ -15,6 +15,7 @@ interface TrackMapProps {
   circuitId?: string;
   tireCompound?: TireCompound;
   rivals?: RivalDot[];
+  playerAbbreviation?: string;
 }
 
 // Stylized circuit layouts — each unique and loosely inspired by real tracks
@@ -82,14 +83,6 @@ const CIRCUIT_PATHS: Record<string, [number, number][]> = {
     [182, 28], [215, 30], [242, 33],
   ],
 };
-
-/* Label collision avoidance thresholds (SVG units inside 320×140 viewBox) */
-const LABEL_COLLISION_DX = 18;
-const LABEL_COLLISION_DY = 10;
-const SVG_PAD_X = 14;
-const SVG_MAX_X = 306;
-const SVG_PAD_Y = 6;
-const SVG_MAX_Y = 136;
 
 const COMPOUND_COLORS: Record<TireCompound, string> = {
   soft: '#ef4444',
@@ -160,7 +153,7 @@ function buildSmoothPath(points: [number, number][]): string {
   return d;
 }
 
-export function TrackMap({ position, totalPositions = 18, teamColor, circuitId, tireCompound, rivals }: TrackMapProps) {
+export function TrackMap({ position, totalPositions = 18, teamColor, circuitId, tireCompound, rivals, playerAbbreviation = 'YOU' }: TrackMapProps) {
   const width = 320;
   const height = 140;
 
@@ -203,68 +196,9 @@ export function TrackMap({ position, totalPositions = 18, teamColor, circuitId, 
       ...getCarPos(r.position),
       color: r.color,
       position: r.position,
+      abbreviation: r.abbreviation ?? '???',
     }));
   }, [rivals, getCarPos]);
-
-  // Collision-resolved label positions for all 18 drivers
-  const resolvedLabels = useMemo(() => {
-    const candidates = [
-      ...rivalPositions.map((r) => ({
-        dotX: r.x, dotY: r.y,
-        labelX: r.x,
-        labelY: r.y < 25 ? r.y + 14 : r.y - 7,
-        pos: r.position,
-        isPlayer: false,
-      })),
-      {
-        dotX: playerPos.x, dotY: playerPos.y,
-        labelX: playerPos.x,
-        labelY: playerPos.y < 25 ? playerPos.y + 18 : playerPos.y - 13,
-        pos: position,
-        isPlayer: true,
-      },
-    ];
-
-    candidates.sort((a, b) => a.labelX - b.labelX);
-
-    const placed: typeof candidates = [];
-
-    for (const c of candidates) {
-      let { labelX, labelY } = c;
-
-      const collides = (lx: number, ly: number) =>
-        placed.some(
-          (p) => Math.abs(p.labelX - lx) < LABEL_COLLISION_DX && Math.abs(p.labelY - ly) < LABEL_COLLISION_DY,
-        );
-
-      if (collides(labelX, labelY)) {
-        // Try flipping to opposite side of dot
-        const flippedY = c.dotY < 25
-          ? c.dotY - (c.isPlayer ? 13 : 7)
-          : c.dotY + (c.isPlayer ? 18 : 14);
-
-        if (!collides(labelX, flippedY)) {
-          labelY = flippedY;
-        } else if (!collides(labelX + 14, labelY)) {
-          labelX += 14;
-        } else if (!collides(labelX - 14, labelY)) {
-          labelX -= 14;
-        } else if (!collides(labelX + 14, flippedY)) {
-          labelX += 14;
-          labelY = flippedY;
-        } else {
-          labelY = flippedY;
-        }
-      }
-
-      labelX = Math.max(SVG_PAD_X, Math.min(SVG_MAX_X, labelX));
-      labelY = Math.max(SVG_PAD_Y, Math.min(SVG_MAX_Y, labelY));
-
-      placed.push({ ...c, labelX, labelY });
-    }
-
-    return placed;
-  }, [rivalPositions, playerPos, position]);
 
   return (
     <div className="relative mx-auto w-full max-w-sm">
@@ -301,57 +235,50 @@ export function TrackMap({ position, totalPositions = 18, teamColor, circuitId, 
           <circle cx={points[0][0]} cy={points[0][1]} r={3} fill="rgba(255,255,255,0.3)" />
         )}
 
-        {/* Rival dots */}
+        {/* Rival dots — F1 style: white circle with abbreviation */}
         {rivalPositions.map((r, i) => (
-          <circle key={`rival-${i}`} cx={r.x} cy={r.y} r={3} fill={r.color} opacity={0.6} />
+          <g key={`rival-${i}`}>
+            <circle cx={r.x} cy={r.y} r={7} fill="white" />
+            <text
+              x={r.x}
+              y={r.y + 2}
+              textAnchor="middle"
+              fill="black"
+              style={{ fontSize: '5.5px', fontFamily: 'monospace', fontWeight: 700 }}
+            >
+              {r.abbreviation}
+            </text>
+          </g>
         ))}
 
-        {/* Player car - colored with compound ring */}
+        {/* Player car — F1 style: white circle with abbreviation + compound/team ring */}
         <circle
           cx={playerPos.x}
           cy={playerPos.y}
-          r={5}
-          fill={teamColor}
+          r={10}
+          fill="none"
+          stroke={compoundColor ?? teamColor}
+          strokeWidth="1.5"
+          opacity={compoundColor ? 0.7 : 0.5}
           className="transition-all duration-500"
         />
-        {compoundColor && (
-          <circle
-            cx={playerPos.x}
-            cy={playerPos.y}
-            r={8}
-            fill="none"
-            stroke={compoundColor}
-            strokeWidth="1.5"
-            opacity="0.6"
-            className="transition-all duration-500"
-          />
-        )}
-        {!compoundColor && (
-          <circle
-            cx={playerPos.x}
-            cy={playerPos.y}
-            r={8}
-            fill="none"
-            stroke={teamColor}
-            strokeWidth="1.5"
-            opacity="0.4"
-            className="transition-all duration-500"
-          />
-        )}
-
-        {/* All position labels — collision-resolved */}
-        {resolvedLabels.map((l) => (
-          <text
-            key={`label-${l.pos}`}
-            x={l.labelX}
-            y={l.labelY}
-            textAnchor="middle"
-            className={`fill-white font-bold ${l.isPlayer ? 'text-[9px] transition-all duration-500' : 'text-[7px]'}`}
-            style={{ fontFamily: 'monospace' }}
-          >
-            P{l.pos}
-          </text>
-        ))}
+        <circle
+          cx={playerPos.x}
+          cy={playerPos.y}
+          r={7}
+          fill="white"
+          className="transition-all duration-500"
+        />
+        <text
+          x={playerPos.x}
+          y={playerPos.y + 2}
+          textAnchor="middle"
+          fill="black"
+          className="transition-all duration-500"
+          style={{ fontSize: '5.5px', fontFamily: 'monospace', fontWeight: 700 }}
+        >
+          {playerAbbreviation}
+        </text>
       </svg>
     </div>
   );

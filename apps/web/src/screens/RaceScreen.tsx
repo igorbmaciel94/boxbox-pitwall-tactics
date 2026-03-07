@@ -113,6 +113,15 @@ export function RaceScreen() {
     return dots;
   }, [catalog, team, raceState?.position, raceState?.currentTurn, raceState?.seed, seasonProgress?.playerDriverId]);
 
+  // Player abbreviation — used in both timing tower and track map
+  const playerAbbreviation = useMemo(() => {
+    if (!catalog || !team) return 'YOU';
+    const playerDriverId = seasonProgress?.playerDriverId
+      ?? catalog.drivers.find((d) => d.teamId === team.id)?.id ?? '';
+    const playerDriver = catalog.drivers.find((d) => d.id === playerDriverId);
+    return playerDriver?.abbreviation ?? 'YOU';
+  }, [catalog, team, seasonProgress?.playerDriverId]);
+
   // Build timing tower entries from rival data + player (shown at turn summary)
   const timingEntries = useMemo(() => {
     if (!catalog || !team || !raceState || rivalDots.length === 0) return [];
@@ -366,6 +375,7 @@ export function RaceScreen() {
             circuitId={scenario.id}
             tireCompound={raceState.tireCompound}
             rivals={rivalDots}
+            playerAbbreviation={playerAbbreviation}
           />
         )}
       </div>
