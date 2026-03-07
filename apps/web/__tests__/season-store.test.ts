@@ -37,9 +37,9 @@ describe('Season store actions', () => {
   });
 
   describe('SEASON_TIRE_TOTALS', () => {
-    it('easy = 24, normal = 21, hard = 18', () => {
-      expect(SEASON_TIRE_TOTALS.easy).toBe(24);
-      expect(SEASON_TIRE_TOTALS.normal).toBe(21);
+    it('all difficulties have 18 tires', () => {
+      expect(SEASON_TIRE_TOTALS.easy).toBe(18);
+      expect(SEASON_TIRE_TOTALS.normal).toBe(18);
       expect(SEASON_TIRE_TOTALS.hard).toBe(18);
     });
   });
