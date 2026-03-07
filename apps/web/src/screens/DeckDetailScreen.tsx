@@ -16,7 +16,7 @@ export function DeckDetailScreen() {
   const deleteSavedDeck = useGameStore((s) => s.deleteSavedDeck);
   const updateSavedDeck = useGameStore((s) => s.updateSavedDeck);
 
-  const [focusedCardId, setFocusedCardId] = useState<string | null>(null);
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editName, setEditName] = useState('');
@@ -38,6 +38,7 @@ export function DeckDetailScreen() {
     );
   }
 
+  const focusedCardId = focusedIndex !== null ? deck.cards[focusedIndex] : null;
   const focusedCard = focusedCardId ? catalog.cards.find((c) => c.id === focusedCardId) ?? null : null;
 
   const handleDelete = () => {
@@ -146,6 +147,13 @@ export function DeckDetailScreen() {
         {t('deckDetail.created')} {createdDate}
       </p>
 
+      {/* Card info panel — read-only */}
+      {focusedCard && (
+        <div className="mb-4">
+          <CardInfoPanel card={focusedCard} />
+        </div>
+      )}
+
       {/* Deck cards — 3x3 grid */}
       <div className="mb-4 rounded-2xl bg-white/[0.04] p-4">
         <div className="mb-3 text-xs font-display uppercase tracking-wider text-metal-light">
@@ -158,9 +166,9 @@ export function DeckDetailScreen() {
               <div
                 key={i}
                 className="relative cursor-pointer"
-                onClick={() => setFocusedCardId(card.id)}
+                onClick={() => setFocusedIndex(i)}
               >
-                <CardComponent card={card} size="sm" compact selected={focusedCardId === card.id} />
+                <CardComponent card={card} size="sm" compact selected={focusedIndex === i} />
               </div>
             ) : (
               <div key={i} className="flex aspect-[63/88] items-center justify-center rounded-xl border border-dashed border-white/10 text-white/20 text-[10px]">
@@ -170,13 +178,6 @@ export function DeckDetailScreen() {
           })}
         </div>
       </div>
-
-      {/* Card info panel — read-only */}
-      {focusedCard && (
-        <div className="mb-4">
-          <CardInfoPanel card={focusedCard} />
-        </div>
-      )}
 
       {/* Action buttons */}
       <div className="flex gap-2.5 mb-8">

@@ -122,62 +122,76 @@ export function DeckEditorScreen() {
         <label className="mb-1.5 block text-xs font-display uppercase tracking-wider text-metal-light">
           {t('deckEditor.deckName')}
         </label>
-        <input
-          type="text"
-          value={deckName}
-          onChange={(e) => { setDeckName(e.target.value); setError(null); }}
-          placeholder={t('deckEditor.deckNamePlaceholder')}
-          className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder-white/30 outline-none transition-colors focus:border-f1-red/50 focus:bg-white/[0.06]"
-          maxLength={30}
-        />
+        <div className={isEditMode ? 'flex items-center gap-2' : ''}>
+          <input
+            type="text"
+            value={deckName}
+            onChange={(e) => { setDeckName(e.target.value); setError(null); }}
+            placeholder={t('deckEditor.deckNamePlaceholder')}
+            className={`rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder-white/30 outline-none transition-colors focus:border-f1-red/50 focus:bg-white/[0.06] ${isEditMode ? 'flex-1' : 'w-full'}`}
+            maxLength={30}
+          />
+          {isEditMode && (
+            <Button
+              variant="primary"
+              size="md"
+              disabled={!isValid || !deckName.trim()}
+              onClick={handleSave}
+            >
+              {t('deckEditor.saveDeck')}
+            </Button>
+          )}
+        </div>
         {error && (
           <p className="mt-1.5 text-xs text-hud-red">{error}</p>
         )}
       </div>
 
-      {/* Current deck slots */}
-      <div className="mb-4 rounded-2xl bg-white/[0.04] p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <span className="text-xs font-display uppercase tracking-wider text-metal-light">
-            {t('deck.yourDeck')}
-          </span>
-          <span className={`font-mono text-sm ${isValid ? 'text-hud-green' : 'text-hud-amber'}`}>
-            {cards.length}/9
-          </span>
+      {/* Current deck slots — only in create mode */}
+      {!isEditMode && (
+        <div className="mb-4 rounded-2xl bg-white/[0.04] p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-xs font-display uppercase tracking-wider text-metal-light">
+              {t('deck.yourDeck')}
+            </span>
+            <span className={`font-mono text-sm ${isValid ? 'text-hud-green' : 'text-hud-amber'}`}>
+              {cards.length}/9
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {Array.from({ length: 9 }).map((_, i) => {
+              const cardId = cards[i];
+              const card = cardId ? catalog.cards.find((c) => c.id === cardId) : null;
+              return card ? (
+                <div key={i} className="relative">
+                  <CardComponent
+                    card={card}
+                    size="sm"
+                    compact
+                    onClick={() => removeCard(i)}
+                  />
+                </div>
+              ) : (
+                <button
+                  key={i}
+                  disabled
+                  className="flex aspect-[63/88] flex-col items-center justify-center rounded-xl border border-dashed border-white/10 bg-transparent text-white/20"
+                >
+                  <span className="text-[10px] uppercase tracking-wider">{t('common.empty')}</span>
+                </button>
+              );
+            })}
+          </div>
+          {cards.length > 0 && (
+            <button
+              onClick={() => setCards([])}
+              className="mt-3 text-xs text-hud-red/80 transition-colors hover:text-hud-red"
+            >
+              {t('deck.clearDeck')}
+            </button>
+          )}
         </div>
-        <div className="grid grid-cols-3 gap-2">
-          {Array.from({ length: 9 }).map((_, i) => {
-            const cardId = cards[i];
-            const card = cardId ? catalog.cards.find((c) => c.id === cardId) : null;
-            return card ? (
-              <div key={i} className="relative">
-                <CardComponent
-                  card={card}
-                  size="sm"
-                  compact
-                  onClick={() => removeCard(i)}
-                />
-              </div>
-            ) : (
-              <button
-                key={i}
-                disabled
-                className="flex aspect-[63/88] flex-col items-center justify-center rounded-xl border border-dashed border-white/10 bg-transparent text-white/20"
-              >
-                <span className="text-[10px] uppercase tracking-wider">{t('common.empty')}</span>
-              </button>
-            );
-          })}
-        </div>
-        {cards.length > 0 && (
-          <button
-            onClick={() => setCards([])}
-            className="mt-3 text-xs text-hud-red/80 transition-colors hover:text-hud-red"
-          >
-            {t('deck.clearDeck')}
-          </button>
-        )}
-      </div>
+      )}
 
       {/* Suggested decks — only in create mode */}
       {!isEditMode && (
@@ -255,18 +269,23 @@ export function DeckEditorScreen() {
         })}
       </div>
 
-      {/* Save button */}
-      <div className="mt-6 pb-24">
-        <Button
-          variant="primary"
-          size="lg"
-          className="w-full"
-          disabled={!isValid || !deckName.trim()}
-          onClick={handleSave}
-        >
-          {t('deckEditor.saveDeck')}
-        </Button>
-      </div>
+      {/* Save button — only in create mode (edit mode has it at top) */}
+      {!isEditMode && (
+        <div className="mt-6 pb-24">
+          <Button
+            variant="primary"
+            size="lg"
+            className="w-full"
+            disabled={!isValid || !deckName.trim()}
+            onClick={handleSave}
+          >
+            {t('deckEditor.saveDeck')}
+          </Button>
+        </div>
+      )}
+
+      {/* Bottom spacer for edit mode */}
+      {isEditMode && <div className="pb-24" />}
     </div>
   );
 }
