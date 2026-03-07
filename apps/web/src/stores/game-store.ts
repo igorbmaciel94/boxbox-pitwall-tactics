@@ -310,6 +310,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   resetRace: () =>
     set({
+      mode: 'idle',
       raceState: null,
       scenario: null,
       team: null,
