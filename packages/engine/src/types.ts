@@ -145,7 +145,6 @@ export interface SeasonState {
   currentRaceIndex: number;
   raceResults: RaceDebrief[];
   cumulativeScore: number;
-  cardSwapDone: boolean;
   availableCards: CardId[];
   tireBank: SeasonTireBank;
 }
@@ -163,7 +162,6 @@ export interface ScoringConfig {
 export interface PlayerAgent {
   chooseTeamPerk(state: RaceState): boolean;
   chooseActionCard(state: RaceState): CardId;
-  chooseCardSwap?(availableCards: CardId[], currentDeck: CardId[]): CardId[];
   chooseMulligan?(state: RaceState): boolean;
   chooseCompound?(state: RaceState): TireCompound;
 }

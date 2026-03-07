@@ -127,6 +127,37 @@ export interface UIStrings {
     suggestedDecks: string;
     confirmDeck: string;
   };
+  deckMenu: {
+    title: string;
+    createNew: string;
+    noDecks: string;
+    deleteConfirm: string;
+    deleteConfirmMsg: string;
+  };
+  deckEditor: {
+    createTitle: string;
+    editTitle: string;
+    deckName: string;
+    deckNamePlaceholder: string;
+    startWith: string;
+    saveDeck: string;
+    nameRequired: string;
+    nameTaken: string;
+  };
+  deckPicker: {
+    title: string;
+    nCards: string;
+    createNewDeck: string;
+  };
+  deckDetail: {
+    edit: string;
+    delete: string;
+    created: string;
+  };
+  cardDetail: {
+    pros: string;
+    cons: string;
+  };
   team: {
     title: string;
     subtitle: string;
@@ -167,11 +198,6 @@ export interface UIStrings {
     completedRaces: string;
     raceOf: string;
     startRace: string;
-    cardSwapTitle: string;
-    cardSwapDesc: string;
-    cardSwapDescPerRace: string;
-    swapCards: string;
-    maxSwaps: string;
     currentDeck: string;
     allCards: string;
     raceResultsTitle: string;
@@ -328,7 +354,7 @@ export interface UIStrings {
 }
 
 export interface ContentStrings {
-  cards: Record<string, { name: string; rulesText: string }>;
+  cards: Record<string, { name: string; rulesText: string; pros?: string[]; cons?: string[] }>;
   teams: Record<string, { name: string }>;
   perks: Record<string, { name: string; description: string }>;
   scenarios: Record<string, { name: string; circuit: string }>;
@@ -348,8 +374,63 @@ export interface Dictionary {
   content: ContentStrings;
 }
 
+const EN_CARD_STRATEGY: Record<string, { pros: string[]; cons: string[] }> = {
+  'push-hard': {
+    pros: ['Gains 2 positions — solid overtaking', 'Good balance of risk and reward'],
+    cons: ['+15 tire wear', 'Crash risk if tires are already worn'],
+  },
+  'box-box': {
+    pros: ['Fresh tires with extra life (starts below 0 wear)', 'Essential for tire management', 'Free pit stop under Safety Car'],
+    cons: ['Lose 4 positions — big position cost', 'Timing the pit stop is critical'],
+  },
+  'conserve-tires': {
+    pros: ['Reduces tire wear by 15 — extends stint', 'Safe play with low risk'],
+    cons: ['Lose 1 position', 'No offensive value'],
+  },
+  'overtake': {
+    pros: ['Gains 3 positions — strongest overtaking card', 'Can change the race in one move'],
+    cons: ['Very high tire wear (+25)', 'High crash risk on worn tires', 'Penalized under Safety Car'],
+  },
+  'defend-position': {
+    pros: ['Holds position with minimal tire cost (+5)', 'Very safe — almost no risk', '+2 bonus positions under Safety Car'],
+    cons: ['No position gain', 'Purely reactive — does not improve standing'],
+  },
+  'drs-attack': {
+    pros: ['Gains 2 positions with moderate wear (+10)', 'Good in clear air situations'],
+    cons: ['Adds tire wear (+10)', 'Penalized under Safety Car'],
+  },
+  'slipstream': {
+    pros: ['Gains 1 position with zero tire cost', 'Safest aggressive card — no wear penalty'],
+    cons: ['Only gains 1 position — modest gain', 'Penalized under Safety Car'],
+  },
+  'late-brake': {
+    pros: ['Gains 3 positions — tied for strongest', 'High-risk high-reward play'],
+    cons: ['High tire wear (+20)', 'Significant crash risk on worn tires'],
+  },
+  'gap-management': {
+    pros: ['Reduces tire wear by 10 while holding position', 'Great for extending a stint', '+2 bonus positions under Safety Car'],
+    cons: ['No position gain', 'Purely defensive — no overtaking power'],
+  },
+  'undercut': {
+    pros: ['Gains 1 position AND triggers pit stop', 'Standard fresh tires (reset to 0)', 'Combines attack + tire management'],
+    cons: ['Aggressive tag increases crash risk on worn tires', 'Must have compound available for pit'],
+  },
+  'engine-mode': {
+    pros: ['Gains 1 position with moderate wear (+10)', 'Reliable one-position gain'],
+    cons: ['Adds tire wear (+10)', 'Penalized under Safety Car'],
+  },
+  'alternate-strategy': {
+    pros: ['Triggers pit with fresh tires with extra life', 'Defensive tag: safe play, +2 under SC', 'Lose only 2 positions vs 4 for Box Box'],
+    cons: ['Still loses 2 positions', 'Must have compound available for pit'],
+  },
+};
+
 function buildEnglishContent(): ContentStrings {
-  const cardMap = Object.fromEntries(cardsData.cards.map((card) => [card.id, { name: card.name, rulesText: card.rulesText }]));
+  const cardMap = Object.fromEntries(cardsData.cards.map((card) => [card.id, {
+    name: card.name,
+    rulesText: card.rulesText,
+    ...EN_CARD_STRATEGY[card.id],
+  }]));
   const teamMap = Object.fromEntries(teamsData.teams.map((team) => [team.id, { name: team.name }]));
   const perkMap = Object.fromEntries(teamsData.teams.map((team) => [team.perk.id, { name: team.perk.name, description: team.perk.description }]));
   const scenarioMap = Object.fromEntries(scenariosData.scenarios.map((scenario) => [scenario.id, { name: scenario.name, circuit: scenario.circuit }]));
@@ -438,8 +519,8 @@ const EN_UI: UIStrings = {
       quickRaceDesc: 'Jump into a single race',
       seasonLabel: 'Season',
       seasonDesc: '6-race championship',
-      deckBuilderLabel: 'Deck Builder',
-      deckBuilderDesc: 'Build your 9-card strategy',
+      deckBuilderLabel: 'My Decks',
+      deckBuilderDesc: 'Manage your strategy decks',
       selectTeamLabel: 'Select Team',
       selectTeamDesc: 'Choose your constructor',
       garageLabel: 'Garage',
@@ -514,6 +595,37 @@ const EN_UI: UIStrings = {
     suggestedDecks: 'Suggested Decks',
     confirmDeck: 'Confirm Deck',
   },
+  deckMenu: {
+    title: 'My Decks',
+    createNew: 'Create New Deck',
+    noDecks: 'No decks yet. Create your first deck!',
+    deleteConfirm: 'Delete this deck?',
+    deleteConfirmMsg: 'This action cannot be undone.',
+  },
+  deckEditor: {
+    createTitle: 'Create Deck',
+    editTitle: 'Edit Deck',
+    deckName: 'Deck Name',
+    deckNamePlaceholder: 'Enter deck name...',
+    startWith: 'Start With',
+    saveDeck: 'Save Deck',
+    nameRequired: 'Deck name is required',
+    nameTaken: 'A deck with this name already exists',
+  },
+  deckPicker: {
+    title: 'Select Deck',
+    nCards: '{{count}} cards',
+    createNewDeck: 'Create New Deck',
+  },
+  deckDetail: {
+    edit: 'Edit Deck',
+    delete: 'Delete',
+    created: 'Created',
+  },
+  cardDetail: {
+    pros: 'Pros',
+    cons: 'Cons',
+  },
   team: {
     title: 'Select Team',
     subtitle: 'Choose your constructor. Each team has a unique one-time perk.',
@@ -554,11 +666,6 @@ const EN_UI: UIStrings = {
     completedRaces: 'Completed Races',
     raceOf: 'Race {{current}} of {{total}}',
     startRace: 'Start Race',
-    cardSwapTitle: 'Card Swap',
-    cardSwapDesc: 'After 3 races, you may modify your deck for the remaining season.',
-    cardSwapDescPerRace: 'Swap up to 3 cards before the next race.',
-    swapCards: 'Swap Cards',
-    maxSwaps: 'Maximum 3 card swaps allowed.',
     currentDeck: 'Current Deck',
     allCards: 'All Cards',
     raceResultsTitle: 'Race Results',
@@ -639,8 +746,8 @@ const EN_UI: UIStrings = {
       tireStrategyTitle: 'Tire Strategy',
       tireP1: 'Before each race you choose 3 sets of dry tires from Soft (S), Medium (M), and Hard (H). Each compound has different wear characteristics.',
       tireCompounds: 'Soft = fast but high wear. Medium = balanced. Hard = slow but durable. You pick the starting compound and can switch via pit cards during the race.',
-      tirePitStop: 'Playing a pit card triggers a tire change to the next available compound in your allocation. Pit stops cost positions but reset tire wear.',
-      tireBlowout: 'If tire wear reaches 100, you suffer a blowout penalty (+3 positions lost). Always pit before that happens!',
+      tirePitStop: 'Playing a pit card triggers a tire change to the next available compound in your allocation. Pit stops cost positions but give fresh tires — some pit cards start tires below 0 wear, giving extra life before degradation kicks in.',
+      tireBlowout: 'If tire wear reaches 100, you suffer a blowout penalty (+3 to +7 positions lost depending on difficulty). Always pit before that happens!',
       tireSeasonBudget: 'In Season mode, you have a limited tire budget across all 6 races. Plan ahead - running out of Softs early means fewer options later.',
       mulliganTitle: 'Mulligan (Redraw)',
       mulliganText: 'On the first lap only, you can redraw your entire hand once. Use this if your starting hand doesn\'t match the event or your strategy.',
@@ -649,7 +756,7 @@ const EN_UI: UIStrings = {
       skipTurnTitle: 'Skip Turn & Emergency Redraw',
       skipTurnText: 'If you have no pit card when mandatory pit is needed, you get an emergency redraw. If still no pit card, you can skip your turn (no card played). Skipping avoids crash risk but you still take tire degradation penalties.',
       crashTitle: 'Crash / DNF Risk',
-      crashText: 'Aggressive cards on worn tires, rain on dry tires, and mechanical issues increase crash risk. A crash can cause heavy damage (+8 positions, +30 wear) or a DNF (race over). Under Safety Car there is no crash risk.',
+      crashText: 'Aggressive cards on worn tires, rain on dry tires, and mechanical issues increase crash risk. A crash can cause heavy damage (+6 positions, +25 wear) or a DNF (race over). Under Safety Car there is no crash risk.',
       tipsTitle: 'Strategy Tips',
       tip1: 'Balance your deck - do not go all-in on one card type.',
       tip2: 'Watch your tire wear - at 100 you get a tire blowout penalty.',
@@ -756,8 +863,8 @@ const PT_BR_UI: UIStrings = {
       quickRaceDesc: 'Entre direto em uma corrida',
       seasonLabel: 'Temporada',
       seasonDesc: 'Campeonato com 6 corridas',
-      deckBuilderLabel: 'Construtor de Deck',
-      deckBuilderDesc: 'Monte sua estrategia de 9 cartas',
+      deckBuilderLabel: 'Meus Decks',
+      deckBuilderDesc: 'Gerencie seus decks estrategicos',
       selectTeamLabel: 'Selecionar Equipe',
       selectTeamDesc: 'Escolha sua construtora',
       garageLabel: 'Garagem',
@@ -832,6 +939,37 @@ const PT_BR_UI: UIStrings = {
     suggestedDecks: 'Decks Sugeridos',
     confirmDeck: 'Confirmar Deck',
   },
+  deckMenu: {
+    title: 'Meus Decks',
+    createNew: 'Criar Novo Deck',
+    noDecks: 'Nenhum deck ainda. Crie seu primeiro deck!',
+    deleteConfirm: 'Excluir este deck?',
+    deleteConfirmMsg: 'Esta acao nao pode ser desfeita.',
+  },
+  deckEditor: {
+    createTitle: 'Criar Deck',
+    editTitle: 'Editar Deck',
+    deckName: 'Nome do Deck',
+    deckNamePlaceholder: 'Digite o nome do deck...',
+    startWith: 'Comecar Com',
+    saveDeck: 'Salvar Deck',
+    nameRequired: 'Nome do deck e obrigatorio',
+    nameTaken: 'Ja existe um deck com este nome',
+  },
+  deckPicker: {
+    title: 'Selecionar Deck',
+    nCards: '{{count}} cartas',
+    createNewDeck: 'Criar Novo Deck',
+  },
+  deckDetail: {
+    edit: 'Editar Deck',
+    delete: 'Excluir',
+    created: 'Criado em',
+  },
+  cardDetail: {
+    pros: 'Vantagens',
+    cons: 'Desvantagens',
+  },
   team: {
     title: 'Selecionar Equipe',
     subtitle: 'Escolha sua construtora. Cada equipe tem um perk unico de uso unico.',
@@ -872,11 +1010,6 @@ const PT_BR_UI: UIStrings = {
     completedRaces: 'Corridas Concluidas',
     raceOf: 'Corrida {{current}} de {{total}}',
     startRace: 'Iniciar Corrida',
-    cardSwapTitle: 'Troca de Cartas',
-    cardSwapDesc: 'Depois de 3 corridas, voce pode ajustar seu deck para o restante da temporada.',
-    cardSwapDescPerRace: 'Troque ate 3 cartas antes da proxima corrida.',
-    swapCards: 'Trocar Cartas',
-    maxSwaps: 'Maximo de 3 trocas de cartas permitidas.',
     currentDeck: 'Deck Atual',
     allCards: 'Todas as Cartas',
     raceResultsTitle: 'Resultados das Corridas',
@@ -957,8 +1090,8 @@ const PT_BR_UI: UIStrings = {
       tireStrategyTitle: 'Estrategia de Pneus',
       tireP1: 'Antes de cada corrida voce escolhe 3 jogos de pneus secos entre Soft (S), Medium (M) e Hard (H). Cada composto tem caracteristicas diferentes de desgaste.',
       tireCompounds: 'Soft = rapido mas alto desgaste. Medium = equilibrado. Hard = lento mas duravel. Voce escolhe o composto inicial e pode trocar via cartas de pit durante a corrida.',
-      tirePitStop: 'Jogar uma carta de pit aciona a troca de pneus para o proximo composto disponivel na sua alocacao. Pit stops custam posicoes mas zeram o desgaste.',
-      tireBlowout: 'Se o desgaste chegar a 100, voce sofre penalidade de estouro (+3 posicoes perdidas). Sempre pare antes que isso aconteca!',
+      tirePitStop: 'Jogar uma carta de pit aciona a troca de pneus para o proximo composto disponivel na sua alocacao. Pit stops custam posicoes mas dao pneus novos — algumas cartas de pit comecam os pneus abaixo de 0 desgaste, dando vida extra antes da degradacao.',
+      tireBlowout: 'Se o desgaste chegar a 100, voce sofre penalidade de estouro (+3 a +7 posicoes perdidas dependendo da dificuldade). Sempre pare antes que isso aconteca!',
       tireSeasonBudget: 'No modo Temporada, voce tem um orcamento limitado de pneus para todas as 6 corridas. Planeje - usar todos os Softs cedo significa menos opcoes depois.',
       mulliganTitle: 'Mulligan (Trocar Mao)',
       mulliganText: 'Apenas na primeira volta, voce pode trocar toda a mao uma vez. Use se a mao inicial nao combina com o evento ou sua estrategia.',
@@ -967,14 +1100,14 @@ const PT_BR_UI: UIStrings = {
       skipTurnTitle: 'Passar Vez e Troca Extra',
       skipTurnText: 'Se voce nao tiver carta de pit quando o pit e obrigatorio, ganha uma troca extra de mao. Se ainda nao tiver, pode passar a vez (sem jogar carta). Passar evita risco de batida mas voce ainda sofre penalidades de desgaste.',
       crashTitle: 'Risco de Batida / DNF',
-      crashText: 'Cartas agressivas com pneus gastos, chuva em pneus secos e problemas mecanicos aumentam o risco de batida. Uma batida causa dano pesado (+8 posicoes, +30 desgaste) ou DNF (corrida encerrada). Sob Safety Car nao ha risco de batida.',
+      crashText: 'Cartas agressivas com pneus gastos, chuva em pneus secos e problemas mecanicos aumentam o risco de batida. Uma batida causa dano pesado (+6 posicoes, +25 desgaste) ou DNF (corrida encerrada). Sob Safety Car nao ha risco de batida.',
       tipsTitle: 'Dicas de Estrategia',
       tip1: 'Equilibre o deck - nao aposte tudo em um unico tipo de carta.',
       tip2: 'Fique de olho no desgaste - ao chegar a 100 voce sofre penalidade por estouro de pneu.',
       tip3: 'Use o perk da equipe no momento certo - voce so tem um por corrida.',
       tip4: 'Guarde o perk da equipe para um momento critico, nao na primeira chance.',
       tip5: 'Estude os objetivos do circuito antes de montar o deck.',
-      tip6: 'Circuitos com muita chuva (Spa, Interlagos) favorecem cartas de clima.',
+      tip6: 'Alguns circuitos tem desgaste de pneu mais severo — planeje seus pit stops de acordo.',
       seasonModeTitle: 'Modo Temporada',
       seasonModeP1: 'Corra nos 6 circuitos em ordem. Seu orcamento de pneus e compartilhado em toda a temporada, entao planeje com cuidado. Apos cada corrida voce pode trocar ate 3 cartas do deck.',
       seasonModeP2: 'No inicio voce escolhe a dificuldade (Facil/Normal/Dificil) que define o orcamento total de pneus. Sua posicao de largada em cada corrida e determinada pelo tier do seu objetivo.',
@@ -1034,18 +1167,66 @@ const PT_BR_UI: UIStrings = {
 
 const PT_BR_CONTENT: ContentStrings = {
   cards: {
-    'push-hard': { name: 'Push Hard', rulesText: 'Leve o carro ao limite: ganhe 2 posicoes, +15 desgaste.' },
-    'box-box': { name: 'Box Box', rulesText: 'Pit stop! Pneus novos mas perde posicao: +4 posicoes perdidas, -80 desgaste.' },
-    'conserve-tires': { name: 'Conservar Pneus', rulesText: 'Cuide da borracha: perca 1 posicao, -15 desgaste.' },
-    overtake: { name: 'Ultrapassar', rulesText: 'Manda por dentro! Ganhe 3 posicoes, +25 desgaste.' },
-    'defend-position': { name: 'Defender Posicao', rulesText: 'Segure a linha: mantenha posicao, +5 desgaste por pilotagem defensiva.' },
-    'drs-attack': { name: 'Ataque de DRS', rulesText: 'DRS aberto! Ganhe 2 posicoes, +10 desgaste.' },
-    slipstream: { name: 'Vacuo', rulesText: 'Pegue vacuo do rival: ganhe 1 posicao, sem custo de pneu.' },
-    'late-brake': { name: 'Frenagem Tardia', rulesText: 'Frenagem tardia arriscada! Ganhe 3 posicoes, +20 desgaste.' },
-    'gap-management': { name: 'Gestao de Gap', rulesText: 'Controle o ritmo: mantenha posicao, -10 desgaste.' },
-    undercut: { name: 'Undercut', rulesText: 'Estrategia de pit antecipada: ganhe 1 posicao, -40 desgaste.' },
-    'engine-mode': { name: 'Modo Motor', rulesText: 'Aumente o motor: ganhe 1 posicao, +10 desgaste.' },
-    'alternate-strategy': { name: 'Estrategia Alternativa', rulesText: 'Estrategia oposta aos rivais: perca 2 posicoes, -30 desgaste.' },
+    'push-hard': {
+      name: 'Push Hard', rulesText: 'Leve o carro ao limite: ganhe 2 posicoes, +15 desgaste.',
+      pros: ['Ganha 2 posicoes — boa ultrapassagem', 'Bom equilibrio risco/recompensa'],
+      cons: ['+15 desgaste de pneu', 'Risco de batida com pneus gastos'],
+    },
+    'box-box': {
+      name: 'Box Box', rulesText: 'Pit stop! Perde 4 posicoes mas pneus novos com vida extra.',
+      pros: ['Pneus novos com vida extra (comeca abaixo de 0)', 'Essencial para gestao de pneus', 'Pit gratis sob Safety Car'],
+      cons: ['Perde 4 posicoes — custo alto', 'Timing do pit e crucial'],
+    },
+    'conserve-tires': {
+      name: 'Conservar Pneus', rulesText: 'Cuide da borracha: perca 1 posicao, -15 desgaste.',
+      pros: ['Reduz desgaste em 15 — prolonga stint', 'Jogada segura com baixo risco'],
+      cons: ['Perde 1 posicao', 'Sem valor ofensivo'],
+    },
+    overtake: {
+      name: 'Ultrapassar', rulesText: 'Manda por dentro! Ganhe 3 posicoes, +25 desgaste.',
+      pros: ['Ganha 3 posicoes — carta mais forte de ataque', 'Pode mudar a corrida em um lance'],
+      cons: ['Desgaste muito alto (+25)', 'Alto risco de batida com pneus gastos', 'Penalizada sob Safety Car'],
+    },
+    'defend-position': {
+      name: 'Defender Posicao', rulesText: 'Segure a linha: mantenha posicao, +5 desgaste por pilotagem defensiva.',
+      pros: ['Mantem posicao com custo minimo (+5)', 'Muito segura — quase sem risco', '+2 bonus de posicao sob Safety Car'],
+      cons: ['Sem ganho de posicao', 'Puramente reativa — nao melhora colocacao'],
+    },
+    'drs-attack': {
+      name: 'Ataque de DRS', rulesText: 'DRS aberto! Ganhe 2 posicoes, +10 desgaste.',
+      pros: ['Ganha 2 posicoes com desgaste moderado (+10)', 'Boa em situacoes de ar limpo'],
+      cons: ['Adiciona desgaste (+10)', 'Penalizada sob Safety Car'],
+    },
+    slipstream: {
+      name: 'Vacuo', rulesText: 'Pegue vacuo do rival: ganhe 1 posicao, sem custo de pneu.',
+      pros: ['Ganha 1 posicao com zero desgaste', 'Carta agressiva mais segura — sem custo de pneu'],
+      cons: ['Ganha apenas 1 posicao — ganho modesto', 'Penalizada sob Safety Car'],
+    },
+    'late-brake': {
+      name: 'Frenagem Tardia', rulesText: 'Frenagem tardia arriscada! Ganhe 3 posicoes, +20 desgaste.',
+      pros: ['Ganha 3 posicoes — empatada como mais forte', 'Jogada arriscada e empolgante'],
+      cons: ['Desgaste alto (+20)', 'Risco significativo de batida com pneus gastos'],
+    },
+    'gap-management': {
+      name: 'Gestao de Gap', rulesText: 'Controle o ritmo: mantenha posicao, -10 desgaste.',
+      pros: ['Reduz desgaste em 10 mantendo posicao', 'Otima para prolongar stint', '+2 bonus de posicao sob Safety Car'],
+      cons: ['Sem ganho de posicao', 'Puramente defensiva — sem poder de ultrapassagem'],
+    },
+    undercut: {
+      name: 'Undercut', rulesText: 'Estrategia de pit antecipada: ganhe 1 posicao, pneus novos padrao.',
+      pros: ['Ganha 1 posicao E aciona pit stop', 'Pneus novos padrao (reset para 0)', 'Combina ataque + gestao de pneus'],
+      cons: ['Tag agressiva aumenta risco com pneus gastos', 'Precisa ter composto disponivel para pit'],
+    },
+    'engine-mode': {
+      name: 'Modo Motor', rulesText: 'Aumente o motor: ganhe 1 posicao, +10 desgaste.',
+      pros: ['Ganha 1 posicao com desgaste moderado (+10)', 'Ganho confiavel de uma posicao'],
+      cons: ['Adiciona desgaste (+10)', 'Penalizada sob Safety Car'],
+    },
+    'alternate-strategy': {
+      name: 'Estrategia Alternativa', rulesText: 'Estrategia oposta aos rivais: perca 2 posicoes, pneus com vida extra.',
+      pros: ['Aciona pit com pneus novos com vida extra', 'Tag defensiva: jogada segura, +2 sob SC', 'Perde so 2 posicoes vs 4 do Box Box'],
+      cons: ['Ainda perde 2 posicoes', 'Precisa ter composto disponivel para pit'],
+    },
   },
   teams: {
     crimson: { name: 'Crimson Racing' },

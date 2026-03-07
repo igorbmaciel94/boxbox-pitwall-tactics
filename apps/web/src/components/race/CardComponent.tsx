@@ -15,7 +15,7 @@ interface CardComponentProps {
   onClick?: () => void;
 }
 
-function EffectDelta({ label, value, positive, small }: { label: string; value: number; positive: 'good' | 'bad'; small?: boolean }) {
+export function EffectDelta({ label, value, positive, small }: { label: string; value: number; positive: 'good' | 'bad'; small?: boolean }) {
   if (value === 0) return null;
   const isGood =
     (positive === 'good' && value < 0) || (positive === 'bad' && value > 0)

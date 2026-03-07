@@ -16,6 +16,7 @@ export type TurnPhaseUI =
 export type GameMode = 'idle' | 'race' | 'season';
 
 export interface SavedDeck {
+  id: string;
   name: string;
   cards: CardId[];
   createdAt: number;

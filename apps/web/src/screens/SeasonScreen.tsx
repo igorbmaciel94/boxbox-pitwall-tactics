@@ -3,23 +3,18 @@ import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { Button } from '../components/shared/Button';
 import { Modal } from '../components/shared/Modal';
-import { CardComponent } from '../components/race/CardComponent';
 import { ChampionshipStandings } from '../components/season/ChampionshipStandings';
 import { getPositionColor } from '../lib/constants';
-import type { CardId } from '@boxbox/engine';
 import { useI18n } from '../i18n';
 
 export function SeasonScreen() {
   const navigate = useNavigate();
-  const { t, getScenarioName, getScenarioCircuit, getTeamName, getCardName } = useI18n();
+  const { t, getScenarioName, getScenarioCircuit, getTeamName } = useI18n();
   const catalog = useGameStore((s) => s.catalog);
   const selectedTeamId = useGameStore((s) => s.selectedTeamId);
   const seasonProgress = useGameStore((s) => s.seasonProgress);
   const currentDeck = useGameStore((s) => s.currentDeck);
-  const setDeck = useGameStore((s) => s.setDeck);
 
-  const [showCardSwap, setShowCardSwap] = useState(false);
-  const [swapDeck, setSwapDeck] = useState<CardId[]>([]);
   const [showStandings, setShowStandings] = useState(false);
 
   const isComplete = seasonProgress ? seasonProgress.currentRaceIndex >= (seasonProgress.raceOrder?.length ?? 0) : false;
@@ -66,52 +61,9 @@ export function SeasonScreen() {
   const currentScenario = catalog.scenarios.find((s) => s.id === currentScenarioId);
   const team = catalog.teams.find((t) => t.id === selectedTeamId);
 
-  // Allow card swap after every race (up to 3 card changes)
-  const canSwapCards = currentRaceIndex > 0;
-
   const handleStartNextRace = () => {
     navigate('/race');
   };
-
-  const handleOpenCardSwap = () => {
-    setSwapDeck([...currentDeck]);
-    setShowCardSwap(true);
-  };
-
-  const handleCardSwapConfirm = () => {
-    if (swapDeck.length === 9) {
-      setDeck(swapDeck);
-    }
-    setShowCardSwap(false);
-  };
-
-  const addToSwapDeck = (id: CardId) => {
-    if (swapDeck.length >= 9) return;
-    const count = swapDeck.filter((c) => c === id).length;
-    if (count >= 2) return;
-    setSwapDeck([...swapDeck, id]);
-  };
-
-  const removeFromSwapDeck = (index: number) => {
-    setSwapDeck(swapDeck.filter((_, i) => i !== index));
-  };
-
-  // Count how many cards changed from current deck
-  const swapChanges = (() => {
-    if (swapDeck.length !== 9) return 0;
-    const oldSorted = [...currentDeck].sort();
-    const newSorted = [...swapDeck].sort();
-    let changes = 0;
-    let oi = 0;
-    let ni = 0;
-    while (oi < oldSorted.length && ni < newSorted.length) {
-      if (oldSorted[oi] === newSorted[ni]) { oi++; ni++; }
-      else if (oldSorted[oi] < newSorted[ni]) { changes++; oi++; }
-      else { changes++; ni++; }
-    }
-    changes += (oldSorted.length - oi) + (newSorted.length - ni);
-    return Math.ceil(changes / 2);
-  })();
 
   return (
     <div className="flex flex-col px-5 pt-6">
@@ -248,87 +200,11 @@ export function SeasonScreen() {
         )}
       </div>
 
-      <div className="flex gap-2.5 mb-4">
-        {canSwapCards && (
-          <Button variant="ghost" size="md" className="flex-1" onClick={handleOpenCardSwap}>
-            {t('season.swapCards')}
-          </Button>
-        )}
-        <Button variant="primary" size="lg" className={canSwapCards ? 'flex-1' : 'w-full'} onClick={handleStartNextRace}>
+      <div className="mb-4">
+        <Button variant="primary" size="lg" className="w-full" onClick={handleStartNextRace}>
           {t('season.startRace')}
         </Button>
       </div>
-
-      {/* Card Swap Modal */}
-      <Modal
-        open={showCardSwap}
-        title={t('season.cardSwapTitle')}
-        onClose={() => setShowCardSwap(false)}
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-metal-light">
-            {t('season.cardSwapDescPerRace')}
-          </p>
-
-          {swapChanges > 3 && (
-            <p className="text-[11px] text-hud-red">{t('season.maxSwaps')}</p>
-          )}
-
-          <div className="text-xs font-display uppercase tracking-wider text-metal-light">
-            {t('season.currentDeck')} ({swapDeck.length}/9)
-          </div>
-          <div className="grid grid-cols-3 gap-1.5">
-            {Array.from({ length: 9 }).map((_, i) => {
-              const cardId = swapDeck[i];
-              const card = cardId ? catalog.cards.find((c) => c.id === cardId) : null;
-              return (
-                <button
-                  key={i}
-                  onClick={() => cardId && removeFromSwapDeck(i)}
-                  className={`flex min-h-[40px] items-center justify-center rounded-xl p-2 text-center text-[10px] font-mono
-                    ${
-                      card
-                        ? 'bg-white/8 hover:bg-hud-red/10'
-                        : 'border border-dashed border-white/10 text-white/20'
-                    }`}
-                >
-                  {card ? getCardName(card.id, card.name) : t('common.empty')}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="text-xs font-display uppercase tracking-wider text-metal-light">
-            {t('season.allCards')}
-          </div>
-          <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-            {catalog.cards.map((card) => {
-              const count = swapDeck.filter((c) => c === card.id).length;
-              const canAdd = swapDeck.length < 9 && count < 2;
-              return (
-                <CardComponent
-                  key={card.id}
-                  card={card}
-                  selected={count > 0}
-                  disabled={!canAdd && count === 0}
-                  compact
-                  onClick={() => canAdd && addToSwapDeck(card.id)}
-                />
-              );
-            })}
-          </div>
-
-          <Button
-            variant="primary"
-            size="md"
-            className="w-full"
-            disabled={swapDeck.length !== 9 || swapChanges > 3}
-            onClick={handleCardSwapConfirm}
-          >
-            {t('deck.confirmDeck')} {swapChanges > 0 && `(${swapChanges}/3)`}
-          </Button>
-        </div>
-      </Modal>
     </div>
   );
 }

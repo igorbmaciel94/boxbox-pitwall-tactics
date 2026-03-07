@@ -201,7 +201,6 @@ describe('Season store actions', () => {
         currentRaceIndex: 2,
         raceResults: [makeFakeDebrief('monaco'), makeFakeDebrief('spa')],
         cumulativeScore: 100,
-        cardSwapDone: false,
         seed: 42,
         tireBank: { soft: 5, medium: 5, hard: 5 },
         difficulty: 'hard',
