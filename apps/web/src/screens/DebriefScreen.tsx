@@ -179,7 +179,9 @@ export function DebriefScreen() {
               {t('common.home')}
             </Button>
             <Button variant="primary" size="md" className="flex-1" onClick={handleContinue}>
-              {t('debrief.nextRace')}
+              {seasonProgress && seasonProgress.currentRaceIndex >= seasonProgress.raceOrder.length - 1
+                ? t('debrief.seasonComplete')
+                : t('debrief.nextRace')}
             </Button>
           </>
         ) : (
