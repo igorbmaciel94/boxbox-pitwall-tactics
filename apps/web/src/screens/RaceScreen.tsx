@@ -14,6 +14,7 @@ import type { RivalDot } from '../components/race/TrackMap';
 import { CompoundSelector } from '../components/race/CompoundSelector';
 import { PreRaceTireSetup } from '../components/race/PreRaceTireSetup';
 import { Button } from '../components/shared/Button';
+import { ConfirmDialog } from '../components/shared/ConfirmDialog';
 import { useAudio } from '../hooks/use-audio';
 import { getCircuitImageUrl, getCircuitFallbackGradient } from '../lib/images';
 import { handHasPitCard } from '@boxbox/engine';
@@ -59,6 +60,7 @@ export function RaceScreen() {
   const [pendingScenarioId, setPendingScenarioId] = useState<string | null>(null);
   const [pendingRaceSeed, setPendingRaceSeed] = useState<number | undefined>(undefined);
   const [muted, setMuted] = useState(() => audio.isMuted());
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
   const hasTeamAndDeck = !!selectedTeamId && currentDeck.length === 9;
 
@@ -297,12 +299,7 @@ export function RaceScreen() {
       <ScenarioStrip
         scenario={scenario}
         turn={raceState.currentTurn}
-        onQuit={() => {
-          if (window.confirm(t('race.abandonConfirm'))) {
-            useGameStore.getState().resetRace();
-            navigate('/');
-          }
-        }}
+        onQuit={() => setShowQuitConfirm(true)}
         onToggleMute={() => setMuted(audio.toggleMute())}
         isMuted={muted}
       />
@@ -569,6 +566,21 @@ export function RaceScreen() {
         )}
 
       </div>
+
+      <ConfirmDialog
+        open={showQuitConfirm}
+        title={t('race.abandon')}
+        message={t('race.abandonConfirm')}
+        confirmLabel={t('race.abandon')}
+        cancelLabel={t('race.abandonCancel')}
+        variant="danger"
+        onCancel={() => setShowQuitConfirm(false)}
+        onConfirm={() => {
+          setShowQuitConfirm(false);
+          useGameStore.getState().resetRace();
+          navigate('/');
+        }}
+      />
     </div>
   );
 }

@@ -86,6 +86,7 @@ export interface UIStrings {
     viewDebrief: string;
     abandon: string;
     abandonConfirm: string;
+    abandonCancel: string;
     start: string;
     laps: string;
     wear: string;
@@ -471,7 +472,8 @@ const EN_UI: UIStrings = {
     chequeredFlag: 'Chequered Flag!',
     viewDebrief: 'View Debrief',
     abandon: 'Quit Race',
-    abandonConfirm: 'Are you sure you want to abandon this race?',
+    abandonConfirm: 'All progress in this race will be lost. Are you sure?',
+    abandonCancel: 'Keep Racing',
     start: 'Start',
     laps: 'laps',
     wear: 'Wear',
@@ -788,7 +790,8 @@ const PT_BR_UI: UIStrings = {
     chequeredFlag: 'Bandeira Quadriculada!',
     viewDebrief: 'Ver Debrief',
     abandon: 'Abandonar Corrida',
-    abandonConfirm: 'Tem certeza que deseja abandonar esta corrida?',
+    abandonConfirm: 'Todo o progresso desta corrida sera perdido. Tem certeza?',
+    abandonCancel: 'Continuar',
     start: 'Largada',
     laps: 'voltas',
     wear: 'Desgaste',
