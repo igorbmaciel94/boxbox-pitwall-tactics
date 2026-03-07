@@ -20,8 +20,8 @@ import { createRng, initializeRaceState, updateChampionshipStandings } from '@bo
 import type { TurnPhaseUI, GameMode, SavedDeck, BestScore, RunHistoryEntry, SeasonRunEntry, Trophy } from '../lib/types';
 
 export const SEASON_TIRE_TOTALS: Record<Difficulty, number> = {
-  easy: 24,
-  normal: 21,
+  easy: 18,
+  normal: 18,
   hard: 18,
 };
 
