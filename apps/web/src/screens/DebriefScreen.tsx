@@ -48,6 +48,9 @@ export function DebriefScreen() {
   };
 
   const handleHome = () => {
+    if (mode === 'season') {
+      advanceSeasonRace(lastDebrief);
+    }
     resetRace();
     navigate('/');
   };
