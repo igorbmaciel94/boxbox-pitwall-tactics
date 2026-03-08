@@ -14,6 +14,14 @@ interface TimingTowerProps {
   entries: TimingEntry[];
 }
 
+const COMPOUND_LETTER: Record<TireCompound, string> = {
+  soft: 'S',
+  medium: 'M',
+  hard: 'H',
+  intermediate: 'I',
+  wet: 'W',
+};
+
 function TimingRow({ entry }: { entry: TimingEntry }) {
   return (
     <div
@@ -32,13 +40,6 @@ function TimingRow({ entry }: { entry: TimingEntry }) {
         style={{ backgroundColor: entry.teamColor }}
       />
 
-      {entry.tireCompound && (
-        <div
-          className="h-[6px] w-[6px] shrink-0 rounded-full"
-          style={{ backgroundColor: COMPOUND_COLORS[entry.tireCompound] }}
-        />
-      )}
-
       <span
         className={`font-mono text-[10px] font-semibold leading-none ${
           entry.isPlayer ? 'text-white' : 'text-metal-light'
@@ -50,6 +51,15 @@ function TimingRow({ entry }: { entry: TimingEntry }) {
       <span className="ml-auto font-mono text-[9px] leading-none text-white/40 tabular-nums">
         {entry.gap}
       </span>
+
+      {entry.tireCompound && (
+        <span
+          className="w-[8px] shrink-0 font-mono text-[9px] font-bold leading-none text-right"
+          style={{ color: COMPOUND_COLORS[entry.tireCompound] }}
+        >
+          {COMPOUND_LETTER[entry.tireCompound]}
+        </span>
+      )}
     </div>
   );
 }
