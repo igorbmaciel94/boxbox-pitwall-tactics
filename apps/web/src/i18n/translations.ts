@@ -1248,12 +1248,12 @@ const PT_BR_CONTENT: ContentStrings = {
     'onyx-fortify': { name: 'Fortificar', description: 'Excelencia de engenharia: reduza desgaste em 15.' },
   },
   scenarios: {
-    monaco: { name: 'Grande Premio de Monaco', circuit: 'Circuit de Monaco' },
-    spa: { name: 'Grande Premio da Belgica', circuit: 'Circuit de Spa-Francorchamps' },
-    monza: { name: 'Grande Premio da Italia', circuit: 'Autodromo Nazionale Monza' },
-    silverstone: { name: 'Grande Premio da Gra-Bretanha', circuit: 'Silverstone Circuit' },
-    suzuka: { name: 'Grande Premio do Japao', circuit: 'Suzuka International Racing Course' },
-    interlagos: { name: 'Grande Premio do Brasil', circuit: 'Autodromo Jose Carlos Pace' },
+    monaco: { name: 'Grande Premio de Monte Carlo', circuit: 'Circuito de Rua de Monte Carlo' },
+    spa: { name: 'Grande Premio das Ardenas', circuit: 'Circuito de Corrida das Ardenas' },
+    monza: { name: 'Grande Premio de Milao', circuit: 'Autodromo da Lombardia' },
+    silverstone: { name: 'Grande Premio de Northampton', circuit: 'Circuito de Corrida de Northampton' },
+    suzuka: { name: 'Grande Premio de Sakura', circuit: 'Circuito de Corrida de Sakura' },
+    interlagos: { name: 'Grande Premio de Sao Paulo', circuit: 'Circuito de Corrida Paulista' },
   },
   objectives: {
     'monaco-main': 'Termine no top 5',

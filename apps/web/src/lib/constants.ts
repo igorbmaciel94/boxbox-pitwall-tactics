@@ -47,6 +47,14 @@ export const EVENT_ICONS: Record<string, string> = {
   'mechanical-issue': '\u{26A0}\u{FE0F}', // ⚠️
 };
 
+export const COMPOUND_COLORS: Record<string, string> = {
+  soft: '#ef4444',
+  medium: '#eab308',
+  hard: '#ffffff',
+  intermediate: '#22c55e',
+  wet: '#3b82f6',
+};
+
 export const EVENT_COLORS: Record<string, string> = {
   'safety-car': 'border-hud-yellow/85 bg-hud-yellow/14',
   rain: 'border-hud-cyan/85 bg-hud-cyan/14',

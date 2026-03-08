@@ -1,4 +1,5 @@
-import { getPositionColor } from '../../lib/constants';
+import type { TireCompound } from '@boxbox/engine';
+import { getPositionColor, COMPOUND_COLORS } from '../../lib/constants';
 
 export interface TimingEntry {
   position: number;
@@ -6,11 +7,20 @@ export interface TimingEntry {
   teamColor: string;
   gap: string;
   isPlayer: boolean;
+  tireCompound?: TireCompound;
 }
 
 interface TimingTowerProps {
   entries: TimingEntry[];
 }
+
+const COMPOUND_LETTER: Record<TireCompound, string> = {
+  soft: 'S',
+  medium: 'M',
+  hard: 'H',
+  intermediate: 'I',
+  wet: 'W',
+};
 
 function TimingRow({ entry }: { entry: TimingEntry }) {
   return (
@@ -41,6 +51,15 @@ function TimingRow({ entry }: { entry: TimingEntry }) {
       <span className="ml-auto font-mono text-[9px] leading-none text-white/40 tabular-nums">
         {entry.gap}
       </span>
+
+      {entry.tireCompound && (
+        <span
+          className="w-[8px] shrink-0 font-mono text-[9px] font-bold leading-none text-right"
+          style={{ color: COMPOUND_COLORS[entry.tireCompound] }}
+        >
+          {COMPOUND_LETTER[entry.tireCompound]}
+        </span>
+      )}
     </div>
   );
 }
@@ -64,12 +83,44 @@ export function TimingTower({ entries }: TimingTowerProps) {
   );
 }
 
+/** Simulate a rival's tire compound based on race progress */
+function simulateRivalCompound(
+  seed: number,
+  position: number,
+  turn: number,
+  totalTurns: number = 8,
+): TireCompound {
+  let h = ((seed + position * 7919 + turn * 31) >>> 0);
+  h = Math.imul(h ^ (h >>> 16), 0x45d9f3b) >>> 0;
+
+  const raceProgress = turn / totalTurns;
+  const roll = h % 100;
+
+  if (raceProgress < 0.3) {
+    // Early race: mostly soft
+    if (roll < 80) return 'soft';
+    if (roll < 95) return 'medium';
+    return 'hard';
+  } else if (raceProgress < 0.6) {
+    // Mid race: mix
+    if (roll < 30) return 'soft';
+    if (roll < 80) return 'medium';
+    return 'hard';
+  } else {
+    // Late race: mostly medium/hard
+    if (roll < 10) return 'soft';
+    if (roll < 50) return 'medium';
+    return 'hard';
+  }
+}
+
 /** Build timing entries from rival + player data, all 18 positions */
 export function buildTimingEntries(
   rivals: Array<{ position: number; abbreviation: string; color: string; strength: number }>,
   player: { position: number; abbreviation: string; color: string; strength: number },
   seed: number,
   turn: number,
+  playerTireCompound?: TireCompound,
 ): TimingEntry[] {
   const all = [
     ...rivals.map((r) => ({ ...r, isPlayer: false })),
@@ -93,12 +144,17 @@ export function buildTimingEntries(
       gap = `+${gapVal.toFixed(1)}`;
     }
 
+    const compound = entry.isPlayer
+      ? playerTireCompound
+      : simulateRivalCompound(seed, entry.position, turn);
+
     return {
       position: entry.position,
       abbreviation: entry.abbreviation,
       teamColor: entry.color,
       gap,
       isPlayer: entry.isPlayer,
+      tireCompound: compound,
     };
   });
 }

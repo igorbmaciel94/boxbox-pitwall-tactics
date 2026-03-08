@@ -17,7 +17,7 @@ export function loadBrowserCatalog(): GameCatalogData {
     scenarios: scenariosData.scenarios as GameCatalogData['scenarios'],
     teams: teamsData.teams as GameCatalogData['teams'],
     drivers: driversData.drivers as GameCatalogData['drivers'],
-    goalCards: goalCardsData.goalCards as GameCatalogData['goalCards'],
+    goalCards: goalCardsData.goalCards as unknown as GameCatalogData['goalCards'],
     strings: {
       events: stringsData.events as GameCatalogData['strings']['events'],
       radio: stringsData.radio as GameCatalogData['strings']['radio'],
