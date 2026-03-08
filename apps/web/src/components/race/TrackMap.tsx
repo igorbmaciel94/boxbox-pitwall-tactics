@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { TireCompound } from '@boxbox/engine';
+import { COMPOUND_COLORS } from '../../lib/constants';
 
 export interface RivalDot {
   position: number;
@@ -82,14 +83,6 @@ const CIRCUIT_PATHS: Record<string, [number, number][]> = {
     [60, 14], [85, 16], [115, 20], [148, 24],
     [182, 28], [215, 30], [242, 33],
   ],
-};
-
-const COMPOUND_COLORS: Record<TireCompound, string> = {
-  soft: '#ef4444',
-  medium: '#eab308',
-  hard: '#ffffff',
-  intermediate: '#22c55e',
-  wet: '#3b82f6',
 };
 
 /** Calculate total length of a polyline */

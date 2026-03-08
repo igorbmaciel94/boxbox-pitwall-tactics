@@ -1,4 +1,5 @@
-import { getPositionColor } from '../../lib/constants';
+import type { TireCompound } from '@boxbox/engine';
+import { getPositionColor, COMPOUND_COLORS } from '../../lib/constants';
 
 export interface TimingEntry {
   position: number;
@@ -6,6 +7,7 @@ export interface TimingEntry {
   teamColor: string;
   gap: string;
   isPlayer: boolean;
+  tireCompound?: TireCompound;
 }
 
 interface TimingTowerProps {
@@ -29,6 +31,13 @@ function TimingRow({ entry }: { entry: TimingEntry }) {
         className="h-[10px] w-[3px] shrink-0 rounded-[1px]"
         style={{ backgroundColor: entry.teamColor }}
       />
+
+      {entry.tireCompound && (
+        <div
+          className="h-[6px] w-[6px] shrink-0 rounded-full"
+          style={{ backgroundColor: COMPOUND_COLORS[entry.tireCompound] }}
+        />
+      )}
 
       <span
         className={`font-mono text-[10px] font-semibold leading-none ${
@@ -64,12 +73,44 @@ export function TimingTower({ entries }: TimingTowerProps) {
   );
 }
 
+/** Simulate a rival's tire compound based on race progress */
+function simulateRivalCompound(
+  seed: number,
+  position: number,
+  turn: number,
+  totalTurns: number = 8,
+): TireCompound {
+  let h = ((seed + position * 7919 + turn * 31) >>> 0);
+  h = Math.imul(h ^ (h >>> 16), 0x45d9f3b) >>> 0;
+
+  const raceProgress = turn / totalTurns;
+  const roll = h % 100;
+
+  if (raceProgress < 0.3) {
+    // Early race: mostly soft
+    if (roll < 80) return 'soft';
+    if (roll < 95) return 'medium';
+    return 'hard';
+  } else if (raceProgress < 0.6) {
+    // Mid race: mix
+    if (roll < 30) return 'soft';
+    if (roll < 80) return 'medium';
+    return 'hard';
+  } else {
+    // Late race: mostly medium/hard
+    if (roll < 10) return 'soft';
+    if (roll < 50) return 'medium';
+    return 'hard';
+  }
+}
+
 /** Build timing entries from rival + player data, all 18 positions */
 export function buildTimingEntries(
   rivals: Array<{ position: number; abbreviation: string; color: string; strength: number }>,
   player: { position: number; abbreviation: string; color: string; strength: number },
   seed: number,
   turn: number,
+  playerTireCompound?: TireCompound,
 ): TimingEntry[] {
   const all = [
     ...rivals.map((r) => ({ ...r, isPlayer: false })),
@@ -93,12 +134,17 @@ export function buildTimingEntries(
       gap = `+${gapVal.toFixed(1)}`;
     }
 
+    const compound = entry.isPlayer
+      ? playerTireCompound
+      : simulateRivalCompound(seed, entry.position, turn);
+
     return {
       position: entry.position,
       abbreviation: entry.abbreviation,
       teamColor: entry.color,
       gap,
       isPlayer: entry.isPlayer,
+      tireCompound: compound,
     };
   });
 }

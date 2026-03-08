@@ -3,8 +3,8 @@
   "scenarios": [
     {
       "id": "monaco",
-      "name": "Monaco Grand Prix",
-      "circuit": "Circuit de Monaco",
+      "name": "Monte Carlo Grand Prix",
+      "circuit": "Monte Carlo Street Circuit",
       "turns": 8,
       "traits": ["traffic-heavy", "no-overtaking", "sc-prone"],
       "params": {
@@ -41,8 +41,8 @@
     },
     {
       "id": "spa",
-      "name": "Belgian Grand Prix",
-      "circuit": "Circuit de Spa-Francorchamps",
+      "name": "Ardennes Grand Prix",
+      "circuit": "Ardennes Racing Circuit",
       "turns": 8,
       "traits": ["rain-likely", "high-speed", "sc-prone"],
       "params": {
@@ -79,8 +79,8 @@
     },
     {
       "id": "monza",
-      "name": "Italian Grand Prix",
-      "circuit": "Autodromo Nazionale Monza",
+      "name": "Milano Grand Prix",
+      "circuit": "Lombardia Autodrome",
       "turns": 8,
       "traits": ["high-speed", "low-downforce", "overtake-friendly"],
       "params": {
@@ -117,8 +117,8 @@
     },
     {
       "id": "silverstone",
-      "name": "British Grand Prix",
-      "circuit": "Silverstone Circuit",
+      "name": "Northampton Grand Prix",
+      "circuit": "Northampton Racing Circuit",
       "turns": 8,
       "traits": ["rain-possible", "high-speed", "tire-heavy"],
       "params": {
@@ -155,8 +155,8 @@
     },
     {
       "id": "suzuka",
-      "name": "Japanese Grand Prix",
-      "circuit": "Suzuka International Racing Course",
+      "name": "Sakura Grand Prix",
+      "circuit": "Sakura Racing Circuit",
       "turns": 8,
       "traits": ["technical", "tire-heavy", "mechanical-risk"],
       "params": {
@@ -193,8 +193,8 @@
     },
     {
       "id": "interlagos",
-      "name": "Brazilian Grand Prix",
-      "circuit": "Autodromo Jose Carlos Pace",
+      "name": "Sao Paulo Grand Prix",
+      "circuit": "Paulista Racing Circuit",
       "turns": 8,
       "traits": ["rain-likely", "sc-prone", "overtake-friendly"],
       "params": {

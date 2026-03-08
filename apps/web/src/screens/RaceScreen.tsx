@@ -11,14 +11,14 @@ import { HandDisplay } from '../components/race/HandDisplay';
 import { PerkButton } from '../components/race/PerkButton';
 import { TrackMap } from '../components/race/TrackMap';
 import type { RivalDot } from '../components/race/TrackMap';
-import { TimingTower, buildTimingEntries } from '../components/race/TimingTower';
+import { TimingTower, buildTimingEntries, type TimingEntry } from '../components/race/TimingTower';
 import { CompoundSelector } from '../components/race/CompoundSelector';
 import { PreRaceTireSetup } from '../components/race/PreRaceTireSetup';
 import { Button } from '../components/shared/Button';
 import { ConfirmDialog } from '../components/shared/ConfirmDialog';
 import { useAudio } from '../hooks/use-audio';
 import { getCircuitImageUrl, getCircuitFallbackGradient } from '../lib/images';
-import { handHasPitCard } from '@boxbox/engine';
+import { handHasPitCard, createRng } from '@boxbox/engine';
 import type { CardId, TireAllocation, TireCompound } from '@boxbox/engine';
 import { useI18n } from '../i18n';
 
@@ -63,7 +63,7 @@ export function RaceScreen() {
   const [muted, setMuted] = useState(() => audio.isMuted());
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const [showTimingTower, setShowTimingTower] = useState(false);
-  const frozenTimingEntries = useRef<{ position: number; abbreviation: string; teamColor: string; gap: string; isPlayer: boolean }[]>([]);
+  const frozenTimingEntries = useRef<TimingEntry[]>([]);
 
   const hasTeamAndDeck = !!selectedTeamId && currentDeck.length === 9;
 
@@ -144,7 +144,7 @@ export function RaceScreen() {
       strength: playerDriver?.strength ?? 80,
     };
 
-    return buildTimingEntries(rivals, player, raceState.seed ?? 42, raceState.currentTurn);
+    return buildTimingEntries(rivals, player, raceState.seed ?? 42, raceState.currentTurn, raceState.tireCompound);
   }, [rivalDots, raceState, team, catalog, seasonProgress?.playerDriverId]);
 
   // On mount: scroll to top and reset stale race state if needed
@@ -238,12 +238,24 @@ export function RaceScreen() {
       if (mode === 'season') {
         deductTireBank(allocation);
       }
+
+      // In season mode, compute starting position from goal card range
+      let posOverride: number | undefined;
+      if (mode === 'season' && seasonProgress?.goalCardId && catalog) {
+        const goalCard = catalog.goalCards.find((g) => g.id === seasonProgress.goalCardId);
+        if (goalCard) {
+          const [min, max] = goalCard.startingPositionRange;
+          const posRng = createRng((pendingRaceSeed ?? 0) + (seasonProgress.currentRaceIndex * 31));
+          posOverride = posRng.nextInt(min, max);
+        }
+      }
+
       clearRadioMessages();
-      startRace(pendingScenarioId, pendingRaceSeed, startingCompound, allocation);
+      startRace(pendingScenarioId, pendingRaceSeed, startingCompound, allocation, posOverride);
       setPendingScenarioId(null);
       setPendingRaceSeed(undefined);
     },
-    [pendingScenarioId, pendingRaceSeed, mode, startRace, clearRadioMessages, deductTireBank],
+    [pendingScenarioId, pendingRaceSeed, mode, startRace, clearRadioMessages, deductTireBank, seasonProgress, catalog],
   );
 
   // Scenario selection view

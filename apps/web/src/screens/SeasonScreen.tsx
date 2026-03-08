@@ -169,7 +169,14 @@ export function SeasonScreen() {
           {currentScenario ? getScenarioCircuit(currentScenario.id, currentScenario.circuit) : '-'}
         </div>
         <div className="mt-2 flex gap-3 text-xs text-metal-light">
-          <span>{t('race.start')} P{currentScenario?.params.startingPosition}</span>
+          <span>{t('race.start')} {(() => {
+            const goalCard = seasonProgress.goalCardId
+              ? catalog.goalCards.find((g) => g.id === seasonProgress.goalCardId)
+              : null;
+            return goalCard
+              ? `P${goalCard.startingPositionRange[0]}-P${goalCard.startingPositionRange[1]}`
+              : `P${currentScenario?.params.startingPosition}`;
+          })()}</span>
           <span>{currentScenario?.turns} {t('race.laps')}</span>
         </div>
       </div>

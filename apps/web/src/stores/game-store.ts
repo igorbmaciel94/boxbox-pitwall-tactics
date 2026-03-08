@@ -86,7 +86,7 @@ interface GameState {
   trophies: Trophy[];
 
   // Actions — race
-  startRace: (scenarioId: string, seed?: number, startingCompound?: TireCompound, tireAllocation?: TireAllocation) => void;
+  startRace: (scenarioId: string, seed?: number, startingCompound?: TireCompound, tireAllocation?: TireAllocation, startingPositionOverride?: number) => void;
   setRaceState: (state: RaceState) => void;
   setTurnPhaseUI: (phase: TurnPhaseUI) => void;
   setCurrentEvent: (event: RaceEvent | null) => void;
@@ -157,7 +157,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   seasonRuns: [],
   trophies: [],
 
-  startRace: (scenarioId, seed, startingCompound, tireAllocation) => {
+  startRace: (scenarioId, seed, startingCompound, tireAllocation, startingPositionOverride) => {
     const { catalog, selectedTeamId, currentDeck, difficulty, mode } = get();
     if (!catalog || !selectedTeamId) return;
 
@@ -172,6 +172,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       startingCompound ?? 'soft',
       tireAllocation ?? { soft: 1, medium: 1, hard: 1 },
       difficulty,
+      startingPositionOverride,
     );
 
     // Override deck with player's 9-card selection

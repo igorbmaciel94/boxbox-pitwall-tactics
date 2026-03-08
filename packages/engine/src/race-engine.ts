@@ -28,6 +28,7 @@ export function initializeRaceState(
   startingCompound: TireCompound = 'soft',
   tireAllocation: TireAllocation = { soft: 1, medium: 1, hard: 1 },
   difficulty: Difficulty = 'normal',
+  startingPositionOverride?: number,
 ): RaceState {
   const allCardIds = catalog.cards.map((c) => c.id);
   const shuffledDeck = rng.fork(0).shuffle(allCardIds);
@@ -37,7 +38,7 @@ export function initializeRaceState(
     teamId: team.id,
     seed,
     difficulty,
-    position: scenario.params.startingPosition,
+    position: startingPositionOverride ?? scenario.params.startingPosition,
     tireWear: scenario.params.baseTireWear,
     tireCompound: startingCompound,
     tireAllocation,
