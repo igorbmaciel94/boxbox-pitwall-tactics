@@ -490,13 +490,7 @@ export function RaceScreen() {
                 }
               />
               {/* Fixed bottom buttons */}
-              <div className={`fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-carbon via-carbon/95 to-transparent px-5 pb-4 pt-3 ${selectedHandIndex !== null || canEmergencyMulligan || canSkipTurn || showSkipAlways || p1SkipExhausted || p1MustPlay ? 'animate-slide-up' : 'hidden'}`}>
-                {/* P1 skip restriction hint — compact text in bottom bar */}
-                {(p1SkipExhausted || p1MustPlay) && (
-                  <div className="mb-2 text-center text-[11px] text-hud-amber animate-fade-in">
-                    {p1SkipExhausted ? t('race.p1SkipUsed') : t('race.p1MustPlay')}
-                  </div>
-                )}
+              <div className={`fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-carbon via-carbon/95 to-transparent px-5 pb-4 pt-3 ${selectedHandIndex !== null || canEmergencyMulligan || canSkipTurn || showSkipAlways ? 'animate-slide-up' : 'hidden'}`}>
                 {/* Skip / Emergency mulligan — always visible when available */}
                 {(canEmergencyMulligan || canSkipTurn || showSkipAlways) && (
                   <div className="flex gap-2 mb-2">
@@ -555,6 +549,12 @@ export function RaceScreen() {
                         <div className="font-display text-base font-bold uppercase tracking-wide text-hud-yellow">
                           {t('race.scOvertakeWarning')}
                         </div>
+                      </div>
+                    )}
+                    {/* P1 skip restriction hint — shown only when card selected */}
+                    {(p1SkipExhausted || p1MustPlay) && (
+                      <div className="mb-2 text-center text-[11px] text-hud-amber/80 animate-fade-in">
+                        {p1SkipExhausted ? t('race.p1SkipUsed') : t('race.p1MustPlay')}
                       </div>
                     )}
                     <Button
