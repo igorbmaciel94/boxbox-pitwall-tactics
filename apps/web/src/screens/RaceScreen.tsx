@@ -60,6 +60,7 @@ export function RaceScreen() {
   const [pendingScenarioId, setPendingScenarioId] = useState<string | null>(null);
   const [pendingRaceSeed, setPendingRaceSeed] = useState<number | undefined>(undefined);
   const [muted, setMuted] = useState(() => audio.isMuted());
+  const [scWarningShown, setScWarningShown] = useState(false);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const [showTimingTower, setShowTimingTower] = useState(false);
   const frozenTimingEntries = useRef<TimingEntry[]>([]);
@@ -464,6 +465,9 @@ export function RaceScreen() {
           const isScOvertakeCard = raceState.underSafetyCar && selectedCardData
             && (selectedCardData.effect.position ?? 0) < 0
             && !selectedCardData.tags.includes('pit');
+          const showScWarning = isScOvertakeCard && (
+            difficulty === 'easy' || (difficulty === 'normal' && !scWarningShown)
+          );
 
           return (
             <>
@@ -515,8 +519,24 @@ export function RaceScreen() {
                   </div>
                 )}
                 {selectedHandIndex !== null && (() => {
+                  const posChange = selectedCardData?.effect.position ?? 0;
+                  const atPLast = raceState.position >= 18 && posChange > 0;
                   return (
                   <>
+                    {atPLast && (
+                      <div className="mb-3 rounded-xl border-2 border-metal-light bg-metal-light/15 px-4 py-3 text-center animate-fade-in">
+                        <div className="font-display text-base font-bold uppercase tracking-wide text-metal-light">
+                          {t('race.pLastNoLose')}
+                        </div>
+                      </div>
+                    )}
+                    {showScWarning && (
+                      <div className="mb-3 rounded-xl border-2 border-hud-yellow bg-hud-yellow/20 px-4 py-3 text-center animate-fade-in">
+                        <div className="font-display text-base font-bold uppercase tracking-wide text-hud-yellow">
+                          {t('race.scOvertakeWarning')}
+                        </div>
+                      </div>
+                    )}
                     <Button
                       variant={isScOvertakeCard ? 'secondary' : 'primary'}
                       size="md"
@@ -524,6 +544,9 @@ export function RaceScreen() {
                       onClick={() => {
                         const cardId = raceState.hand[selectedHandIndex];
                         if (cardId) {
+                          if (isScOvertakeCard && !scWarningShown) {
+                            setScWarningShown(true);
+                          }
                           sendRadio('generic');
                           stepper.submitActionCard(cardId);
                           setSelectedHandIndex(null);
