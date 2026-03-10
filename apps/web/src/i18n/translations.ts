@@ -114,10 +114,7 @@ export interface UIStrings {
     emergencyMulligan: string;
     noPitCardWarning: string;
     scFreePit: string;
-    scOvertakeWarning: string;
     scPlayAnyway: string;
-    p1NoOvertake: string;
-    pLastNoLose: string;
     p1SkipUsed: string;
     p1MustPlay: string;
   };
@@ -592,10 +589,7 @@ const EN_UI: UIStrings = {
     emergencyMulligan: 'Emergency Redraw',
     noPitCardWarning: 'No pit card! Redraw or skip turn.',
     scFreePit: 'Free pit under SC',
-    scOvertakeWarning: 'Overtaking under SC! +3 position penalty if you play this card.',
     scPlayAnyway: 'Play Anyway (+3 penalty)',
-    p1NoOvertake: 'You\'re P1! Overtake cards won\'t gain positions. Consider pit stop or skip.',
-    pLastNoLose: 'You\'re last — this card won\'t lose positions.',
     p1SkipUsed: 'Free skip used! You must play a card to defend P1.',
     p1MustPlay: 'Hard mode: no skipping at P1! Play a defensive card to protect your tires.',
   },
@@ -946,10 +940,7 @@ const PT_BR_UI: UIStrings = {
     emergencyMulligan: 'Trocar Mao Extra',
     noPitCardWarning: 'Sem carta de pit! Troque a mao ou passe a vez.',
     scFreePit: 'Pit gratis sob SC',
-    scOvertakeWarning: 'Ultrapassagem sob SC! +3 penalidade de posicao se jogar esta carta.',
     scPlayAnyway: 'Jogar Mesmo Assim (+3 penalidade)',
-    p1NoOvertake: 'Voce esta em P1! Cartas de ultrapassagem nao ganham posicoes. Considere pit stop ou pular turno.',
-    pLastNoLose: 'Voce esta em ultimo — esta carta nao vai perder posicoes.',
     p1SkipUsed: 'Skip gratuito usado! Voce deve jogar uma carta para defender o P1.',
     p1MustPlay: 'Modo dificil: sem pular em P1! Jogue uma carta defensiva para proteger seus pneus.',
   },
