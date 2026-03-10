@@ -137,7 +137,13 @@ export function useTurnStepper() {
 
     // Skip turn: no card played, go straight to resolving
     actionCardRef.current = '';
-    const s: RaceState = { ...state, turnPhase: 'play-card', turnsSkipped: state.turnsSkipped + 1 };
+    const isP1Skip = state.position === 1 && !state.underSafetyCar;
+    const s: RaceState = {
+      ...state,
+      turnPhase: 'play-card',
+      turnsSkipped: state.turnsSkipped + 1,
+      p1SkipsUsed: state.p1SkipsUsed + (isP1Skip ? 1 : 0),
+    };
     store.getState().setRaceState(s);
     store.getState().setTurnPhaseUI('resolving');
   }, []);

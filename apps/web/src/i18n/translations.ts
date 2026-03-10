@@ -118,6 +118,8 @@ export interface UIStrings {
     scPlayAnyway: string;
     p1NoOvertake: string;
     pLastNoLose: string;
+    p1SkipUsed: string;
+    p1MustPlay: string;
   };
   deck: {
     title: string;
@@ -143,6 +145,7 @@ export interface UIStrings {
     saveDeck: string;
     nameRequired: string;
     nameTaken: string;
+    defensiveTip: string;
   };
   deckPicker: {
     title: string;
@@ -311,6 +314,12 @@ export interface UIStrings {
       championshipTitle: string;
       championshipP1: string;
       championshipP2: string;
+      difficultyModesTitle: string;
+      difficultyEasy: string;
+      difficultyNormal: string;
+      difficultyHard: string;
+      p1StrategyTitle: string;
+      p1StrategyText: string;
     };
   };
   tireSetup: {
@@ -587,6 +596,8 @@ const EN_UI: UIStrings = {
     scPlayAnyway: 'Play Anyway (+3 penalty)',
     p1NoOvertake: 'You\'re P1! Overtake cards won\'t gain positions. Consider pit stop or skip.',
     pLastNoLose: 'You\'re last — this card won\'t lose positions.',
+    p1SkipUsed: 'Free skip used! You must play a card to defend P1.',
+    p1MustPlay: 'Hard mode: no skipping at P1! Play a defensive card to protect your tires.',
   },
   deck: {
     title: 'Deck Builder',
@@ -612,6 +623,7 @@ const EN_UI: UIStrings = {
     saveDeck: 'Save Deck',
     nameRequired: 'Deck name is required',
     nameTaken: 'A deck with this name already exists',
+    defensiveTip: 'Defensive cards reduce tire wear and protect your position at P1. Essential for Normal/Hard modes where skipping is limited!',
   },
   deckPicker: {
     title: 'Select Deck',
@@ -780,6 +792,12 @@ const EN_UI: UIStrings = {
       championshipTitle: 'Championship Points',
       championshipP1: 'Points are awarded using the real F1 system: P1=25, P2=18, P3=15, P4=12, P5=10, P6=8, P7=6, P8=4, P9=2, P10=1. Positions 11-18 score 0 points.',
       championshipP2: 'Championship standings accumulate across all 6 races. View standings from the season hub at any time. At season end, your goal is evaluated and a trophy is awarded.',
+      difficultyModesTitle: 'Difficulty Modes & P1 Strategy',
+      difficultyEasy: 'Easy: Less tire wear, fewer crashes. When leading (P1), you can skip your turn freely — no card needed.',
+      difficultyNormal: 'Normal: Standard tire wear and crash risk. You get one free P1 skip per race. After that, you must play a card even at P1.',
+      difficultyHard: 'Hard: High tire wear, frequent crashes. No skipping at P1 — you must always play a card. Use defensive and tire-saving cards to protect your lead!',
+      p1StrategyTitle: 'Defending P1',
+      p1StrategyText: 'When leading, overtake cards have no effect (you\'re already first!). Defensive cards are key: they reduce tire wear and protect your position without crash risk. Cards like Conserve Tires, Defend Position, and Overcut give you tire savings while holding your lead. In harder modes, building a deck with defensive cards is essential for maintaining P1.',
     },
   },
   tireSetup: {
@@ -812,9 +830,9 @@ const EN_UI: UIStrings = {
     easy: 'Easy',
     normal: 'Normal',
     hard: 'Hard',
-    easyDesc: 'Relaxed experience. Less tire wear, fewer crashes. Great for learning the game.',
-    normalDesc: 'Balanced challenge. Standard tire wear and crash risk. The intended experience.',
-    hardDesc: 'Punishing conditions. Tires degrade fast, crashes are frequent. For experienced strategists.',
+    easyDesc: 'Relaxed experience. Less tire wear, fewer crashes. Free skip at P1. Great for learning the game.',
+    normalDesc: 'Balanced challenge. Standard tire wear and crash risk. One free P1 skip per race.',
+    hardDesc: 'Punishing conditions. Fast tire wear, frequent crashes. No skipping at P1 — must play a card.',
   },
   stats: {
     pos: 'POS',
@@ -932,6 +950,8 @@ const PT_BR_UI: UIStrings = {
     scPlayAnyway: 'Jogar Mesmo Assim (+3 penalidade)',
     p1NoOvertake: 'Voce esta em P1! Cartas de ultrapassagem nao ganham posicoes. Considere pit stop ou pular turno.',
     pLastNoLose: 'Voce esta em ultimo — esta carta nao vai perder posicoes.',
+    p1SkipUsed: 'Skip gratuito usado! Voce deve jogar uma carta para defender o P1.',
+    p1MustPlay: 'Modo dificil: sem pular em P1! Jogue uma carta defensiva para proteger seus pneus.',
   },
   deck: {
     title: 'Construtor de Deck',
@@ -957,6 +977,7 @@ const PT_BR_UI: UIStrings = {
     saveDeck: 'Salvar Deck',
     nameRequired: 'Nome do deck e obrigatorio',
     nameTaken: 'Ja existe um deck com este nome',
+    defensiveTip: 'Cartas defensivas reduzem desgaste de pneus e protegem sua posicao no P1. Essenciais nos modos Normal/Dificil onde pular turno e limitado!',
   },
   deckPicker: {
     title: 'Selecionar Deck',
@@ -1125,6 +1146,12 @@ const PT_BR_UI: UIStrings = {
       championshipTitle: 'Pontos do Campeonato',
       championshipP1: 'Pontos sao dados usando o sistema real da F1: P1=25, P2=18, P3=15, P4=12, P5=10, P6=8, P7=6, P8=4, P9=2, P10=1. Posicoes 11-18 nao pontuam.',
       championshipP2: 'A classificacao do campeonato acumula ao longo das 6 corridas. Veja a classificacao no hub da temporada a qualquer momento. No final, seu objetivo e avaliado e um trofeu e concedido.',
+      difficultyModesTitle: 'Modos de Dificuldade e Estrategia em P1',
+      difficultyEasy: 'Facil: Menos desgaste de pneus, menos batidas. Quando liderando (P1), voce pode pular o turno livremente — sem precisar jogar carta.',
+      difficultyNormal: 'Normal: Desgaste e risco de batida padrao. Voce tem um skip gratuito em P1 por corrida. Depois disso, deve jogar uma carta mesmo no P1.',
+      difficultyHard: 'Dificil: Alto desgaste de pneus, batidas frequentes. Sem pular turno no P1 — voce deve sempre jogar uma carta. Use cartas defensivas e de economia de pneu para proteger a lideranca!',
+      p1StrategyTitle: 'Defendendo o P1',
+      p1StrategyText: 'Quando liderando, cartas de ultrapassagem nao tem efeito (voce ja esta em primeiro!). Cartas defensivas sao a chave: reduzem desgaste de pneus e protegem sua posicao sem risco de batida. Cartas como Conservar Pneus, Defender Posicao e Overcut dao economia de pneu enquanto seguram a lideranca. Nos modos mais dificeis, montar um deck com cartas defensivas e essencial para manter o P1.',
     },
   },
   tireSetup: {
@@ -1157,9 +1184,9 @@ const PT_BR_UI: UIStrings = {
     easy: 'Facil',
     normal: 'Normal',
     hard: 'Dificil',
-    easyDesc: 'Experiencia relaxada. Menos desgaste de pneu, menos batidas. Otimo para aprender o jogo.',
-    normalDesc: 'Desafio equilibrado. Desgaste e risco de batida padrao. A experiencia planejada.',
-    hardDesc: 'Condicoes punitivas. Pneus se desgastam rapido, batidas sao frequentes. Para estrategistas experientes.',
+    easyDesc: 'Experiencia relaxada. Menos desgaste, menos batidas. Skip livre em P1. Otimo para aprender.',
+    normalDesc: 'Desafio equilibrado. Desgaste e risco padrao. Um skip gratis em P1 por corrida.',
+    hardDesc: 'Condicoes punitivas. Desgaste alto, batidas frequentes. Sem pular em P1 — deve jogar carta.',
   },
   stats: {
     pos: 'POS',

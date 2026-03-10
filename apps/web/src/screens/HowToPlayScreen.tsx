@@ -102,6 +102,18 @@ export function HowToPlayScreen() {
         <p>{t('howToPlay.sections.skipTurnText')}</p>
       </Section>
 
+      <Section title={t('howToPlay.sections.difficultyModesTitle')}>
+        <div className="space-y-2 rounded-xl bg-white/[0.04] p-3">
+          <Term label="EASY">{t('howToPlay.sections.difficultyEasy')}</Term>
+          <Term label="NORMAL">{t('howToPlay.sections.difficultyNormal')}</Term>
+          <Term label="HARD">{t('howToPlay.sections.difficultyHard')}</Term>
+        </div>
+      </Section>
+
+      <Section title={t('howToPlay.sections.p1StrategyTitle')}>
+        <p>{t('howToPlay.sections.p1StrategyText')}</p>
+      </Section>
+
       <Section title={t('howToPlay.sections.crashTitle')}>
         <p>{t('howToPlay.sections.crashText')}</p>
       </Section>

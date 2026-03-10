@@ -225,6 +225,13 @@ export function DeckEditorScreen() {
         ))}
       </div>
 
+      {/* Defensive card tip — shown when tactics filter active */}
+      {filter === 'tactics' && (
+        <div className="mb-4 rounded-xl bg-blue-950/30 border border-blue-400/20 px-3.5 py-2.5 text-[11px] leading-relaxed text-blue-200/80">
+          {t('deckEditor.defensiveTip')}
+        </div>
+      )}
+
       {/* Card catalog */}
       <div className="grid grid-cols-2 gap-3">
         {filteredCards.map((card) => {

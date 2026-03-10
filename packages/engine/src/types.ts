@@ -80,6 +80,7 @@ export interface RaceState {
   mulliganUsed: boolean;
   emergencyMulliganUsed: boolean;
   turnsSkipped: number;
+  p1SkipsUsed: number;
 
   objectivesCompleted: string[];
   cardsPlayedTotal: CardId[];
