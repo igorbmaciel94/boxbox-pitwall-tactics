@@ -458,9 +458,6 @@ export function RaceScreen() {
             (difficulty === 'normal' && raceState.p1SkipsUsed < 1)
           );
           const showSkipAlways = raceState.underSafetyCar || canSkipP1;
-          // Show info banners when P1 skip is restricted
-          const p1SkipExhausted = difficulty === 'normal' && raceState.position === 1 && raceState.p1SkipsUsed >= 1;
-          const p1MustPlay = difficulty === 'hard' && raceState.position === 1;
 
           // SC overtake warning: selected card gains positions (posChange < 0) and is not a pit card
           const selectedCardId = selectedHandIndex !== null ? raceState.hand[selectedHandIndex] : null;
@@ -549,12 +546,6 @@ export function RaceScreen() {
                         <div className="font-display text-base font-bold uppercase tracking-wide text-hud-yellow">
                           {t('race.scOvertakeWarning')}
                         </div>
-                      </div>
-                    )}
-                    {/* P1 skip restriction hint — shown only when card selected */}
-                    {(p1SkipExhausted || p1MustPlay) && (
-                      <div className="mb-2 text-center text-[11px] text-hud-amber/80 animate-fade-in">
-                        {p1SkipExhausted ? t('race.p1SkipUsed') : t('race.p1MustPlay')}
                       </div>
                     )}
                     <Button
