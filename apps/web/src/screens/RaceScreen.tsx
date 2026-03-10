@@ -481,17 +481,6 @@ export function RaceScreen() {
                   {t('race.noPitCardWarning')}
                 </div>
               )}
-              {/* P1 skip exhausted (Normal) or must play (Hard) */}
-              {p1SkipExhausted && (
-                <div className="rounded-lg bg-hud-amber/10 border border-hud-amber/30 px-3 py-1.5 text-center text-[11px] text-hud-amber animate-fade-in">
-                  {t('race.p1SkipUsed')}
-                </div>
-              )}
-              {p1MustPlay && (
-                <div className="rounded-lg bg-hud-red/10 border border-hud-red/30 px-3 py-1.5 text-center text-[11px] text-hud-red animate-fade-in">
-                  {t('race.p1MustPlay')}
-                </div>
-              )}
               <HandDisplay
                 hand={raceState.hand}
                 catalog={catalog}
@@ -501,7 +490,13 @@ export function RaceScreen() {
                 }
               />
               {/* Fixed bottom buttons */}
-              <div className={`fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-carbon via-carbon/95 to-transparent px-5 pb-4 pt-3 ${selectedHandIndex !== null || canEmergencyMulligan || canSkipTurn || showSkipAlways ? 'animate-slide-up' : 'hidden'}`}>
+              <div className={`fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-carbon via-carbon/95 to-transparent px-5 pb-4 pt-3 ${selectedHandIndex !== null || canEmergencyMulligan || canSkipTurn || showSkipAlways || p1SkipExhausted || p1MustPlay ? 'animate-slide-up' : 'hidden'}`}>
+                {/* P1 skip restriction hint — compact text in bottom bar */}
+                {(p1SkipExhausted || p1MustPlay) && (
+                  <div className="mb-2 text-center text-[11px] text-hud-amber animate-fade-in">
+                    {p1SkipExhausted ? t('race.p1SkipUsed') : t('race.p1MustPlay')}
+                  </div>
+                )}
                 {/* Skip / Emergency mulligan — always visible when available */}
                 {(canEmergencyMulligan || canSkipTurn || showSkipAlways) && (
                   <div className="flex gap-2 mb-2">
