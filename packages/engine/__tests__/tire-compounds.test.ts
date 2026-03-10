@@ -33,6 +33,7 @@ function makeState(overrides: Partial<RaceState> = {}): RaceState {
     mulliganUsed: false,
     emergencyMulliganUsed: false,
     turnsSkipped: 0,
+    p1SkipsUsed: 0,
     objectivesCompleted: [],
     cardsPlayedTotal: [],
     turnPhase: 'resolve',

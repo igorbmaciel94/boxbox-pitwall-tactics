@@ -452,7 +452,15 @@ export function RaceScreen() {
           const hasPit = handHasPitCard(raceState.hand, catalog);
           const canEmergencyMulligan = needsPit && !hasPit && !raceState.emergencyMulliganUsed;
           const canSkipTurn = needsPit && !hasPit && raceState.emergencyMulliganUsed;
-          const showSkipAlways = raceState.underSafetyCar || raceState.position === 1;
+          // P1 skip allowed based on difficulty: easy=always, normal=once per race, hard=never
+          const canSkipP1 = raceState.position === 1 && (
+            difficulty === 'easy' ||
+            (difficulty === 'normal' && raceState.p1SkipsUsed < 1)
+          );
+          const showSkipAlways = raceState.underSafetyCar || canSkipP1;
+          // Show info banners when P1 skip is restricted
+          const p1SkipExhausted = difficulty === 'normal' && raceState.position === 1 && raceState.p1SkipsUsed >= 1;
+          const p1MustPlay = difficulty === 'hard' && raceState.position === 1;
 
           // SC overtake warning: selected card gains positions (posChange < 0) and is not a pit card
           const selectedCardId = selectedHandIndex !== null ? raceState.hand[selectedHandIndex] : null;
@@ -471,6 +479,17 @@ export function RaceScreen() {
               {needsPit && !hasPit && (
                 <div className="rounded-lg bg-hud-red/10 border border-hud-red/30 px-3 py-1.5 text-center text-[11px] text-hud-red animate-fade-in">
                   {t('race.noPitCardWarning')}
+                </div>
+              )}
+              {/* P1 skip exhausted (Normal) or must play (Hard) */}
+              {p1SkipExhausted && (
+                <div className="rounded-lg bg-hud-amber/10 border border-hud-amber/30 px-3 py-1.5 text-center text-[11px] text-hud-amber animate-fade-in">
+                  {t('race.p1SkipUsed')}
+                </div>
+              )}
+              {p1MustPlay && (
+                <div className="rounded-lg bg-hud-red/10 border border-hud-red/30 px-3 py-1.5 text-center text-[11px] text-hud-red animate-fade-in">
+                  {t('race.p1MustPlay')}
                 </div>
               )}
               <HandDisplay

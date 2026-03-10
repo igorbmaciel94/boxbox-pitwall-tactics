@@ -59,6 +59,7 @@ export function initializeRaceState(
     mulliganUsed: false,
     emergencyMulliganUsed: false,
     turnsSkipped: 0,
+    p1SkipsUsed: 0,
     objectivesCompleted: [],
     cardsPlayedTotal: [],
     turnPhase: 'start',
