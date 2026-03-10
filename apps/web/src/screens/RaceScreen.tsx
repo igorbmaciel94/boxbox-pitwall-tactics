@@ -56,11 +56,11 @@ export function RaceScreen() {
   const deductTireBank = useGameStore((s) => s.deductTireBank);
 
   const [selectedHandIndex, setSelectedHandIndex] = useState<number | null>(null);
+  const [scWarningShown, setScWarningShown] = useState(false);
   const [scenarioSelectMode, setScenarioSelectMode] = useState(false);
   const [pendingScenarioId, setPendingScenarioId] = useState<string | null>(null);
   const [pendingRaceSeed, setPendingRaceSeed] = useState<number | undefined>(undefined);
   const [muted, setMuted] = useState(() => audio.isMuted());
-  const [scWarningShown, setScWarningShown] = useState(false);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const [showTimingTower, setShowTimingTower] = useState(false);
   const frozenTimingEntries = useRef<TimingEntry[]>([]);
@@ -458,6 +458,9 @@ export function RaceScreen() {
             (difficulty === 'normal' && raceState.p1SkipsUsed < 1)
           );
           const showSkipAlways = raceState.underSafetyCar || canSkipP1;
+          // Show info banners when P1 skip is restricted
+          const p1SkipExhausted = difficulty === 'normal' && raceState.position === 1 && raceState.p1SkipsUsed >= 1;
+          const p1MustPlay = difficulty === 'hard' && raceState.position === 1;
 
           // SC overtake warning: selected card gains positions (posChange < 0) and is not a pit card
           const selectedCardId = selectedHandIndex !== null ? raceState.hand[selectedHandIndex] : null;
@@ -465,6 +468,7 @@ export function RaceScreen() {
           const isScOvertakeCard = raceState.underSafetyCar && selectedCardData
             && (selectedCardData.effect.position ?? 0) < 0
             && !selectedCardData.tags.includes('pit');
+          // Show SC warning based on difficulty: easy=always, normal=once per race, hard=never
           const showScWarning = isScOvertakeCard && (
             difficulty === 'easy' || (difficulty === 'normal' && !scWarningShown)
           );
@@ -475,6 +479,17 @@ export function RaceScreen() {
               {needsPit && !hasPit && (
                 <div className="rounded-lg bg-hud-red/10 border border-hud-red/30 px-3 py-1.5 text-center text-[11px] text-hud-red animate-fade-in">
                   {t('race.noPitCardWarning')}
+                </div>
+              )}
+              {/* P1 skip exhausted (Normal) or must play (Hard) */}
+              {p1SkipExhausted && (
+                <div className="rounded-lg bg-hud-amber/10 border border-hud-amber/30 px-3 py-1.5 text-center text-[11px] text-hud-amber animate-fade-in">
+                  {t('race.p1SkipUsed')}
+                </div>
+              )}
+              {p1MustPlay && (
+                <div className="rounded-lg bg-hud-red/10 border border-hud-red/30 px-3 py-1.5 text-center text-[11px] text-hud-red animate-fade-in">
+                  {t('race.p1MustPlay')}
                 </div>
               )}
               <HandDisplay
@@ -520,16 +535,26 @@ export function RaceScreen() {
                 )}
                 {selectedHandIndex !== null && (() => {
                   const posChange = selectedCardData?.effect.position ?? 0;
+                  const atP1 = raceState.position === 1 && posChange < 0;
                   const atPLast = raceState.position >= 18 && posChange > 0;
                   return (
                   <>
-                    {atPLast && (
+                    {/* Position boundary hint — same style as SC warning */}
+                    {atP1 && (
+                      <div className="mb-3 rounded-xl border-2 border-hud-cyan bg-hud-cyan/20 px-4 py-3 text-center animate-fade-in">
+                        <div className="font-display text-base font-bold uppercase tracking-wide text-hud-cyan">
+                          {t('race.p1NoOvertake')}
+                        </div>
+                      </div>
+                    )}
+                    {atPLast && !atP1 && (
                       <div className="mb-3 rounded-xl border-2 border-metal-light bg-metal-light/15 px-4 py-3 text-center animate-fade-in">
                         <div className="font-display text-base font-bold uppercase tracking-wide text-metal-light">
                           {t('race.pLastNoLose')}
                         </div>
                       </div>
                     )}
+                    {/* SC overtake warning — visible on easy (always) and normal (once) */}
                     {showScWarning && (
                       <div className="mb-3 rounded-xl border-2 border-hud-yellow bg-hud-yellow/20 px-4 py-3 text-center animate-fade-in">
                         <div className="font-display text-base font-bold uppercase tracking-wide text-hud-yellow">
