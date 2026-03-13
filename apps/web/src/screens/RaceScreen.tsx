@@ -199,7 +199,10 @@ export function RaceScreen() {
         // Wait for user input
         break;
       case 'resolving':
-        timer = setTimeout(() => stepper.advanceToResult(), noTiresPenaltyApplied ? 2000 : 500);
+        if (!noTiresPenaltyApplied) {
+          timer = setTimeout(() => stepper.advanceToResult(), 500);
+        }
+        // When noTiresPenaltyApplied: wait for user to dismiss via button
         break;
       case 'turn-summary':
         // Show timing tower overlay (async — doesn't block game)
@@ -578,7 +581,7 @@ export function RaceScreen() {
           </div>
         )}
 
-        {/* No tires penalty notification */}
+        {/* No tires penalty notification — waits for user dismiss */}
         {turnPhaseUI === 'resolving' && noTiresPenaltyApplied && (
           <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 animate-fade-in">
             <div className="w-full max-w-lg rounded-t-3xl bg-carbon px-5 pb-6 pt-4 animate-slide-up">
@@ -590,6 +593,12 @@ export function RaceScreen() {
                   {t('race.noTiresMessage')}
                 </p>
               </div>
+              <button
+                onClick={() => stepper.advanceToResult()}
+                className="mt-3 w-full rounded-xl bg-f1-red py-3 text-center font-display text-sm font-bold uppercase tracking-wider text-white transition-all hover:bg-f1-red/80 active:scale-[0.98]"
+              >
+                {t('race.continue')}
+              </button>
             </div>
           </div>
         )}

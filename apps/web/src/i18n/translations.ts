@@ -122,6 +122,7 @@ export interface UIStrings {
     p1MustPlay: string;
     noTiresTitle: string;
     noTiresMessage: string;
+    continue: string;
   };
   deck: {
     title: string;
@@ -605,6 +606,7 @@ const EN_UI: UIStrings = {
     p1MustPlay: 'Hard mode: no skipping at P1! Play a defensive card to protect your tires.',
     noTiresTitle: 'No Tires Available!',
     noTiresMessage: 'All tire sets used and no rain for wet tires. Drive-through penalty applied — your current tires continue.',
+    continue: 'Continue',
   },
   deck: {
     title: 'Deck Builder',
@@ -964,6 +966,7 @@ const PT_BR_UI: UIStrings = {
     p1MustPlay: 'Modo dificil: sem pular em P1! Jogue uma carta defensiva para proteger seus pneus.',
     noTiresTitle: 'Sem Pneus Disponiveis!',
     noTiresMessage: 'Todos os jogos de pneus usados e sem chuva para pneus de chuva. Penalidade de drive-through aplicada — seus pneus atuais continuam.',
+    continue: 'Continuar',
   },
   deck: {
     title: 'Construtor de Deck',
