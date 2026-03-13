@@ -96,7 +96,6 @@ export function applyCardEffect(
         ...updated,
         tireWear: tireFreshness,
         tireCompound: newCompound,
-        compoundSetsUsed: [...(updated.compoundSetsUsed ?? []), newCompound],
         hasPitted: true,
         pitStopsMade: updated.pitStopsMade + 1,
       };
