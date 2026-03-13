@@ -88,6 +88,10 @@ export function HowToPlayScreen() {
           <Term label="100%">{t('howToPlay.sections.tireBlowout')}</Term>
           <Term label="SZN">{t('howToPlay.sections.tireSeasonBudget')}</Term>
         </div>
+        <div className="mt-3 rounded-xl bg-f1-red/5 border border-f1-red/15 p-3">
+          <span className="font-display text-xs font-bold uppercase text-f1-red">TIP</span>
+          <span className="ml-2 text-sm text-metal-light">{t('howToPlay.sections.tireNoTiresWarning')}</span>
+        </div>
       </Section>
 
       <Section title={t('howToPlay.sections.mulliganTitle')}>

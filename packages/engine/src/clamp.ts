@@ -28,10 +28,12 @@ const DIFFICULTY_CONFIG: Record<Difficulty, {
   degradationReduction: number;
   crashMultiplier: number;
   blowoutPenalty: number;
+  noTiresWearPenalty: number;
+  noTiresPositionPenalty: number;
 }> = {
-  easy: { wearMultiplier: 0.7, degradationReduction: 1, crashMultiplier: 0.3, blowoutPenalty: 3 },
-  normal: { wearMultiplier: 1.0, degradationReduction: 0, crashMultiplier: 1.0, blowoutPenalty: 5 },
-  hard: { wearMultiplier: 1.4, degradationReduction: 0, crashMultiplier: 1.6, blowoutPenalty: 7 },
+  easy: { wearMultiplier: 0.7, degradationReduction: 1, crashMultiplier: 0.3, blowoutPenalty: 3, noTiresWearPenalty: 0, noTiresPositionPenalty: 0 },
+  normal: { wearMultiplier: 1.0, degradationReduction: 0, crashMultiplier: 1.0, blowoutPenalty: 5, noTiresWearPenalty: 10, noTiresPositionPenalty: 2 },
+  hard: { wearMultiplier: 1.4, degradationReduction: 0, crashMultiplier: 1.6, blowoutPenalty: 7, noTiresWearPenalty: 15, noTiresPositionPenalty: 4 },
 };
 
 /** Max grid position (18 cars = 6 teams × 3 drivers) */
@@ -163,4 +165,14 @@ export function applyCrashCheck(
       lastCrashSeverity: 'damage',
     };
   }
+}
+
+/** Penalty for pitting with no available tire compounds (drive-through) */
+export function applyNoTiresPenalty(state: RaceState): RaceState {
+  const cfg = DIFFICULTY_CONFIG[state.difficulty];
+  return {
+    ...state,
+    tireWear: state.tireWear + cfg.noTiresWearPenalty,
+    position: state.position + cfg.noTiresPositionPenalty,
+  };
 }
