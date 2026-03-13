@@ -120,6 +120,9 @@ export interface UIStrings {
     pLastNoLose: string;
     p1SkipUsed: string;
     p1MustPlay: string;
+    noTiresTitle: string;
+    noTiresMessage: string;
+    continue: string;
   };
   deck: {
     title: string;
@@ -151,6 +154,8 @@ export interface UIStrings {
     title: string;
     nCards: string;
     createNewDeck: string;
+    prev: string;
+    next: string;
   };
   deckDetail: {
     edit: string;
@@ -285,6 +290,7 @@ export interface UIStrings {
       tirePitStop: string;
       tireBlowout: string;
       tireSeasonBudget: string;
+      tireNoTiresWarning: string;
       mulliganTitle: string;
       mulliganText: string;
       safetyCarTitle: string;
@@ -598,6 +604,9 @@ const EN_UI: UIStrings = {
     pLastNoLose: 'You\'re last — this card won\'t lose positions.',
     p1SkipUsed: 'Free skip used! You must play a card to defend P1.',
     p1MustPlay: 'Hard mode: no skipping at P1! Play a defensive card to protect your tires.',
+    noTiresTitle: 'No Tires Available!',
+    noTiresMessage: 'All tire sets used and no rain for wet tires. Drive-through penalty applied — your current tires continue.',
+    continue: 'Continue',
   },
   deck: {
     title: 'Deck Builder',
@@ -629,6 +638,8 @@ const EN_UI: UIStrings = {
     title: 'Select Deck',
     nCards: '{{count}} cards',
     createNewDeck: 'Create New Deck',
+    prev: 'Prev',
+    next: 'Next',
   },
   deckDetail: {
     edit: 'Edit Deck',
@@ -763,6 +774,7 @@ const EN_UI: UIStrings = {
       tirePitStop: 'Playing a pit card triggers a tire change to the next available compound in your allocation. Pit stops cost positions but give fresh tires — some pit cards start tires below 0 wear, giving extra life before degradation kicks in.',
       tireBlowout: 'If tire wear reaches 100, you suffer a blowout penalty (+3 to +7 positions lost depending on difficulty). Always pit before that happens!',
       tireSeasonBudget: 'In Season mode, you have a limited tire budget across all 6 races. Plan ahead - running out of Softs early means fewer options later.',
+      tireNoTiresWarning: 'You only get 3 sets of dry tires per race. If you pit with none left (and no rain for Inter/Wet), penalties scale with difficulty — free pass on Easy, position + wear loss on Normal/Hard. Rain unlocks Inter and Wet as wildcards. Keep 2-3 pit cards max in your deck.',
       mulliganTitle: 'Mulligan (Redraw)',
       mulliganText: 'On the first lap only, you can redraw your entire hand once. Use this if your starting hand doesn\'t match the event or your strategy.',
       safetyCarTitle: 'Safety Car Rules',
@@ -952,6 +964,9 @@ const PT_BR_UI: UIStrings = {
     pLastNoLose: 'Voce esta em ultimo — esta carta nao vai perder posicoes.',
     p1SkipUsed: 'Skip gratuito usado! Voce deve jogar uma carta para defender o P1.',
     p1MustPlay: 'Modo dificil: sem pular em P1! Jogue uma carta defensiva para proteger seus pneus.',
+    noTiresTitle: 'Sem Pneus Disponiveis!',
+    noTiresMessage: 'Todos os jogos de pneus usados e sem chuva para pneus de chuva. Penalidade de drive-through aplicada — seus pneus atuais continuam.',
+    continue: 'Continuar',
   },
   deck: {
     title: 'Construtor de Deck',
@@ -983,6 +998,8 @@ const PT_BR_UI: UIStrings = {
     title: 'Selecionar Deck',
     nCards: '{{count}} cartas',
     createNewDeck: 'Criar Novo Deck',
+    prev: 'Ant',
+    next: 'Prox',
   },
   deckDetail: {
     edit: 'Editar Deck',
@@ -1117,6 +1134,7 @@ const PT_BR_UI: UIStrings = {
       tirePitStop: 'Jogar uma carta de pit aciona a troca de pneus para o proximo composto disponivel na sua alocacao. Pit stops custam posicoes mas dao pneus novos — algumas cartas de pit comecam os pneus abaixo de 0 desgaste, dando vida extra antes da degradacao.',
       tireBlowout: 'Se o desgaste chegar a 100, voce sofre penalidade de estouro (+3 a +7 posicoes perdidas dependendo da dificuldade). Sempre pare antes que isso aconteca!',
       tireSeasonBudget: 'No modo Temporada, voce tem um orcamento limitado de pneus para todas as 6 corridas. Planeje - usar todos os Softs cedo significa menos opcoes depois.',
+      tireNoTiresWarning: 'Voce so tem 3 jogos de pneus secos por corrida. Se fizer pit sem pneus disponiveis (e sem chuva para Inter/Wet), as penalidades escalam com a dificuldade — passe livre no Facil, perda de posicao + desgaste no Normal/Dificil. Chuva libera Inter e Wet como coringas. Mantenha no maximo 2-3 cartas de pit no deck.',
       mulliganTitle: 'Mulligan (Trocar Mao)',
       mulliganText: 'Apenas na primeira volta, voce pode trocar toda a mao uma vez. Use se a mao inicial nao combina com o evento ou sua estrategia.',
       safetyCarTitle: 'Regras do Safety Car',

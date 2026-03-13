@@ -16,6 +16,7 @@ import {
   applyCrashCheck,
   simulateRivalPositions,
   buildFullClassification,
+  hasAvailableCompounds,
 } from '@boxbox/engine';
 import type {
   CardId,
@@ -60,6 +61,7 @@ export function useTurnStepper() {
     // Reset refs
     perkActivatedRef.current = false;
     actionCardRef.current = '';
+    store.getState().setNoTiresPenaltyApplied(false);
   }, []);
 
   const advanceToRevealEvent = useCallback(() => {
@@ -171,7 +173,14 @@ export function useTurnStepper() {
     const isPit = card && card.tags.includes('pit');
 
     store.getState().setRaceState(s);
-    store.getState().setTurnPhaseUI(isPit ? 'await-compound' : 'resolving');
+
+    if (isPit && !hasAvailableCompounds(s)) {
+      // No compounds available — penalty already applied by applyCardEffect
+      store.getState().setNoTiresPenaltyApplied(true);
+      store.getState().setTurnPhaseUI('resolving');
+    } else {
+      store.getState().setTurnPhaseUI(isPit ? 'await-compound' : 'resolving');
+    }
   }, []);
 
   const submitCompoundChoice = useCallback((compound: TireCompound) => {

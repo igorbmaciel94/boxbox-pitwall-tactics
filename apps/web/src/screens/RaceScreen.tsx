@@ -38,6 +38,7 @@ export function RaceScreen() {
   const scenario = useGameStore((s) => s.scenario);
   const team = useGameStore((s) => s.team);
   const turnPhaseUI = useGameStore((s) => s.turnPhaseUI);
+  const noTiresPenaltyApplied = useGameStore((s) => s.noTiresPenaltyApplied);
   const currentEvent = useGameStore((s) => s.currentEvent);
   const previousPosition = useGameStore((s) => s.previousPosition);
   const mode = useGameStore((s) => s.mode);
@@ -198,7 +199,12 @@ export function RaceScreen() {
         // Wait for user input
         break;
       case 'resolving':
-        timer = setTimeout(() => stepper.advanceToResult(), 500);
+        if (noTiresPenaltyApplied) {
+          audio.playPitStop();
+          // Wait for user to dismiss via button
+        } else {
+          timer = setTimeout(() => stepper.advanceToResult(), 500);
+        }
         break;
       case 'turn-summary':
         // Show timing tower overlay (async — doesn't block game)
@@ -573,6 +579,28 @@ export function RaceScreen() {
                 raceState={raceState}
                 onSelect={(compound) => stepper.submitCompoundChoice(compound)}
               />
+            </div>
+          </div>
+        )}
+
+        {/* No tires penalty notification — waits for user dismiss */}
+        {turnPhaseUI === 'resolving' && noTiresPenaltyApplied && (
+          <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 animate-fade-in">
+            <div className="w-full max-w-lg rounded-t-3xl bg-carbon px-5 pb-6 pt-4 animate-slide-up">
+              <div className="animate-panel-pop space-y-3 rounded-2xl bg-f1-red/10 border border-f1-red/30 p-4 text-center">
+                <div className="font-display text-sm font-bold uppercase tracking-wide text-f1-red">
+                  {t('race.noTiresTitle')}
+                </div>
+                <p className="text-xs text-metal-light">
+                  {t('race.noTiresMessage')}
+                </p>
+              </div>
+              <button
+                onClick={() => stepper.advanceToResult()}
+                className="mt-3 w-full rounded-xl bg-f1-red py-3 text-center font-display text-sm font-bold uppercase tracking-wider text-white transition-all hover:bg-f1-red/80 active:scale-[0.98]"
+              >
+                {t('race.continue')}
+              </button>
             </div>
           </div>
         )}

@@ -71,6 +71,7 @@ interface GameState {
   // Turn UI
   turnPhaseUI: TurnPhaseUI;
   currentEvent: RaceEvent | null;
+  noTiresPenaltyApplied: boolean;
 
   // Debrief
   lastDebrief: RaceDebrief | null;
@@ -90,6 +91,7 @@ interface GameState {
   setRaceState: (state: RaceState) => void;
   setTurnPhaseUI: (phase: TurnPhaseUI) => void;
   setCurrentEvent: (event: RaceEvent | null) => void;
+  setNoTiresPenaltyApplied: (v: boolean) => void;
   addTurnSummary: (summary: TurnSummary) => void;
   setPreviousPosition: (pos: number | null) => void;
   setLastDebrief: (debrief: RaceDebrief) => void;
@@ -146,6 +148,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   turnPhaseUI: 'idle',
   currentEvent: null,
+  noTiresPenaltyApplied: false,
 
   lastDebrief: null,
 
@@ -192,6 +195,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       previousPosition: null,
       turnPhaseUI: 'idle',
       currentEvent: null,
+      noTiresPenaltyApplied: false,
       lastDebrief: null,
     });
   },
@@ -199,6 +203,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   setRaceState: (state) => set({ raceState: state }),
   setTurnPhaseUI: (phase) => set({ turnPhaseUI: phase }),
   setCurrentEvent: (event) => set({ currentEvent: event }),
+  setNoTiresPenaltyApplied: (v) => set({ noTiresPenaltyApplied: v }),
   addTurnSummary: (summary) => set((s) => ({ turnSummaries: [...s.turnSummaries, summary] })),
   setPreviousPosition: (pos) => set({ previousPosition: pos }),
   setLastDebrief: (debrief) => set({ lastDebrief: debrief }),
@@ -346,6 +351,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       previousPosition: null,
       turnPhaseUI: 'idle',
       currentEvent: null,
+      noTiresPenaltyApplied: false,
     }),
 
   resetAll: () =>
@@ -359,6 +365,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       previousPosition: null,
       turnPhaseUI: 'idle',
       currentEvent: null,
+      noTiresPenaltyApplied: false,
       lastDebrief: null,
       seasonProgress: null,
     }),

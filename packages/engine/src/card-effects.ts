@@ -1,11 +1,26 @@
 import type { CardId, GameCatalogData, PlayerAgent, RaceState, TireCompound } from './types.js';
-import { applyEffect } from './clamp.js';
+import { applyEffect, applyNoTiresPenalty } from './clamp.js';
+import { isCurrentlyRaining } from './event-system.js';
 
 /** Check if a card triggers a pit stop (has pit tag) */
 function isPitStopCard(cardId: CardId, catalog: GameCatalogData): boolean {
   const card = catalog.cards.find((c) => c.id === cardId);
   if (!card) return false;
   return card.tags.includes('pit');
+}
+
+/** Check if any tire compounds are available for a pit stop */
+export function hasAvailableCompounds(state: RaceState): boolean {
+  const { tireAllocation, compoundSetsUsed } = state;
+  // If tire tracking fields are missing, assume compounds are available
+  if (!tireAllocation || !compoundSetsUsed) return true;
+  const raining = isCurrentlyRaining(state);
+  const dryCompounds: Array<'soft' | 'medium' | 'hard'> = ['soft', 'medium', 'hard'];
+  const hasDry = dryCompounds.some((compound) => {
+    const used = compoundSetsUsed.filter((c) => c === compound).length;
+    return tireAllocation[compound] - used > 0;
+  });
+  return hasDry || raining;
 }
 
 export function applyCardEffect(
@@ -70,17 +85,29 @@ export function applyCardEffect(
     if (state.underSafetyCar) {
       updated = { ...updated, position: state.position };
     }
-    const newCompound = agent?.chooseCompound?.(updated) ?? 'medium';
-    // New tire freshness: card's negative wear becomes a tire life bonus
-    // e.g. Box Box (-15) → tire starts at -15 (lasts longer before degradation)
-    const tireFreshness = Math.min(0, effectToApply.tireWear ?? 0);
-    updated = {
-      ...updated,
-      tireWear: tireFreshness,
-      tireCompound: newCompound,
-      hasPitted: true,
-      pitStopsMade: updated.pitStopsMade + 1,
-    };
+
+    if (hasAvailableCompounds(updated)) {
+      // Normal pit: reset tires, select compound
+      const newCompound = agent?.chooseCompound?.(updated) ?? 'medium';
+      // New tire freshness: card's negative wear becomes a tire life bonus
+      // e.g. Box Box (-15) → tire starts at -15 (lasts longer before degradation)
+      const tireFreshness = Math.min(0, effectToApply.tireWear ?? 0);
+      updated = {
+        ...updated,
+        tireWear: tireFreshness,
+        tireCompound: newCompound,
+        hasPitted: true,
+        pitStopsMade: updated.pitStopsMade + 1,
+      };
+    } else {
+      // No compounds available: keep current tires, apply difficulty-based penalty
+      updated = applyNoTiresPenalty(updated);
+      updated = {
+        ...updated,
+        hasPitted: true,
+        pitStopsMade: updated.pitStopsMade + 1,
+      };
+    }
   }
 
   return updated;
