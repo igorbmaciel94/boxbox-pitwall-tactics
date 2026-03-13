@@ -199,10 +199,12 @@ export function RaceScreen() {
         // Wait for user input
         break;
       case 'resolving':
-        if (!noTiresPenaltyApplied) {
+        if (noTiresPenaltyApplied) {
+          audio.playPitStop();
+          // Wait for user to dismiss via button
+        } else {
           timer = setTimeout(() => stepper.advanceToResult(), 500);
         }
-        // When noTiresPenaltyApplied: wait for user to dismiss via button
         break;
       case 'turn-summary':
         // Show timing tower overlay (async — doesn't block game)
