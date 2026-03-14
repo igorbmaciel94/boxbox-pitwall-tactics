@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { useAuthStore } from '../stores/auth-store';
 import {
   createRng,
   refillHandWithRng,
@@ -252,7 +253,8 @@ export function useTurnStepper() {
           ?? catalog.drivers.find((d) => d.teamId === s.teamId)?.id
           ?? `player-${s.teamId}`;
         const playerDriver = catalog.drivers.find((d) => d.id === playerDriverId);
-        const playerAbbr = playerDriver?.abbreviation ?? 'YOU';
+        const authPlayerCode = useAuthStore.getState().playerCode;
+        const playerAbbr = authPlayerCode ?? playerDriver?.abbreviation ?? 'YOU';
 
         const rivalRng = rngRef.current.fork(s.seed + 9999);
         const rivalResults = simulateRivalPositions(

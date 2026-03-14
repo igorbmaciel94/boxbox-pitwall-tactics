@@ -4,3 +4,13 @@ coverage/
 *.tsbuildinfo
 .turbo/
 .DS_Store
+
+# .NET
+bin/
+obj/
+*.dll
+*.pdb
+*.exe
+*.user
+*.suo
+.vs/

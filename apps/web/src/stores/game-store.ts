@@ -121,6 +121,7 @@ interface GameState {
   // Reset
   resetRace: () => void;
   resetAll: () => void;
+  clearGameState: () => void;
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -368,5 +369,28 @@ export const useGameStore = create<GameState>((set, get) => ({
       noTiresPenaltyApplied: false,
       lastDebrief: null,
       seasonProgress: null,
+    }),
+
+  clearGameState: () =>
+    set({
+      selectedTeamId: null,
+      currentDeck: [],
+      mode: 'idle',
+      raceState: null,
+      scenario: null,
+      team: null,
+      rng: null,
+      turnSummaries: [],
+      previousPosition: null,
+      turnPhaseUI: 'idle',
+      currentEvent: null,
+      noTiresPenaltyApplied: false,
+      lastDebrief: null,
+      seasonProgress: null,
+      savedDecks: [],
+      bestScores: [],
+      runHistory: [],
+      seasonRuns: [],
+      trophies: [],
     }),
 }));
