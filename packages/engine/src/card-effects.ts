@@ -1,4 +1,4 @@
-import type { CardId, GameCatalogData, PlayerAgent, RaceState, TireCompound } from './types.js';
+import type { CardId, GameCatalogData, PlayerAgent, RaceState } from './types.js';
 import { applyEffect, applyNoTiresPenalty } from './clamp.js';
 import { isCurrentlyRaining } from './event-system.js';
 
@@ -113,9 +113,9 @@ export function applyCardEffect(
   return updated;
 }
 
-export function refillHand(state: RaceState, catalog: GameCatalogData): RaceState {
+export function refillHand(state: RaceState, _catalog: GameCatalogData): RaceState {
   let deck = [...state.deck];
-  let hand = [...state.hand];
+  const hand = [...state.hand];
   let discard = [...state.discard];
 
   while (hand.length < 3) {
@@ -141,7 +141,7 @@ export function refillHandWithRng(
   rng: { shuffle<T>(arr: readonly T[]): T[] },
 ): RaceState {
   let deck = [...state.deck];
-  let hand = [...state.hand];
+  const hand = [...state.hand];
   let discard = [...state.discard];
 
   while (hand.length < 3) {
@@ -167,7 +167,12 @@ export function performMulligan(
   catalog: GameCatalogData,
   rng: { shuffle<T>(arr: readonly T[]): T[] },
 ): RaceState {
-  const discarded = { ...state, discard: [...state.discard, ...state.hand], hand: [] as string[], mulliganUsed: true };
+  const discarded = {
+    ...state,
+    discard: [...state.discard, ...state.hand],
+    hand: [] as string[],
+    mulliganUsed: true,
+  };
   return refillHandWithRng(discarded, catalog, rng);
 }
 
@@ -177,7 +182,12 @@ export function performEmergencyMulligan(
   catalog: GameCatalogData,
   rng: { shuffle<T>(arr: readonly T[]): T[] },
 ): RaceState {
-  const discarded = { ...state, discard: [...state.discard, ...state.hand], hand: [] as string[], emergencyMulliganUsed: true };
+  const discarded = {
+    ...state,
+    discard: [...state.discard, ...state.hand],
+    hand: [] as string[],
+    emergencyMulliganUsed: true,
+  };
   return refillHandWithRng(discarded, catalog, rng);
 }
 

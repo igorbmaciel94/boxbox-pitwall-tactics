@@ -14,7 +14,12 @@ import type {
 } from './types.js';
 import { createRng } from './rng.js';
 import { refillHandWithRng, applyCardEffect, performMulligan } from './card-effects.js';
-import { selectEvent, applyEventEffect, updateEventTracking, isCurrentlyRaining } from './event-system.js';
+import {
+  selectEvent,
+  applyEventEffect,
+  updateEventTracking,
+  isCurrentlyRaining,
+} from './event-system.js';
 import { maybeApplyTeamPerk } from './team-perks.js';
 import { clampRaceState, applyEndOfTurnPenalties, applyCrashCheck } from './clamp.js';
 import { calculateRaceScore } from './scoring.js';
@@ -77,7 +82,12 @@ export function runTurn(
   agent: PlayerAgent,
   rng: SeededRng,
 ): { state: RaceState; summary: TurnSummary } {
-  let s: RaceState = { ...state, currentTurn: state.currentTurn + 1, turnPhase: 'start', lastCrashSeverity: 'none' };
+  let s: RaceState = {
+    ...state,
+    currentTurn: state.currentTurn + 1,
+    turnPhase: 'start',
+    lastCrashSeverity: 'none',
+  };
 
   // Phase 1: Refill hand to 3
   s = { ...s, turnPhase: 'refill-hand' };
@@ -166,7 +176,16 @@ export function runRace(
   difficulty: Difficulty = 'normal',
 ): RaceDebrief {
   const rng = createRng(seed);
-  let state = initializeRaceState(scenario, team, catalog, seed, rng, 'soft', { soft: 1, medium: 1, hard: 1 }, difficulty);
+  let state = initializeRaceState(
+    scenario,
+    team,
+    catalog,
+    seed,
+    rng,
+    'soft',
+    { soft: 1, medium: 1, hard: 1 },
+    difficulty,
+  );
   const turnLog: TurnSummary[] = [];
 
   for (let turn = 0; turn < scenario.turns; turn++) {

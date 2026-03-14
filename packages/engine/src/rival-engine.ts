@@ -80,7 +80,10 @@ export function updateChampionshipStandings(
 
   // Initialize from current standings
   for (const standing of currentStandings) {
-    standingsMap.set(standing.driverId, { ...standing, racePositions: [...standing.racePositions] });
+    standingsMap.set(standing.driverId, {
+      ...standing,
+      racePositions: [...standing.racePositions],
+    });
   }
 
   // Add race results

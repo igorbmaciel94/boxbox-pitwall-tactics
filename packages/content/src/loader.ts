@@ -1,8 +1,23 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { CardData, DriverData, GameCatalogData, GameStringsData, GoalCardData, ScenarioData, TeamData } from './types.js';
-import { cardsFileSchema, driversFileSchema, goalCardsFileSchema, scenariosFileSchema, stringsFileSchema, teamsFileSchema } from './schemas.js';
+import type {
+  CardData,
+  DriverData,
+  GameCatalogData,
+  GameStringsData,
+  GoalCardData,
+  ScenarioData,
+  TeamData,
+} from './types.js';
+import {
+  cardsFileSchema,
+  driversFileSchema,
+  goalCardsFileSchema,
+  scenariosFileSchema,
+  stringsFileSchema,
+  teamsFileSchema,
+} from './schemas.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(__dirname, '..', 'data');

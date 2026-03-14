@@ -9,14 +9,6 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'tsconfig.base.json'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'apps/**'
-      - 'packages/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tsconfig.base.json'
 
 jobs:
   lint:
