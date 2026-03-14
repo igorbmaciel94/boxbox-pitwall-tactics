@@ -12,7 +12,19 @@ import type {
   TireCompound,
 } from '@boxbox/content';
 
-export type { CardData, CardEffect, DriverData, EventType, GameCatalogData, GoalCardData, GoalCardTier, ObjectiveData, ScenarioData, TeamData, TireCompound };
+export type {
+  CardData,
+  CardEffect,
+  DriverData,
+  EventType,
+  GameCatalogData,
+  GoalCardData,
+  GoalCardTier,
+  ObjectiveData,
+  ScenarioData,
+  TeamData,
+  TireCompound,
+};
 
 export type CardId = string;
 export type TeamId = string;

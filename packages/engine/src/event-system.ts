@@ -1,11 +1,19 @@
-import type { CardEffect, EventType, GameCatalogData, RaceEvent, RaceState, ScenarioData, SeededRng } from './types.js';
+import type {
+  CardEffect,
+  EventType,
+  GameCatalogData,
+  RaceEvent,
+  RaceState,
+  ScenarioData,
+  SeededRng,
+} from './types.js';
 
 const EVENT_EFFECTS: Record<EventType, CardEffect> = {
   'safety-car': { tireWear: -5 },
-  'rain': { tireWear: 8 },
+  rain: { tireWear: 8 },
   'rival-pits': { position: -1 },
   'rival-overtake': { position: 2 },
-  'traffic': { position: 1, tireWear: 5 },
+  traffic: { position: 1, tireWear: 5 },
   'clear-air': { tireWear: -5 },
   'mechanical-issue': { position: 2, tireWear: 8 },
 };
@@ -48,7 +56,10 @@ function buildEvent(type: EventType, catalog: GameCatalogData, rng: SeededRng): 
 
   return {
     type,
-    name: type.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+    name: type
+      .split('-')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' '),
     flavorIndex,
     effect,
     flavorText,

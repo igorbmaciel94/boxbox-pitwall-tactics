@@ -33,4 +33,12 @@ export {
   teamsFileSchema,
 } from './schemas.js';
 
-export { loadCards, loadCatalog, loadDrivers, loadGoalCards, loadScenarios, loadStrings, loadTeams } from './loader.js';
+export {
+  loadCards,
+  loadCatalog,
+  loadDrivers,
+  loadGoalCards,
+  loadScenarios,
+  loadStrings,
+  loadTeams,
+} from './loader.js';

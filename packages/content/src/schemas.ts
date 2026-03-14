@@ -104,7 +104,10 @@ export const goalCardSchema = z.object({
   tier: z.enum(goalCardTiers),
   title: z.string().min(1),
   description: z.string().min(1),
-  startingPositionRange: z.tuple([z.number().int().min(1).max(18), z.number().int().min(1).max(18)]),
+  startingPositionRange: z.tuple([
+    z.number().int().min(1).max(18),
+    z.number().int().min(1).max(18),
+  ]),
   evaluate: z.string().min(1),
   params: z.record(z.union([z.number(), z.string()])),
 });

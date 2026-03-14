@@ -1,4 +1,12 @@
-import type { CardEffect, CardId, Difficulty, GameCatalogData, RaceState, SeededRng, TireCompound } from './types.js';
+import type {
+  CardEffect,
+  CardId,
+  Difficulty,
+  GameCatalogData,
+  RaceState,
+  SeededRng,
+  TireCompound,
+} from './types.js';
 
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
@@ -23,16 +31,37 @@ export const COMPOUND_WRONG_CONDITION_WEAR: Record<TireCompound, { dry: number; 
 };
 
 /** Difficulty scaling factors */
-const DIFFICULTY_CONFIG: Record<Difficulty, {
-  wearMultiplier: number;
-  degradationReduction: number;
-  crashMultiplier: number;
-  blowoutPenalty: number;
-  noTiresPositionPenalty: number;
-}> = {
-  easy: { wearMultiplier: 0.7, degradationReduction: 1, crashMultiplier: 0.3, blowoutPenalty: 3, noTiresPositionPenalty: 0 },
-  normal: { wearMultiplier: 1.0, degradationReduction: 0, crashMultiplier: 1.0, blowoutPenalty: 5, noTiresPositionPenalty: 2 },
-  hard: { wearMultiplier: 1.4, degradationReduction: 0, crashMultiplier: 1.6, blowoutPenalty: 7, noTiresPositionPenalty: 4 },
+const DIFFICULTY_CONFIG: Record<
+  Difficulty,
+  {
+    wearMultiplier: number;
+    degradationReduction: number;
+    crashMultiplier: number;
+    blowoutPenalty: number;
+    noTiresPositionPenalty: number;
+  }
+> = {
+  easy: {
+    wearMultiplier: 0.7,
+    degradationReduction: 1,
+    crashMultiplier: 0.3,
+    blowoutPenalty: 3,
+    noTiresPositionPenalty: 0,
+  },
+  normal: {
+    wearMultiplier: 1.0,
+    degradationReduction: 0,
+    crashMultiplier: 1.0,
+    blowoutPenalty: 5,
+    noTiresPositionPenalty: 2,
+  },
+  hard: {
+    wearMultiplier: 1.4,
+    degradationReduction: 0,
+    crashMultiplier: 1.6,
+    blowoutPenalty: 7,
+    noTiresPositionPenalty: 4,
+  },
 };
 
 /** Max grid position (18 cars = 6 teams × 3 drivers) */
@@ -84,7 +113,10 @@ export function applyEndOfTurnPenalties(
     } else if (updated.tireWear >= 75) {
       updated = { ...updated, position: updated.position + 2 - cfg.degradationReduction };
     } else if (updated.tireWear >= 55) {
-      updated = { ...updated, position: updated.position + Math.max(0, 1 - cfg.degradationReduction) };
+      updated = {
+        ...updated,
+        position: updated.position + Math.max(0, 1 - cfg.degradationReduction),
+      };
     }
 
     // Tire blowout: if tire wear >= 100, position penalty (scaled by difficulty)
@@ -93,10 +125,15 @@ export function applyEndOfTurnPenalties(
     }
 
     // Wrong compound penalty
-    if (isRaining && (updated.tireCompound === 'soft' || updated.tireCompound === 'medium' || updated.tireCompound === 'hard')) {
+    if (
+      isRaining &&
+      (updated.tireCompound === 'soft' ||
+        updated.tireCompound === 'medium' ||
+        updated.tireCompound === 'hard')
+    ) {
       updated = { ...updated, position: updated.position + 2 };
     }
-    if (!isRaining && (updated.tireCompound === 'wet')) {
+    if (!isRaining && updated.tireCompound === 'wet') {
       updated = { ...updated, position: updated.position + 1 };
     }
   }
@@ -129,7 +166,12 @@ export function applyCrashCheck(
   }
 
   // Rain on dry tires (risky)
-  if (isRaining && (state.tireCompound === 'soft' || state.tireCompound === 'medium' || state.tireCompound === 'hard')) {
+  if (
+    isRaining &&
+    (state.tireCompound === 'soft' ||
+      state.tireCompound === 'medium' ||
+      state.tireCompound === 'hard')
+  ) {
     crashChance += 6;
   }
 

@@ -1,4 +1,12 @@
-import type { GameCatalogData, ObjectiveData, RaceDebrief, RaceState, ScenarioData, ScoringConfig, TurnSummary } from './types.js';
+import type {
+  GameCatalogData,
+  ObjectiveData,
+  RaceDebrief,
+  RaceState,
+  ScenarioData,
+  ScoringConfig,
+  TurnSummary,
+} from './types.js';
 
 export const POSITION_SCORE_TABLE: Record<number, number> = {
   1: 25,

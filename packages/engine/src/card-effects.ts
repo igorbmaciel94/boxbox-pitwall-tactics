@@ -167,7 +167,12 @@ export function performMulligan(
   catalog: GameCatalogData,
   rng: { shuffle<T>(arr: readonly T[]): T[] },
 ): RaceState {
-  const discarded = { ...state, discard: [...state.discard, ...state.hand], hand: [] as string[], mulliganUsed: true };
+  const discarded = {
+    ...state,
+    discard: [...state.discard, ...state.hand],
+    hand: [] as string[],
+    mulliganUsed: true,
+  };
   return refillHandWithRng(discarded, catalog, rng);
 }
 
@@ -177,7 +182,12 @@ export function performEmergencyMulligan(
   catalog: GameCatalogData,
   rng: { shuffle<T>(arr: readonly T[]): T[] },
 ): RaceState {
-  const discarded = { ...state, discard: [...state.discard, ...state.hand], hand: [] as string[], emergencyMulliganUsed: true };
+  const discarded = {
+    ...state,
+    discard: [...state.discard, ...state.hand],
+    hand: [] as string[],
+    emergencyMulliganUsed: true,
+  };
   return refillHandWithRng(discarded, catalog, rng);
 }
 
