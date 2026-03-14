@@ -6,6 +6,7 @@ import { ChampionshipStandings } from '../components/season/ChampionshipStanding
 import { getPositionColor, calculateMedal, MEDAL_COLORS } from '../lib/constants';
 import { evaluateGoalCard } from '@boxbox/engine';
 import { addTrophy, addSeasonRun } from '../stores/persistence';
+import { useAuthStore } from '../stores/auth-store';
 import { useI18n } from '../i18n';
 
 export function SeasonResultsScreen() {
@@ -15,6 +16,7 @@ export function SeasonResultsScreen() {
   const seasonProgress = useGameStore((s) => s.seasonProgress);
   const selectedTeamId = useGameStore((s) => s.selectedTeamId);
   const resetAll = useGameStore((s) => s.resetAll);
+  const userId = useAuthStore((s) => s.userId);
   const savedRef = useRef(false);
 
   if (!catalog || !seasonProgress || seasonProgress.raceResults.length === 0) {
@@ -44,11 +46,11 @@ export function SeasonResultsScreen() {
 
   // Auto-save trophy and season run on mount (once)
   useEffect(() => {
-    if (savedRef.current || !selectedTeamId) return;
+    if (savedRef.current || !selectedTeamId || !userId) return;
     savedRef.current = true;
 
     if (goalCardId && championshipPosition !== null) {
-      addTrophy({
+      addTrophy(userId, {
         goalCardId,
         teamId: selectedTeamId,
         championshipPosition,
@@ -58,7 +60,7 @@ export function SeasonResultsScreen() {
       }).then((trophies) => useGameStore.getState().setTrophies(trophies));
     }
 
-    addSeasonRun({
+    addSeasonRun(userId, {
       teamId: selectedTeamId,
       races: raceResults,
       finalScore: cumulativeScore,

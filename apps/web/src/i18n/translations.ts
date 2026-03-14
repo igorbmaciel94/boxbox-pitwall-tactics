@@ -367,6 +367,32 @@ export interface UIStrings {
     wear: string;
     lap: string;
   };
+  auth: {
+    loginButton: string;
+    registerButton: string;
+    guestButton: string;
+    usernamePlaceholder: string;
+    passwordPlaceholder: string;
+    usernameMin: string;
+    passwordMin: string;
+    usernameExists: string;
+    invalidCredentials: string;
+    networkError: string;
+    logoutButton: string;
+    switchToLogin: string;
+    switchToRegister: string;
+    playerCodePreview: string;
+  };
+  sync: {
+    button: string;
+    syncing: string;
+    lastSynced: string;
+    never: string;
+    success: string;
+    error: string;
+    registerFirst: string;
+    registerFirstDesc: string;
+  };
 }
 
 export interface ContentStrings {
@@ -851,6 +877,32 @@ const EN_UI: UIStrings = {
     wear: 'WEAR',
     lap: 'LAP',
   },
+  auth: {
+    loginButton: 'Login',
+    registerButton: 'Register',
+    guestButton: 'Play as Guest',
+    usernamePlaceholder: 'Username (min 3 characters)',
+    passwordPlaceholder: 'Password (min 6 characters)',
+    usernameMin: 'Username must be at least 3 characters',
+    passwordMin: 'Password must be at least 6 characters',
+    usernameExists: 'Username already exists',
+    invalidCredentials: 'Invalid username or password',
+    networkError: 'Connection error. Check if the server is running.',
+    logoutButton: 'Logout',
+    switchToLogin: 'Already have an account? Login',
+    switchToRegister: "Don't have an account? Register",
+    playerCodePreview: 'Your 3-letter code',
+  },
+  sync: {
+    button: 'Sync Data',
+    syncing: 'Syncing...',
+    lastSynced: 'Last synced',
+    never: 'Never synced',
+    success: 'Data synced successfully!',
+    error: 'Sync failed. Try again later.',
+    registerFirst: 'Account Required',
+    registerFirstDesc: 'Create an account to sync your data across devices.',
+  },
 };
 
 const PT_BR_UI: UIStrings = {
@@ -1210,6 +1262,32 @@ const PT_BR_UI: UIStrings = {
     pos: 'POS',
     wear: 'DESG',
     lap: 'VOLTA',
+  },
+  auth: {
+    loginButton: 'Entrar',
+    registerButton: 'Cadastrar',
+    guestButton: 'Jogar como Convidado',
+    usernamePlaceholder: 'Usuario (min 3 caracteres)',
+    passwordPlaceholder: 'Senha (min 6 caracteres)',
+    usernameMin: 'Usuario deve ter pelo menos 3 caracteres',
+    passwordMin: 'Senha deve ter pelo menos 6 caracteres',
+    usernameExists: 'Usuario ja existe',
+    invalidCredentials: 'Usuario ou senha invalidos',
+    networkError: 'Erro de conexao. Verifique se o servidor esta rodando.',
+    logoutButton: 'Sair',
+    switchToLogin: 'Ja tem conta? Entrar',
+    switchToRegister: 'Nao tem conta? Cadastrar',
+    playerCodePreview: 'Seu codigo de 3 letras',
+  },
+  sync: {
+    button: 'Sincronizar Dados',
+    syncing: 'Sincronizando...',
+    lastSynced: 'Ultima sincronizacao',
+    never: 'Nunca sincronizado',
+    success: 'Dados sincronizados com sucesso!',
+    error: 'Falha na sincronizacao. Tente novamente.',
+    registerFirst: 'Conta Necessaria',
+    registerFirstDesc: 'Crie uma conta para sincronizar seus dados entre dispositivos.',
   },
 };
 

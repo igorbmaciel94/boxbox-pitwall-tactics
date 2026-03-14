@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
+import { useAuthStore } from '../stores/auth-store';
 import { useUIStore } from '../stores/ui-store';
 import { useTurnStepper } from '../hooks/use-turn-stepper';
 import { useRadioMessage } from '../hooks/use-radio-message';
@@ -47,6 +48,7 @@ export function RaceScreen() {
 
   const selectedTeamId = useGameStore((s) => s.selectedTeamId);
   const currentDeck = useGameStore((s) => s.currentDeck);
+  const authPlayerCode = useAuthStore((s) => s.playerCode);
 
   const stepper = useTurnStepper();
   const { sendRadio, sendEventRadio } = useRadioMessage();
@@ -116,12 +118,13 @@ export function RaceScreen() {
 
   // Player abbreviation — used in both timing tower and track map
   const playerAbbreviation = useMemo(() => {
+    if (authPlayerCode) return authPlayerCode;
     if (!catalog || !team) return 'YOU';
     const playerDriverId = seasonProgress?.playerDriverId
       ?? catalog.drivers.find((d) => d.teamId === team.id)?.id ?? '';
     const playerDriver = catalog.drivers.find((d) => d.id === playerDriverId);
     return playerDriver?.abbreviation ?? 'YOU';
-  }, [catalog, team, seasonProgress?.playerDriverId]);
+  }, [catalog, team, seasonProgress?.playerDriverId, authPlayerCode]);
 
   // Build timing tower entries from rival data + player (shown at turn summary)
   const timingEntries = useMemo(() => {
@@ -140,13 +143,13 @@ export function RaceScreen() {
 
     const player = {
       position: raceState.position,
-      abbreviation: playerDriver?.abbreviation ?? 'YOU',
+      abbreviation: authPlayerCode ?? playerDriver?.abbreviation ?? 'YOU',
       color: team.color,
       strength: playerDriver?.strength ?? 80,
     };
 
     return buildTimingEntries(rivals, player, raceState.seed ?? 42, raceState.currentTurn, raceState.tireCompound);
-  }, [rivalDots, raceState, team, catalog, seasonProgress?.playerDriverId]);
+  }, [rivalDots, raceState, team, catalog, seasonProgress?.playerDriverId, authPlayerCode]);
 
   // On mount: scroll to top and reset stale race state if needed
   useEffect(() => {
