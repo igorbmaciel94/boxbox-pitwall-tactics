@@ -1,0 +1,233 @@
+name: PR Gate
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-status:
+    name: PR Merge Gate
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [backend, frontend-lint, frontend-typecheck, frontend-test, frontend-build]
+    steps:
+      - name: Check all pipeline results
+        run: |
+          echo "Backend: ${{ needs.backend.result }}"
+          echo "Lint: ${{ needs.frontend-lint.result }}"
+          echo "TypeCheck: ${{ needs.frontend-typecheck.result }}"
+          echo "Tests: ${{ needs.frontend-test.result }}"
+          echo "Build: ${{ needs.frontend-build.result }}"
+
+          FAILED=""
+          for job in backend frontend-lint frontend-typecheck frontend-test frontend-build; do
+            result="${{ needs.backend.result }}"
+            case $job in
+              backend) result="${{ needs.backend.result }}" ;;
+              frontend-lint) result="${{ needs.frontend-lint.result }}" ;;
+              frontend-typecheck) result="${{ needs.frontend-typecheck.result }}" ;;
+              frontend-test) result="${{ needs.frontend-test.result }}" ;;
+              frontend-build) result="${{ needs.frontend-build.result }}" ;;
+            esac
+            if [[ "$result" != "success" && "$result" != "skipped" ]]; then
+              FAILED="$FAILED $job($result)"
+            fi
+          done
+
+          if [ -n "$FAILED" ]; then
+            echo "❌ Failed jobs:$FAILED"
+            exit 1
+          else
+            echo "✅ All pipelines passed"
+          fi
+
+  backend:
+    name: Backend (.NET 9)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/api
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore
+        run: dotnet restore BoxBox.sln
+
+      - name: Build
+        run: dotnet build BoxBox.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test BoxBox.sln --configuration Release --no-build --verbosity normal
+
+  frontend-lint:
+    name: Frontend Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Prettier
+        run: npx prettier --check 'packages/*/src/**/*.ts'
+
+  frontend-typecheck:
+    name: Frontend Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Build packages
+        run: npm run build --workspace=@boxbox/content --workspace=@boxbox/engine
+
+      - name: Type check web
+        run: npx tsc -b --noEmit
+        working-directory: apps/web
+
+  frontend-test:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+  frontend-build:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    needs: [frontend-lint, frontend-typecheck, frontend-test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+  comment-on-failure:
+    name: Comment on PR
+    runs-on: ubuntu-latest
+    if: failure()
+    needs: [check-status]
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Post failure comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('<!-- pr-gate-status -->')
+            );
+
+            const body = `<!-- pr-gate-status -->
+            ❌ **PR Gate Failed** — one or more pipelines did not pass.
+
+            Please check the [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) and fix the issues before merging.
+
+            > ⚠️ Do NOT merge this PR until all checks are green.`;
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+  comment-on-success:
+    name: Comment on PR (Success)
+    runs-on: ubuntu-latest
+    if: success()
+    needs: [check-status]
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Post success comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('<!-- pr-gate-status -->')
+            );
+
+            const body = `<!-- pr-gate-status -->
+            ✅ **PR Gate Passed** — all pipelines succeeded.
+
+            This PR is safe to merge.`;
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
