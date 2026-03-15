@@ -179,6 +179,19 @@ export function DeckEditorScreen() {
         )}
       </div>
 
+      {/* Save button (top) */}
+      <div className="mb-4">
+        <Button
+          variant="primary"
+          size="lg"
+          className="w-full"
+          disabled={!isValid || !deckName.trim()}
+          onClick={handleSave}
+        >
+          {t('deckEditor.saveDeck')}
+        </Button>
+      </div>
+
       {/* Suggested decks — only in create mode */}
       {!isEditMode && (
         <div className="mb-4 rounded-2xl bg-white/[0.04] p-4">
@@ -261,6 +274,13 @@ export function DeckEditorScreen() {
           );
         })}
       </div>
+
+      {/* Card info panel (bottom) */}
+      {focusedCard && (
+        <div className="mt-4">
+          <CardInfoPanel card={focusedCard} />
+        </div>
+      )}
 
       {/* Save button */}
       <div className="mt-6 pb-24">

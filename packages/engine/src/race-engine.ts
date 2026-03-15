@@ -44,6 +44,7 @@ export function initializeRaceState(
     seed,
     difficulty,
     position: startingPositionOverride ?? scenario.params.startingPosition,
+    startingPosition: startingPositionOverride ?? scenario.params.startingPosition,
     tireWear: scenario.params.baseTireWear,
     tireCompound: startingCompound,
     tireAllocation,

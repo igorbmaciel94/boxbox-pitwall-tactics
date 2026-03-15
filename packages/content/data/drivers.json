@@ -31,7 +31,7 @@
       "lastName": "Brenner",
       "abbreviation": "BRE",
       "teamId": "azure",
-      "strength": 93
+      "strength": 82
     },
     {
       "id": "azu-2",
@@ -39,7 +39,7 @@
       "lastName": "Reyes",
       "abbreviation": "REY",
       "teamId": "azure",
-      "strength": 89
+      "strength": 77
     },
     {
       "id": "azu-3",
@@ -47,7 +47,7 @@
       "lastName": "Sharma",
       "abbreviation": "SHA",
       "teamId": "azure",
-      "strength": 84
+      "strength": 72
     },
     {
       "id": "cri-1",
@@ -55,7 +55,7 @@
       "lastName": "Draven",
       "abbreviation": "DRA",
       "teamId": "crimson",
-      "strength": 82
+      "strength": 93
     },
     {
       "id": "cri-2",
@@ -63,7 +63,7 @@
       "lastName": "Ferreira",
       "abbreviation": "FER",
       "teamId": "crimson",
-      "strength": 77
+      "strength": 89
     },
     {
       "id": "cri-3",
@@ -71,7 +71,7 @@
       "lastName": "Nakamura",
       "abbreviation": "NAK",
       "teamId": "crimson",
-      "strength": 72
+      "strength": 84
     },
     {
       "id": "amb-1",

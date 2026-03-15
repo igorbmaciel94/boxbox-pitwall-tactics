@@ -68,6 +68,7 @@ export interface RaceState {
   difficulty: Difficulty;
 
   position: number;
+  startingPosition: number;
   tireWear: number;
   tireCompound: TireCompound;
   tireAllocation: TireAllocation;
