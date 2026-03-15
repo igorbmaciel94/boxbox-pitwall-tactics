@@ -55,36 +55,8 @@ jobs:
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          JWT_SECRET_PROD: ${{ secrets.JWT_SECRET_PROD }}
         run: |
-          ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST << 'ENDSSH'
-            set -e
-
-            cd /opt/boxbox
-
-            # Write production .env
-            cat > .env << ENVEOF
-          JWT_SECRET=$JWT_SECRET_PROD
-          CORS_ORIGIN=https://boxbox.lighthousedev.uk
-          ASPNETCORE_ENVIRONMENT=Production
-          BOXBOX_IMAGE_TAG=main
-          ENVEOF
-
-            # Pull latest images and restart
-            docker compose pull
-            docker compose up -d
-
-            # Wait and verify health
-            echo "Waiting for API to start..."
-            sleep 10
-            if curl -fsS http://localhost:18083/health > /dev/null; then
-              echo "Health check passed"
-            else
-              echo "WARNING: Health check failed"
-              docker compose logs --tail=50 api
-              exit 1
-            fi
-          ENDSSH
+          ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST 'set -e && cd /opt/boxbox && docker compose pull && docker compose up -d && echo "Waiting for API to start..." && sleep 10 && curl -fsS http://localhost:18083/health && echo "Deploy successful!"'
 
       - name: Cleanup SSH key
         if: always()
