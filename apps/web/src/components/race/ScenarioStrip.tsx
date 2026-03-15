@@ -7,11 +7,9 @@ interface ScenarioStripProps {
   scenario: ScenarioData;
   turn: number;
   onQuit?: () => void;
-  onToggleMute?: () => void;
-  isMuted?: boolean;
 }
 
-export function ScenarioStrip({ scenario, turn, onQuit, onToggleMute, isMuted }: ScenarioStripProps) {
+export function ScenarioStrip({ scenario, turn, onQuit }: ScenarioStripProps) {
   const { getScenarioName, getScenarioCircuit, t } = useI18n();
   const [imgFailed, setImgFailed] = useState(false);
 
@@ -73,27 +71,6 @@ export function ScenarioStrip({ scenario, turn, onQuit, onToggleMute, isMuted }:
               />
             ))}
           </div>
-          {/* Mute toggle */}
-          {onToggleMute && (
-            <button
-              onClick={onToggleMute}
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/8 text-white/40 transition-colors hover:bg-white/15 hover:text-white"
-              title={isMuted ? t('race.unmute') : t('race.mute')}
-            >
-              {isMuted ? (
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                  <line x1="23" y1="9" x2="17" y2="15" />
-                  <line x1="17" y1="9" x2="23" y2="15" />
-                </svg>
-              ) : (
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
-                </svg>
-              )}
-            </button>
-          )}
         </div>
       </div>
     </div>

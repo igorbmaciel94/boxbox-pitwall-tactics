@@ -66,7 +66,6 @@ export function RaceScreen() {
   const [scenarioSelectMode, setScenarioSelectMode] = useState(false);
   const [pendingScenarioId, setPendingScenarioId] = useState<string | null>(null);
   const [pendingRaceSeed, setPendingRaceSeed] = useState<number | undefined>(undefined);
-  const [muted, setMuted] = useState(() => audio.isMuted());
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const [showTimingTower, setShowTimingTower] = useState(false);
   const frozenTimingEntries = useRef<TimingEntry[]>([]);
@@ -429,8 +428,6 @@ export function RaceScreen() {
         scenario={scenario}
         turn={raceState.currentTurn}
         onQuit={() => setShowQuitConfirm(true)}
-        onToggleMute={() => setMuted(audio.toggleMute())}
-        isMuted={muted}
       />
 
       {/* Fixed-height wrapper so timing tower and mini-map occupy the same space */}
@@ -674,7 +671,7 @@ export function RaceScreen() {
             <p className="text-sm text-metal-light">
               {t('race.startingInfo', { position: raceState.position, laps: scenario.turns })}
             </p>
-            <Button variant="primary" size="lg" className="w-full" onClick={() => stepper.startNextTurn()}>
+            <Button variant="primary" size="lg" className="w-full" onClick={() => { audio.setBackgroundTrack('race'); stepper.startNextTurn(); }}>
               {t('race.startRace')}
             </Button>
           </div>

@@ -22,6 +22,7 @@ public class AuthApplicationService
 
     public async Task<(User User, string Token)> RegisterAsync(string username, string password)
     {
+        username = username.ToLowerInvariant();
         var existing = await _userRepository.GetByUsernameAsync(username);
         if (existing != null)
             throw new UsernameAlreadyExistsException();
@@ -42,6 +43,7 @@ public class AuthApplicationService
 
     public async Task<(User User, string Token)> LoginAsync(string username, string password)
     {
+        username = username.ToLowerInvariant();
         var user = await _userRepository.GetByUsernameAsync(username);
         if (user == null || !_passwordHasher.Verify(password, user.PasswordHash))
             throw new InvalidCredentialsException();
