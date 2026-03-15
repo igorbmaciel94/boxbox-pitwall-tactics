@@ -3,6 +3,7 @@ import { getPositionColor, COMPOUND_COLORS } from '../../lib/constants';
 
 export interface TimingEntry {
   position: number;
+  startingPosition: number;
   abbreviation: string;
   teamColor: string;
   gap: string;
@@ -34,6 +35,26 @@ function TimingRow({ entry }: { entry: TimingEntry }) {
       >
         {entry.position}
       </span>
+
+      {/* Position change vs starting grid */}
+      {(() => {
+        const delta = entry.startingPosition - entry.position;
+        if (delta > 0) return (
+          <span className="w-[14px] text-center font-mono text-[8px] font-bold leading-none text-hud-green">
+            {'\u25B2'}{delta}
+          </span>
+        );
+        if (delta < 0) return (
+          <span className="w-[14px] text-center font-mono text-[8px] font-bold leading-none text-hud-red">
+            {'\u25BC'}{Math.abs(delta)}
+          </span>
+        );
+        return (
+          <span className="w-[14px] text-center font-mono text-[8px] leading-none text-white/30">
+            {'—'}
+          </span>
+        );
+      })()}
 
       <div
         className="h-[10px] w-[3px] shrink-0 rounded-[1px]"
@@ -116,8 +137,8 @@ function simulateRivalCompound(
 
 /** Build timing entries from rival + player data, all 18 positions */
 export function buildTimingEntries(
-  rivals: Array<{ position: number; abbreviation: string; color: string; strength: number }>,
-  player: { position: number; abbreviation: string; color: string; strength: number },
+  rivals: Array<{ position: number; abbreviation: string; color: string; strength: number; startingPosition?: number }>,
+  player: { position: number; abbreviation: string; color: string; strength: number; startingPosition?: number },
   seed: number,
   turn: number,
   playerTireCompound?: TireCompound,
@@ -150,6 +171,7 @@ export function buildTimingEntries(
 
     return {
       position: entry.position,
+      startingPosition: entry.startingPosition ?? entry.position,
       abbreviation: entry.abbreviation,
       teamColor: entry.color,
       gap,

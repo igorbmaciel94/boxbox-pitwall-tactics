@@ -43,6 +43,7 @@ export function RaceScreen() {
   const currentEvent = useGameStore((s) => s.currentEvent);
   const previousPosition = useGameStore((s) => s.previousPosition);
   const mode = useGameStore((s) => s.mode);
+  const lastDebrief = useGameStore((s) => s.lastDebrief);
   const startRace = useGameStore((s) => s.startRace);
   const clearRadioMessages = useUIStore((s) => s.clearRadioMessages);
 
@@ -80,6 +81,18 @@ export function RaceScreen() {
       ?? '';
     const teamColorMap = new Map(catalog.teams.map((t) => [t.id, t.color]));
 
+    // After race is complete, use actual debrief results for accurate positions
+    if (lastDebrief?.rivalResults) {
+      return lastDebrief.rivalResults
+        .filter((r) => r.driverId !== playerDriverId)
+        .map((r) => ({
+          position: r.position,
+          color: teamColorMap.get(r.teamId) ?? '#666',
+          abbreviation: r.abbreviation,
+          strength: catalog.drivers.find((d) => d.id === r.driverId)?.strength ?? 75,
+        }));
+    }
+
     const rivals = catalog.drivers
       .filter((d) => d.id !== playerDriverId)
       .map((d) => ({
@@ -114,7 +127,7 @@ export function RaceScreen() {
       }
     }
     return dots;
-  }, [catalog, team, raceState?.position, raceState?.currentTurn, raceState?.seed, seasonProgress?.playerDriverId]);
+  }, [catalog, team, raceState?.position, raceState?.currentTurn, raceState?.seed, seasonProgress?.playerDriverId, lastDebrief?.rivalResults]);
 
   // Player abbreviation — used in both timing tower and track map
   const playerAbbreviation = useMemo(() => {
@@ -125,6 +138,45 @@ export function RaceScreen() {
     const playerDriver = catalog.drivers.find((d) => d.id === playerDriverId);
     return playerDriver?.abbreviation ?? 'YOU';
   }, [catalog, team, seasonProgress?.playerDriverId, authPlayerCode]);
+
+  // Compute starting grid positions for rivals (using same shuffle algorithm with turn=0)
+  const rivalStartingPositions = useMemo(() => {
+    if (!catalog || !team || !raceState) return new Map<string, number>();
+
+    const playerDriverId = seasonProgress?.playerDriverId
+      ?? catalog.drivers.find((d) => d.teamId === team.id)?.id ?? '';
+    const teamColorMap = new Map(catalog.teams.map((t) => [t.id, t.color]));
+
+    const rivals = catalog.drivers
+      .filter((d) => d.id !== playerDriverId)
+      .map((d) => ({
+        color: teamColorMap.get(d.teamId) ?? '#666',
+        abbreviation: d.abbreviation,
+        strength: d.strength,
+      }));
+
+    // Same shuffle as rivalDots but with turn=0
+    const turnSeed = (raceState.seed ?? 42) + 0 * 7919;
+    let h = turnSeed >>> 0;
+    const withScore = rivals.map((r) => {
+      h = Math.imul(h ^ (h >>> 16), 0x45d9f3b) >>> 0;
+      const variance = (h % 30) - 15;
+      return { ...r, score: r.strength + variance };
+    });
+    withScore.sort((a, b) => b.score - a.score);
+
+    const startMap = new Map<string, number>();
+    let rivalIdx = 0;
+    const playerStartPos = raceState.startingPosition;
+    for (let pos = 1; pos <= 18; pos++) {
+      if (pos === playerStartPos) continue;
+      if (rivalIdx < withScore.length) {
+        startMap.set(withScore[rivalIdx].abbreviation, pos);
+        rivalIdx++;
+      }
+    }
+    return startMap;
+  }, [catalog, team, raceState?.seed, raceState?.startingPosition, seasonProgress?.playerDriverId]);
 
   // Build timing tower entries from rival data + player (shown at turn summary)
   const timingEntries = useMemo(() => {
@@ -139,6 +191,7 @@ export function RaceScreen() {
       abbreviation: r.abbreviation ?? '???',
       color: r.color,
       strength: r.strength ?? 70,
+      startingPosition: rivalStartingPositions.get(r.abbreviation ?? '???') ?? r.position,
     }));
 
     const player = {
@@ -146,10 +199,11 @@ export function RaceScreen() {
       abbreviation: authPlayerCode ?? playerDriver?.abbreviation ?? 'YOU',
       color: team.color,
       strength: playerDriver?.strength ?? 80,
+      startingPosition: raceState.startingPosition,
     };
 
     return buildTimingEntries(rivals, player, raceState.seed ?? 42, raceState.currentTurn, raceState.tireCompound);
-  }, [rivalDots, raceState, team, catalog, seasonProgress?.playerDriverId, authPlayerCode]);
+  }, [rivalDots, raceState, team, catalog, seasonProgress?.playerDriverId, authPlayerCode, rivalStartingPositions]);
 
   // On mount: scroll to top and reset stale race state if needed
   useEffect(() => {

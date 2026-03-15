@@ -223,32 +223,82 @@ export function TrackMap({ position, totalPositions = 18, teamColor, circuitId, 
           </>
         )}
 
-        {/* Start/finish line marker */}
-        {points && (
-          <circle cx={points[0][0]} cy={points[0][1]} r={3} fill="rgba(255,255,255,0.3)" />
-        )}
+        {/* Finish line marker — slightly ahead of P1 */}
+        {(() => {
+          // P1 is at fraction 0/totalPositions; place finish line a bit ahead
+          const finishPt = getCarPos(0.5);
+          return (
+            <g>
+              <line
+                x1={finishPt.x - 4}
+                y1={finishPt.y - 6}
+                x2={finishPt.x - 4}
+                y2={finishPt.y + 6}
+                stroke="rgba(255,255,255,0.5)"
+                strokeWidth="1"
+              />
+              {/* Checkered pattern (simplified) */}
+              {[0, 1, 2].map((row) =>
+                [0, 1].map((col) => (
+                  <rect
+                    key={`flag-${row}-${col}`}
+                    x={finishPt.x - 4 + col * 2.5}
+                    y={finishPt.y - 6 + row * 4}
+                    width={2.5}
+                    height={4}
+                    fill={(row + col) % 2 === 0 ? 'white' : 'rgba(0,0,0,0.8)'}
+                    opacity={0.7}
+                  />
+                )),
+              )}
+            </g>
+          );
+        })()}
 
-        {/* Rival dots — F1 style: white circle with abbreviation */}
+        {/* Rival dots — team color, no text */}
         {rivalPositions.map((r, i) => (
           <g key={`rival-${i}`}>
-            <circle cx={r.x} cy={r.y} r={7} fill="white" />
-            <text
-              x={r.x}
-              y={r.y + 2}
-              textAnchor="middle"
-              fill="black"
-              style={{ fontSize: '5.5px', fontFamily: 'monospace', fontWeight: 700 }}
-            >
-              {r.abbreviation}
-            </text>
+            <circle
+              cx={r.x}
+              cy={r.y}
+              r={6}
+              fill={r.color}
+              stroke="rgba(255,255,255,0.5)"
+              strokeWidth="0.8"
+            />
           </g>
         ))}
 
-        {/* Player car — F1 style: white circle with abbreviation + compound/team ring */}
+        {/* Labels for adjacent rivals (position +/- 1 from player) */}
+        {rivalPositions
+          .filter((r) => Math.abs(r.position - position) === 1)
+          .map((r, i) => (
+            <g key={`rival-label-${i}`}>
+              <rect
+                x={r.x - 10}
+                y={r.y - 14}
+                width={20}
+                height={8}
+                rx={2}
+                fill="rgba(255,255,255,0.85)"
+              />
+              <text
+                x={r.x}
+                y={r.y - 8}
+                textAnchor="middle"
+                fill="black"
+                style={{ fontSize: '5px', fontFamily: 'monospace', fontWeight: 700 }}
+              >
+                {r.abbreviation}
+              </text>
+            </g>
+          ))}
+
+        {/* Player car — team color dot with label above + compound/team ring */}
         <circle
           cx={playerPos.x}
           cy={playerPos.y}
-          r={10}
+          r={12}
           fill="none"
           stroke={compoundColor ?? teamColor}
           strokeWidth="1.5"
@@ -258,13 +308,25 @@ export function TrackMap({ position, totalPositions = 18, teamColor, circuitId, 
         <circle
           cx={playerPos.x}
           cy={playerPos.y}
-          r={7}
-          fill="white"
+          r={8}
+          fill={teamColor}
+          stroke="rgba(255,255,255,0.6)"
+          strokeWidth="1"
+          className="transition-all duration-500"
+        />
+        {/* Player name label above dot */}
+        <rect
+          x={playerPos.x - 12}
+          y={playerPos.y - 21}
+          width={24}
+          height={9}
+          rx={2}
+          fill="rgba(255,255,255,0.9)"
           className="transition-all duration-500"
         />
         <text
           x={playerPos.x}
-          y={playerPos.y + 2}
+          y={playerPos.y - 14}
           textAnchor="middle"
           fill="black"
           className="transition-all duration-500"

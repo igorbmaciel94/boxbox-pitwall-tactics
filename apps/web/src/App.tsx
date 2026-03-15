@@ -25,9 +25,11 @@ import { useAudio } from './hooks/use-audio';
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token);
+  const userId = useAuthStore((s) => s.userId);
   const isGuest = useAuthStore((s) => s.isGuest);
 
-  if (!token && !isGuest) {
+  // Allow: online login (token), guest (isGuest), or offline login (userId without guest)
+  if (!token && !isGuest && !userId) {
     return <Navigate to="/login" replace />;
   }
 

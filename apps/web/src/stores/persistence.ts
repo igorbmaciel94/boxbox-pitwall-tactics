@@ -16,6 +16,7 @@ function keysFor(userId: string) {
     seasonRuns: `boxbox-${userId}-season-runs`,
     seasonProgress: `boxbox-${userId}-season-progress`,
     trophies: `boxbox-${userId}-trophies`,
+    lastSynced: `boxbox-${userId}-last-synced-idb`,
   };
 }
 
@@ -160,6 +161,46 @@ export async function addTrophy(userId: string, trophy: Trophy): Promise<Trophy[
   if (trophies.length > 20) trophies.length = 20;
   await set(keysFor(userId).trophies, trophies);
   return trophies;
+}
+
+// --- Last Synced ---
+export async function saveLastSynced(userId: string, timestamp: number): Promise<void> {
+  await set(keysFor(userId).lastSynced, timestamp);
+}
+
+export async function loadLastSynced(userId: string): Promise<number> {
+  return (await get<number>(keysFor(userId).lastSynced)) ?? 0;
+}
+
+// --- Credential Hash (offline login) ---
+export async function hashCredential(username: string, password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(username + ':' + password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+export async function saveCredentialHash(username: string, hash: string): Promise<void> {
+  await set(`boxbox-credential-${username}`, hash);
+}
+
+export async function loadCredentialHash(username: string): Promise<string | null> {
+  return (await get<string>(`boxbox-credential-${username}`)) ?? null;
+}
+
+interface LocalAuthData {
+  username: string;
+  playerCode: string;
+  userId: string;
+}
+
+export async function saveLocalAuthData(username: string, data: LocalAuthData): Promise<void> {
+  await set(`boxbox-auth-local-${username}`, data);
+}
+
+export async function loadLocalAuthData(username: string): Promise<LocalAuthData | null> {
+  return (await get<LocalAuthData>(`boxbox-auth-local-${username}`)) ?? null;
 }
 
 // --- Season Progress ---

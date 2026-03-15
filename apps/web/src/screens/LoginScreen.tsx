@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router';
 import { useAuthStore } from '../stores/auth-store';
 import { useI18n } from '../i18n';
 import { Button } from '../components/shared/Button';
-import { exportAllForSync, importFromSync } from '../stores/persistence';
+import { LanguageBar } from '../components/layout/LanguageBar';
+import { exportAllForSync, importFromSync, saveLastSynced } from '../stores/persistence';
 import { fetchSyncData, uploadSyncData } from '../lib/api';
 import { mergeSyncData, localDataToSyncPayload } from '../lib/sync-merge';
 import { useGameStore } from '../stores/game-store';
@@ -35,36 +36,43 @@ export function LoginScreen() {
     }
 
     const state = useAuthStore.getState();
-    if (state.token && state.userId) {
-      try {
-        if (isRegister) {
-          // Auto-upload local data after registration (from the userId namespace)
-          const localData = await exportAllForSync(state.userId);
-          const payload = localDataToSyncPayload({ ...localData, locale: localData.locale as Locale });
-          await uploadSyncData(state.token, payload);
-          localStorage.setItem(`boxbox-${state.userId}-last-synced`, String(Date.now()));
-        } else {
-          // Auto-sync from cloud after login
-          const remoteData = await fetchSyncData(state.token);
-          if (remoteData.lastSyncedAt > 0) {
+    if (state.isAuthenticated()) {
+      // Only attempt cloud sync when we have a valid token (online login)
+      if (state.token && state.userId) {
+        try {
+          if (isRegister) {
+            // Auto-upload local data after registration (from the userId namespace)
             const localData = await exportAllForSync(state.userId);
-            const merged = mergeSyncData(
-              { ...localData, locale: localData.locale as Locale },
-              remoteData,
-            );
-            await importFromSync(state.userId, merged);
-            const store = useGameStore.getState();
-            if (merged.selectedTeam) store.selectTeam(merged.selectedTeam);
-            store.setSavedDecks(merged.savedDecks);
-            store.setBestScores(merged.bestScores);
-            store.setRunHistory(merged.runHistory);
-            store.setSeasonRuns(merged.seasonRuns);
-            store.setTrophies(merged.trophies);
-            localStorage.setItem(`boxbox-${state.userId}-last-synced`, String(Date.now()));
+            const payload = localDataToSyncPayload({ ...localData, locale: localData.locale as Locale });
+            await uploadSyncData(state.token, payload);
+            const now = Date.now();
+            localStorage.setItem(`boxbox-${state.userId}-last-synced`, String(now));
+            await saveLastSynced(state.userId, now);
+          } else {
+            // Auto-sync from cloud after login
+            const remoteData = await fetchSyncData(state.token);
+            if (remoteData.lastSyncedAt > 0) {
+              const localData = await exportAllForSync(state.userId);
+              const merged = mergeSyncData(
+                { ...localData, locale: localData.locale as Locale },
+                remoteData,
+              );
+              await importFromSync(state.userId, merged);
+              const store = useGameStore.getState();
+              if (merged.selectedTeam) store.selectTeam(merged.selectedTeam);
+              store.setSavedDecks(merged.savedDecks);
+              store.setBestScores(merged.bestScores);
+              store.setRunHistory(merged.runHistory);
+              store.setSeasonRuns(merged.seasonRuns);
+              store.setTrophies(merged.trophies);
+              const now = Date.now();
+              localStorage.setItem(`boxbox-${state.userId}-last-synced`, String(now));
+              await saveLastSynced(state.userId, now);
+            }
           }
+        } catch {
+          // Sync failure is not critical, user can retry later
         }
-      } catch {
-        // Sync failure is not critical, user can retry later
       }
       navigate('/');
     }
@@ -86,6 +94,10 @@ export function LoginScreen() {
 
   return (
     <div className="relative flex min-h-dvh flex-col items-center justify-center px-5">
+      <div className="fixed inset-x-0 top-0 z-50">
+        <LanguageBar />
+      </div>
+
       {/* Background */}
       <div className="pointer-events-none fixed inset-0 -z-10">
         <img

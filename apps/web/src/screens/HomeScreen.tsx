@@ -1,13 +1,12 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { useAuthStore } from '../stores/auth-store';
 import { useI18n } from '../i18n';
-import { useAudio } from '../hooks/use-audio';
 import { Modal } from '../components/shared/Modal';
 import { Button } from '../components/shared/Button';
 import { DeckPickerModal } from '../components/shared/DeckPickerModal';
-import { exportAllForSync, importFromSync } from '../stores/persistence';
+import { exportAllForSync, importFromSync, saveLastSynced, loadLastSynced } from '../stores/persistence';
 import { fetchSyncData, uploadSyncData } from '../lib/api';
 import { mergeSyncData, localDataToSyncPayload } from '../lib/sync-merge';
 import type { Locale } from '../i18n';
@@ -43,8 +42,6 @@ export function HomeScreen() {
   const seasonProgress = useGameStore((s) => s.seasonProgress);
   const restoreAbandonedTires = useGameStore((s) => s.restoreAbandonedTires);
   const resetAll = useGameStore((s) => s.resetAll);
-  const audio = useAudio();
-  const [muted, setMuted] = useState(() => audio.isMuted());
   const [showSeasonModal, setShowSeasonModal] = useState(false);
   const [showDeckPicker, setShowDeckPicker] = useState(false);
   const [deckPickerTarget, setDeckPickerTarget] = useState<'race' | 'season'>('race');
@@ -67,7 +64,20 @@ export function HomeScreen() {
     && seasonProgress.raceResults.length > 0;
 
   const lastSyncedKey = userId ? `boxbox-${userId}-last-synced` : null;
-  const lastSynced = lastSyncedKey ? Number(localStorage.getItem(lastSyncedKey) || 0) : 0;
+  const [lastSynced, setLastSynced] = useState<number>(() =>
+    lastSyncedKey ? Number(localStorage.getItem(lastSyncedKey) || 0) : 0,
+  );
+
+  // Load sync date from IDB on mount and reconcile with localStorage
+  useEffect(() => {
+    if (!userId) return;
+    loadLastSynced(userId).then((idbValue) => {
+      if (idbValue > 0) {
+        setLastSynced((prev) => Math.max(prev, idbValue));
+        localStorage.setItem(`boxbox-${userId}-last-synced`, String(idbValue));
+      }
+    });
+  }, [userId]);
 
   const handleSync = useCallback(async () => {
     if (!token || !userId) {
@@ -100,7 +110,10 @@ export function HomeScreen() {
       store.setSeasonRuns(merged.seasonRuns);
       store.setTrophies(merged.trophies);
 
-      localStorage.setItem(`boxbox-${userId}-last-synced`, String(Date.now()));
+      const now = Date.now();
+      localStorage.setItem(`boxbox-${userId}-last-synced`, String(now));
+      await saveLastSynced(userId, now);
+      setLastSynced(now);
       setSyncMessage(t('sync.success'));
     } catch {
       setSyncMessage(t('sync.error'));
@@ -203,7 +216,7 @@ export function HomeScreen() {
           )}
         </div>
 
-        {/* Right side: logout + mute */}
+        {/* Right side: logout */}
         <div className="flex items-center gap-2">
           <button
             onClick={handleLogout}
@@ -215,24 +228,6 @@ export function HomeScreen() {
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" y1="12" x2="9" y2="12" />
             </svg>
-          </button>
-          <button
-            onClick={() => setMuted(audio.toggleMute())}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/8 text-white/50 transition-colors hover:bg-white/15 hover:text-white"
-            title={muted ? t('race.unmute') : t('race.mute')}
-          >
-            {muted ? (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                <line x1="23" y1="9" x2="17" y2="15" />
-                <line x1="17" y1="9" x2="23" y2="15" />
-              </svg>
-            ) : (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
-              </svg>
-            )}
           </button>
         </div>
       </div>
