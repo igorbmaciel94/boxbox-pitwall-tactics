@@ -21,11 +21,16 @@ public class SyncDataRepository : ISyncDataRepository
 
     public async Task UpsertAsync(SyncData syncData)
     {
-        if (string.IsNullOrEmpty(syncData.Id))
+        var filter = Builders<SyncData>.Filter.Eq(s => s.UserId, syncData.UserId);
+        var existing = await _syncData.Find(filter).FirstOrDefaultAsync();
+        if (existing != null)
+        {
+            syncData.Id = existing.Id;
+        }
+        else if (string.IsNullOrEmpty(syncData.Id))
         {
             syncData.Id = ObjectId.GenerateNewId().ToString();
         }
-        var filter = Builders<SyncData>.Filter.Eq(s => s.UserId, syncData.UserId);
         var options = new ReplaceOptions { IsUpsert = true };
         await _syncData.ReplaceOneAsync(filter, syncData, options);
     }
