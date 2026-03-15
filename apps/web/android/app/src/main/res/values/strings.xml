@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Box Box</string>
+    <string name="title_activity_main">Box Box</string>
+    <string name="package_name">com.boxbox.pitwall</string>
+    <string name="custom_url_scheme">com.boxbox.pitwall</string>
+</resources>

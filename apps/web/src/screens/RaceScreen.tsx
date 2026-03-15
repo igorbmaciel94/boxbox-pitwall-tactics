@@ -18,6 +18,7 @@ import { PreRaceTireSetup } from '../components/race/PreRaceTireSetup';
 import { Button } from '../components/shared/Button';
 import { ConfirmDialog } from '../components/shared/ConfirmDialog';
 import { useAudio } from '../hooks/use-audio';
+import { useHaptics } from '../hooks/use-haptics';
 import { getCircuitImageUrl, getCircuitFallbackGradient } from '../lib/images';
 import { handHasPitCard, createRng } from '@boxbox/engine';
 import type { CardId, TireAllocation, TireCompound } from '@boxbox/engine';
@@ -54,6 +55,7 @@ export function RaceScreen() {
   const stepper = useTurnStepper();
   const { sendRadio, sendEventRadio } = useRadioMessage();
   const audio = useAudio();
+  const haptics = useHaptics();
 
   const difficulty = useGameStore((s) => s.difficulty);
   const seasonProgress = useGameStore((s) => s.seasonProgress);
@@ -474,6 +476,7 @@ export function RaceScreen() {
                 size="md"
                 className="flex-1"
                 onClick={() => {
+                  haptics.confirmTap();
                   stepper.submitMulligan();
                   stepper.advanceToRevealEvent();
                 }}
@@ -506,8 +509,8 @@ export function RaceScreen() {
           team={team}
           used={raceState.perkUsed}
           visible={turnPhaseUI === 'await-perk'}
-          onActivate={() => stepper.submitPerkChoice(true)}
-          onSkip={() => stepper.submitPerkChoice(false)}
+          onActivate={() => { haptics.confirmTap(); stepper.submitPerkChoice(true); }}
+          onSkip={() => { haptics.confirmTap(); stepper.submitPerkChoice(false); }}
         />
 
         {turnPhaseUI === 'await-action-card' && (() => {
@@ -612,6 +615,7 @@ export function RaceScreen() {
                           if (isScOvertakeCard && !scWarningShown) {
                             setScWarningShown(true);
                           }
+                          haptics.playCardTap();
                           sendRadio('generic');
                           stepper.submitActionCard(cardId);
                           setSelectedHandIndex(null);
@@ -634,7 +638,7 @@ export function RaceScreen() {
             <div className="w-full max-w-lg rounded-t-3xl bg-carbon px-5 pb-6 pt-4 animate-slide-up">
               <CompoundSelector
                 raceState={raceState}
-                onSelect={(compound) => stepper.submitCompoundChoice(compound)}
+                onSelect={(compound) => { haptics.confirmTap(); stepper.submitCompoundChoice(compound); }}
               />
             </div>
           </div>

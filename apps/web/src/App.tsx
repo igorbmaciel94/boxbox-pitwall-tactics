@@ -22,6 +22,7 @@ import type { SavedDeck } from './lib/types';
 import { useI18n } from './i18n';
 import type { Locale } from './i18n';
 import { useAudio } from './hooks/use-audio';
+import { hideSplashScreen, configureStatusBar } from './lib/capacitor-init';
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.token);
@@ -68,10 +69,12 @@ export function App() {
   const userId = useAuthStore((s) => s.userId);
   const prevUserIdRef = useRef<string | null>(null);
 
-  // Load catalog once on startup
+  // Load catalog once on startup, then init native shell
   useEffect(() => {
     const catalog = loadBrowserCatalog();
     setCatalog(catalog);
+    hideSplashScreen();
+    configureStatusBar();
   }, [setCatalog]);
 
   // Load persisted data when userId changes (login/logout/guest switch)

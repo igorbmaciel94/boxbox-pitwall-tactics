@@ -1,9 +1,11 @@
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { getPositionColor, calculateMedal, MEDAL_COLORS, EVENT_ICONS } from '../lib/constants';
 import { Button } from '../components/shared/Button';
 import { RaceClassification } from '../components/race/RaceClassification';
 import { useI18n } from '../i18n';
+import { useHaptics } from '../hooks/use-haptics';
 
 export function DebriefScreen() {
   const navigate = useNavigate();
@@ -17,12 +19,21 @@ export function DebriefScreen() {
     getEventName,
     getMedalLabel,
   } = useI18n();
+  const { successBuzz } = useHaptics();
   const lastDebrief = useGameStore((s) => s.lastDebrief);
   const catalog = useGameStore((s) => s.catalog);
   const mode = useGameStore((s) => s.mode);
   const advanceSeasonRace = useGameStore((s) => s.advanceSeasonRace);
   const resetRace = useGameStore((s) => s.resetRace);
   const seasonProgress = useGameStore((s) => s.seasonProgress);
+
+  const buzzedRef = useRef(false);
+  useEffect(() => {
+    if (lastDebrief && !buzzedRef.current) {
+      buzzedRef.current = true;
+      successBuzz();
+    }
+  }, [lastDebrief, successBuzz]);
 
   if (!lastDebrief || !catalog) {
     return (
