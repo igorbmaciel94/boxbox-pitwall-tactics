@@ -88,17 +88,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   error: null,
 
   login: async (username, password) => {
+    const normalizedUsername = username.toLowerCase().trim();
     set({ isLoading: true, error: null });
     try {
-      const res = await api.login(username, password);
+      const res = await api.login(normalizedUsername, password);
       const userId = parseJwtSub(res.token) ?? res.username;
       saveToStorage(res.token, res.username, res.playerCode, userId);
       set({ token: res.token, username: res.username, playerCode: res.playerCode, userId, isGuest: false, isLoading: false });
 
       // Save credentials locally for offline login
-      const hash = await hashCredential(username, password);
-      await saveCredentialHash(username, hash);
-      await saveLocalAuthData(username, { username: res.username, playerCode: res.playerCode, userId });
+      const hash = await hashCredential(normalizedUsername, password);
+      await saveCredentialHash(normalizedUsername, hash);
+      await saveLocalAuthData(normalizedUsername, { username: res.username, playerCode: res.playerCode, userId });
     } catch (err) {
       if (err instanceof api.ApiError) {
         // Server reachable — use server response
@@ -109,11 +110,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       // Network error — try offline login
       try {
-        const hash = await hashCredential(username, password);
-        const storedHash = await loadCredentialHash(username);
+        const hash = await hashCredential(normalizedUsername, password);
+        const storedHash = await loadCredentialHash(normalizedUsername);
 
         if (storedHash && storedHash === hash) {
-          const localData = await loadLocalAuthData(username);
+          const localData = await loadLocalAuthData(normalizedUsername);
           if (localData) {
             // Offline login: no token, but restore user data
             localStorage.removeItem(STORAGE_KEYS.token);
@@ -143,17 +144,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   register: async (username, password) => {
+    const normalizedUsername = username.toLowerCase().trim();
     set({ isLoading: true, error: null });
     try {
-      const res = await api.register(username, password);
+      const res = await api.register(normalizedUsername, password);
       const userId = parseJwtSub(res.token) ?? res.username;
       saveToStorage(res.token, res.username, res.playerCode, userId);
       set({ token: res.token, username: res.username, playerCode: res.playerCode, userId, isGuest: false, isLoading: false });
 
       // Save credentials locally for offline login
-      const hash = await hashCredential(username, password);
-      await saveCredentialHash(username, hash);
-      await saveLocalAuthData(username, { username: res.username, playerCode: res.playerCode, userId });
+      const hash = await hashCredential(normalizedUsername, password);
+      await saveCredentialHash(normalizedUsername, hash);
+      await saveLocalAuthData(normalizedUsername, { username: res.username, playerCode: res.playerCode, userId });
     } catch (err) {
       const message = err instanceof api.ApiError
         ? (err.status === 409 ? 'usernameExists' : err.message)
