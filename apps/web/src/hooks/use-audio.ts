@@ -110,7 +110,7 @@ function syncMusicPlayback(track: MusicTrack | null) {
 
   currentMusicTrack = track;
   currentMusicAudio = audio;
-  currentMusicAudio.volume = track === 'race' ? 0.22 : 0.18;
+  currentMusicAudio.volume = track === 'race' ? 0.08 : 0.06;
   currentMusicAudio.play().catch(() => {
     // Autoplay blocked until first user interaction.
     bindAudioUnlockListener();
@@ -133,7 +133,7 @@ export function useAudio() {
   }, []);
 
   const playRadioMessage = useCallback(() => {
-    playSound(AUDIO_FILES.radioStatic, 0.4);
+    playSound(AUDIO_FILES.radioStatic, 0.15);
   }, []);
 
   const setBackgroundTrack = useCallback((track: MusicTrack | null) => {
@@ -144,7 +144,7 @@ export function useAudio() {
     playCardSelect: () => {},
     playCardPlay: () => {},
     playPitStop: () => {
-      playSound(AUDIO_FILES.pitStop, 0.5);
+      playSound(AUDIO_FILES.pitStop, 0.2);
     },
     playEventReveal: () => {},
     playSafetyCar: () => {},

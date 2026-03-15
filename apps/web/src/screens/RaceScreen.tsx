@@ -66,7 +66,6 @@ export function RaceScreen() {
   const [scenarioSelectMode, setScenarioSelectMode] = useState(false);
   const [pendingScenarioId, setPendingScenarioId] = useState<string | null>(null);
   const [pendingRaceSeed, setPendingRaceSeed] = useState<number | undefined>(undefined);
-  const [muted, setMuted] = useState(() => audio.isMuted());
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const [showTimingTower, setShowTimingTower] = useState(false);
   const frozenTimingEntries = useRef<TimingEntry[]>([]);
@@ -429,8 +428,6 @@ export function RaceScreen() {
         scenario={scenario}
         turn={raceState.currentTurn}
         onQuit={() => setShowQuitConfirm(true)}
-        onToggleMute={() => setMuted(audio.toggleMute())}
-        isMuted={muted}
       />
 
       {/* Fixed-height wrapper so timing tower and mini-map occupy the same space */}
