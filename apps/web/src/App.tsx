@@ -125,7 +125,7 @@ export function App() {
   }, [locale, userId]);
 
   useEffect(() => {
-    setBackgroundTrack(location.pathname === '/race' ? null : 'menu');
+    setBackgroundTrack(location.pathname === '/race' ? 'race' : 'menu');
   }, [location.pathname, setBackgroundTrack]);
 
   return (

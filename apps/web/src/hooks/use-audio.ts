@@ -110,7 +110,7 @@ function syncMusicPlayback(track: MusicTrack | null) {
 
   currentMusicTrack = track;
   currentMusicAudio = audio;
-  currentMusicAudio.volume = track === 'race' ? 0.08 : 0.06;
+  currentMusicAudio.volume = track === 'race' ? 0.03 : 0.06;
   currentMusicAudio.play().catch(() => {
     // Autoplay blocked until first user interaction.
     bindAudioUnlockListener();
