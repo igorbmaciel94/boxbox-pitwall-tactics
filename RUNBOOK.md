@@ -40,6 +40,16 @@ npm run dev:web
 # - Mongo Express: http://localhost:8081
 ```
 
+## Server Directory Structure
+
+```
+/opt/boxbox/
+├── docker-compose.yml    # copied from deploy/docker-compose.yml
+├── .env                  # created from deploy/.env.example
+└── data/
+    └── mongo/            # MongoDB persistent data
+```
+
 ## Initial Server Setup
 
 Run these steps once on the production server:
@@ -47,10 +57,19 @@ Run these steps once on the production server:
 ```bash
 # 1. Create project directory
 mkdir -p /opt/boxbox/data/mongo
-
-# 2. Copy production compose file
 cd /opt/boxbox
-# Copy docker-compose.prod.yml from the repo to /opt/boxbox/
+
+# 2. Copy deploy files from repo (or download from GitHub)
+# Option A: curl from GitHub (private repo needs PAT)
+curl -H "Authorization: token <PAT>" -o docker-compose.yml \
+  https://raw.githubusercontent.com/igorbmaciel94/boxbox-pitwall-tactics/main/deploy/docker-compose.yml
+
+curl -H "Authorization: token <PAT>" -o .env.example \
+  https://raw.githubusercontent.com/igorbmaciel94/boxbox-pitwall-tactics/main/deploy/.env.example
+
+# Option B: copy from local machine
+# scp deploy/docker-compose.yml root@46.225.216.71:/opt/boxbox/docker-compose.yml
+# scp deploy/.env.example root@46.225.216.71:/opt/boxbox/.env.example
 
 # 3. Create .env from template
 cp .env.example .env
@@ -62,11 +81,11 @@ docker login ghcr.io -u igorbmaciel94
 # Enter a Personal Access Token with read:packages scope
 
 # 5. Pull images and start
-docker compose -f docker-compose.prod.yml pull
-docker compose -f docker-compose.prod.yml up -d
+docker compose pull
+docker compose up -d
 
 # 6. Add Caddy site block
-# Append contents of infra/Caddyfile.snippet to:
+# Append contents of deploy/Caddyfile.snippet to:
 #   /opt/bloodwatch/compose/Caddyfile
 # Then reload Caddy:
 docker exec bloodwatch-caddy caddy reload --config /etc/caddy/Caddyfile
@@ -118,8 +137,8 @@ cd /opt/boxbox
 
 # Use a specific commit SHA
 export BOXBOX_IMAGE_TAG=<previous-commit-sha>
-docker compose -f docker-compose.prod.yml pull
-docker compose -f docker-compose.prod.yml up -d
+docker compose pull
+docker compose up -d
 ```
 
 ### Check available image tags
@@ -137,7 +156,7 @@ gh api /user/packages/container/boxbox-api/versions --jq '.[].metadata.container
 cd /opt/boxbox
 
 # Dump to archive
-docker compose -f docker-compose.prod.yml exec mongo \
+docker compose exec mongo \
   mongodump --db=boxbox --archive=/tmp/boxbox-backup.archive
 
 # Copy from container
@@ -149,7 +168,7 @@ docker cp boxbox-mongo:/tmp/boxbox-backup.archive ./backups/boxbox-$(date +%Y%m%
 ```bash
 docker cp ./backups/boxbox-YYYYMMDD.archive boxbox-mongo:/tmp/restore.archive
 
-docker compose -f docker-compose.prod.yml exec mongo \
+docker compose exec mongo \
   mongorestore --db=boxbox --archive=/tmp/restore.archive --drop
 ```
 
@@ -171,10 +190,10 @@ curl https://boxbox.lighthousedev.uk/api/health
 cd /opt/boxbox
 
 # API logs
-docker compose -f docker-compose.prod.yml logs -f api
+docker compose logs -f api
 
 # All services
-docker compose -f docker-compose.prod.yml logs -f
+docker compose logs -f
 
 # Caddy logs (from bloodwatch compose)
 docker logs -f bloodwatch-caddy 2>&1 | grep boxbox
@@ -183,7 +202,7 @@ docker logs -f bloodwatch-caddy 2>&1 | grep boxbox
 ### Container status
 
 ```bash
-docker compose -f docker-compose.prod.yml ps
+docker compose ps
 ```
 
 ## Environment Variables
