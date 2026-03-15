@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { CardComponent } from '../components/race/CardComponent';
@@ -27,13 +27,6 @@ export function DeckEditorScreen() {
   const [focusedCardId, setFocusedCardId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const infoPanelRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll to info panel when a card is focused
-  useEffect(() => {
-    if (focusedCardId && infoPanelRef.current) {
-      infoPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-  }, [focusedCardId]);
 
   if (!catalog) return null;
 
@@ -246,7 +239,7 @@ export function DeckEditorScreen() {
       )}
 
       {/* Card catalog */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-2">
         {filteredCards.map((card) => {
           const count = cards.filter((c) => c === card.id).length;
           const canAdd = cards.length < 9 && count < 2;
