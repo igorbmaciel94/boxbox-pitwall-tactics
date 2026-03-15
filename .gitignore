@@ -35,5 +35,6 @@ apps/web/android/build/
 local.properties
 
 # Environment files
+.env
 .env.local
 .env.*.local

@@ -1,0 +1,8 @@
+.git
+.github
+*.md
+infra
+services
+apps/web/ios
+apps/web/android
+apps/web/node_modules

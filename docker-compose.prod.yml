@@ -1,0 +1,42 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: boxbox-mongo
+    volumes:
+      - /opt/boxbox/data/mongo:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  api:
+    image: ghcr.io/igorbmaciel94/boxbox-api:${BOXBOX_IMAGE_TAG:-main}
+    container_name: boxbox-api
+    ports:
+      - "127.0.0.1:18083:8080"
+    env_file: .env
+    environment:
+      MONGODB_URI: mongodb://mongo:27017
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health > /dev/null"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  web:
+    image: ghcr.io/igorbmaciel94/boxbox-web:${BOXBOX_IMAGE_TAG:-main}
+    container_name: boxbox-web
+    ports:
+      - "127.0.0.1:18082:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped

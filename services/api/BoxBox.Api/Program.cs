@@ -8,6 +8,7 @@ using BoxBox.Api.Infrastructure.Persistence;
 using BoxBox.Api.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -145,6 +146,21 @@ app.UseSwaggerUI(options =>
 // Map endpoints
 app.MapAuthEndpoints();
 app.MapSyncEndpoints();
+
+app.MapGet("/health", async (IMongoDatabase db) =>
+{
+    try
+    {
+        await db.RunCommandAsync<BsonDocument>(new BsonDocument("ping", 1));
+        return Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow });
+    }
+    catch
+    {
+        return Results.Json(
+            new { status = "unhealthy", timestamp = DateTime.UtcNow },
+            statusCode: 503);
+    }
+}).ExcludeFromDescription();
 
 app.MapGet("/", () => Results.Redirect("/docs")).ExcludeFromDescription();
 
