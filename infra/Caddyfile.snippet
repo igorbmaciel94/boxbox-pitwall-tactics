@@ -1,0 +1,14 @@
+boxbox.lighthousedev.uk {
+	encode zstd gzip
+
+	handle_path /api/* {
+		reverse_proxy host.docker.internal:18083
+	}
+
+	reverse_proxy host.docker.internal:18082
+
+	log {
+		output stdout
+		format json
+	}
+}
