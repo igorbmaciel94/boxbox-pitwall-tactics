@@ -671,7 +671,7 @@ export function RaceScreen() {
             <p className="text-sm text-metal-light">
               {t('race.startingInfo', { position: raceState.position, laps: scenario.turns })}
             </p>
-            <Button variant="primary" size="lg" className="w-full" onClick={() => stepper.startNextTurn()}>
+            <Button variant="primary" size="lg" className="w-full" onClick={() => { audio.setBackgroundTrack('race'); stepper.startNextTurn(); }}>
               {t('race.startRace')}
             </Button>
           </div>
