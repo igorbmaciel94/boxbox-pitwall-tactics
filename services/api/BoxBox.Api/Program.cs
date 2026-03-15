@@ -69,11 +69,12 @@ builder.Services.AddAuthorization();
 var corsOrigin = builder.Configuration["CORS_ORIGIN"]
     ?? Environment.GetEnvironmentVariable("CORS_ORIGIN")
     ?? "http://localhost:5173";
+var allowedOrigins = new List<string> { corsOrigin, "capacitor://localhost", "http://localhost" };
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(corsOrigin)
+        policy.WithOrigins(allowedOrigins.ToArray())
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
