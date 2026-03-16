@@ -514,12 +514,13 @@ export function RaceScreen() {
           const needsPit = !raceState.hasPitted && raceState.currentTurn >= raceState.totalTurns - 2 && raceState.currentTurn > 0;
           const hasPit = handHasPitCard(raceState.hand, catalog);
           const canEmergencyMulligan = needsPit && !hasPit && !raceState.emergencyMulliganUsed;
-          const canSkipTurn = needsPit && !hasPit && raceState.emergencyMulliganUsed;
           // P1 skip allowed based on difficulty: easy=always, normal=once per race, hard=never
           const canSkipP1 = raceState.position === 1 && (
             difficulty === 'easy' ||
             (difficulty === 'normal' && raceState.p1SkipsUsed < 1)
           );
+          // Emergency pit skip — also respects P1 difficulty rules
+          const canSkipTurn = needsPit && !hasPit && raceState.emergencyMulliganUsed && (raceState.position !== 1 || canSkipP1);
           const showSkipAlways = raceState.underSafetyCar || canSkipP1;
           // SC overtake warning: selected card gains positions (posChange < 0) and is not a pit card
           const selectedCardId = selectedHandIndex !== null ? raceState.hand[selectedHandIndex] : null;
