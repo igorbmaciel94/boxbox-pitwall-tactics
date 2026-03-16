@@ -135,8 +135,14 @@ export function useTurnStepper() {
   }, []);
 
   const submitSkipTurn = useCallback(() => {
-    const { raceState: state } = store.getState();
+    const { raceState: state, difficulty } = store.getState();
     if (!state) return;
+
+    // Block P1 skip based on difficulty: hard=never, normal=max 1
+    if (state.position === 1 && !state.underSafetyCar) {
+      if (difficulty === 'hard') return;
+      if (difficulty === 'normal' && state.p1SkipsUsed >= 1) return;
+    }
 
     // Skip turn: no card played, go straight to resolving
     actionCardRef.current = '';
