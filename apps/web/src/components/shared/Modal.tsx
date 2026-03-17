@@ -30,7 +30,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         onClick={onClose}
       />
       {/* Content */}
-      <div className="animate-slide-up relative z-10 max-h-modal-safe w-full max-w-xl overflow-y-auto rounded-t-2xl bg-carbon-mid/95 shadow-2xl shadow-black/50 backdrop-blur-xl sm:rounded-2xl">
+      <div className="animate-slide-up relative z-10 max-h-[85dvh] w-full max-w-xl overflow-y-auto rounded-t-2xl bg-carbon-mid/95 shadow-2xl shadow-black/50 backdrop-blur-xl sm:rounded-2xl">
         {title && (
           <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/8 bg-carbon-mid/90 px-5 py-3.5 backdrop-blur-sm">
             <h2 className="font-display text-lg font-semibold uppercase tracking-wide">

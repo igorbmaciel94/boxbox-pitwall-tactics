@@ -8,7 +8,7 @@ interface ShellProps {
 
 export function Shell({ children }: ShellProps) {
   return (
-    <div className="min-h-screen-safe relative isolate overflow-x-clip bg-carbon text-white">
+    <div className="relative isolate min-h-dvh overflow-x-clip bg-carbon text-white">
       {/* Subtle top accent */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-f1-red/70 to-transparent" />
 

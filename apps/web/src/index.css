@@ -33,7 +33,6 @@
 
 body {
   position: relative;
-  min-height: 100vh;
   min-height: 100dvh;
   margin: 0;
   color: #f1f5f9;
@@ -208,23 +207,6 @@ body::selection {
 
 .sheen-overlay:hover::after {
   opacity: 1;
-}
-
-/* ── Layout helpers (Android WebView dvh fallback) ── */
-
-.min-h-screen-safe {
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
-.h-screen-safe {
-  height: 100vh;
-  height: 100dvh;
-}
-
-.max-h-modal-safe {
-  max-height: 85vh;
-  max-height: 85dvh;
 }
 
 /* ── Scrollbar ── */

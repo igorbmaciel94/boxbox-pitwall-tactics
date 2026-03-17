@@ -93,22 +93,21 @@ export function LoginScreen() {
     : null;
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center overflow-y-auto px-5">
-      <div className="fixed inset-x-0 top-0 z-50 safe-area-pt">
+    <div className="relative flex min-h-dvh flex-col items-center justify-center px-5">
+      <div className="fixed inset-x-0 top-0 z-50">
         <LanguageBar />
       </div>
 
       {/* Background */}
-      <div
-        className="pointer-events-none fixed inset-0"
-        style={{
-          backgroundImage: 'url(/images/backgrounds/home-bg.webp)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          opacity: 0.15,
-        }}
-      />
-      <div className="pointer-events-none fixed inset-0 bg-gradient-to-b from-carbon/80 via-carbon/60 to-carbon" />
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <img
+          src="/images/backgrounds/home-bg.webp"
+          alt=""
+          className="h-full w-full object-cover opacity-15"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-carbon/80 via-carbon/60 to-carbon" />
+      </div>
 
       {/* Title */}
       <div className="mb-10 text-center">
