@@ -62,7 +62,7 @@ body::selection {
 }
 
 .safe-area-pt {
-  padding-top: max(env(safe-area-inset-top), 0px);
+  padding-top: max(env(safe-area-inset-top), var(--status-bar-height, 0px));
 }
 
 .safe-area-pb {

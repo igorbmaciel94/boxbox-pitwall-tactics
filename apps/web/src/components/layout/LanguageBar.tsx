@@ -8,7 +8,7 @@ export function LanguageBar() {
   const [muted, setMuted] = useState(() => audio.isMuted());
 
   return (
-    <div className="safe-area-pt sticky top-0 z-50 bg-carbon/80 backdrop-blur-xl pt-8">
+    <div className="safe-area-pt sticky top-0 z-50 bg-carbon/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-xl items-center justify-end gap-2 px-5 py-2">
         <div className="flex items-center gap-1 rounded-full bg-white/5 p-0.5">
           <button
