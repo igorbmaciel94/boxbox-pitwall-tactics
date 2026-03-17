@@ -416,7 +416,7 @@ export function RaceScreen() {
   const isRain = currentEvent?.type === 'rain';
 
   return (
-    <div className="h-screen-safe relative flex flex-col overflow-hidden">
+    <div className="fixed inset-0 flex flex-col overflow-hidden">
       {isSC && turnPhaseUI !== 'idle' && (
         <div className="pointer-events-none fixed inset-0 z-30 bg-hud-yellow/8 animate-sc-pulse" />
       )}
