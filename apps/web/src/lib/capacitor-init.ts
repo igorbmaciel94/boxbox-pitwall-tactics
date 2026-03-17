@@ -11,5 +11,5 @@ export async function configureStatusBar() {
   const { StatusBar, Style } = await import('@capacitor/status-bar');
   await StatusBar.setStyle({ style: Style.Dark });
   await StatusBar.setBackgroundColor({ color: '#151d28' });
-  await StatusBar.setOverlaysWebView({ overlay: true });
+  await StatusBar.setOverlaysWebView({ overlay: false });
 }
