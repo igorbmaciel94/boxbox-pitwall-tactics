@@ -188,7 +188,7 @@ export function HomeScreen() {
   };
 
   return (
-    <div className="relative flex min-h-dvh flex-col px-5 pt-10">
+    <div className="min-h-screen-safe relative flex flex-col px-5 pt-10">
       {/* Background image */}
       <div className="pointer-events-none fixed inset-0 -z-10">
         <img

@@ -93,13 +93,13 @@ export function LoginScreen() {
     : null;
 
   return (
-    <div className="relative flex min-h-dvh flex-col items-center justify-center px-5">
-      <div className="fixed inset-x-0 top-0 z-50">
+    <div className="min-h-screen-safe relative flex flex-col items-center justify-center px-5">
+      <div className="fixed inset-x-0 top-0 z-50 safe-area-pt">
         <LanguageBar />
       </div>
 
       {/* Background */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <img
           src="/images/backgrounds/home-bg.webp"
           alt=""
