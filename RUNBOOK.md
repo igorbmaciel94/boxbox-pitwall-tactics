@@ -6,13 +6,13 @@
 Internet
   │
   ▼
-Caddy (bloodwatch-caddy container, ports 80/443)
+Caddy (shared reverse proxy, ports 80/443)
   │
-  ├── boxbox.lighthousedev.uk
+  ├── <APP_DOMAIN>
   │     ├── /api/*  → boxbox-api (127.0.0.1:18083)
   │     └── /*      → boxbox-web (127.0.0.1:18082)
   │
-  └── (other sites: bloodwatch, cost-tracker)
+  └── (other hosted sites)
 
 boxbox-web (nginx, serves static Vite build)
 boxbox-api (.NET 9, port 8080 internal)
@@ -68,8 +68,8 @@ curl -H "Authorization: token <PAT>" -o .env.example \
   https://raw.githubusercontent.com/igorbmaciel94/boxbox-pitwall-tactics/main/deploy/.env.example
 
 # Option B: copy from local machine
-# scp deploy/docker-compose.yml root@46.225.216.71:/opt/boxbox/docker-compose.yml
-# scp deploy/.env.example root@46.225.216.71:/opt/boxbox/.env.example
+# scp deploy/docker-compose.yml <DEPLOY_USER>@<DEPLOY_HOST>:/opt/boxbox/docker-compose.yml
+# scp deploy/.env.example <DEPLOY_USER>@<DEPLOY_HOST>:/opt/boxbox/.env.example
 
 # 3. Create .env from template
 cp .env.example .env
@@ -86,9 +86,9 @@ docker compose up -d
 
 # 6. Add Caddy site block
 # Append contents of deploy/Caddyfile.snippet to:
-#   /opt/bloodwatch/compose/Caddyfile
+#   <CADDY_COMPOSE_DIR>/Caddyfile
 # Then reload Caddy:
-docker exec bloodwatch-caddy caddy reload --config /etc/caddy/Caddyfile
+docker exec <CADDY_CONTAINER> caddy reload --config /etc/caddy/Caddyfile
 ```
 
 ## GitHub Secrets
@@ -97,8 +97,8 @@ Configure these in **Settings > Secrets and variables > Actions**:
 
 | Secret | Description |
 |--------|-------------|
-| `DEPLOY_HOST` | Server IP (e.g., `46.225.216.71`) |
-| `DEPLOY_USER` | SSH user (e.g., `root`) |
+| `DEPLOY_HOST` | Server hostname or IP |
+| `DEPLOY_USER` | SSH user |
 | `DEPLOY_SSH_KEY` | Private SSH key for deployment |
 | `JWT_SECRET_PROD` | JWT signing secret (min 32 chars) |
 
@@ -132,7 +132,7 @@ The workflow:
 ### Quick rollback (previous image)
 
 ```bash
-ssh root@46.225.216.71
+ssh <DEPLOY_USER>@<DEPLOY_HOST>
 cd /opt/boxbox
 
 # Use a specific commit SHA
@@ -181,7 +181,7 @@ docker compose exec mongo \
 curl http://localhost:18083/health
 
 # From internet
-curl https://boxbox.lighthousedev.uk/api/health
+curl https://<APP_DOMAIN>/api/health
 ```
 
 ### Logs
@@ -195,8 +195,8 @@ docker compose logs -f api
 # All services
 docker compose logs -f
 
-# Caddy logs (from bloodwatch compose)
-docker logs -f bloodwatch-caddy 2>&1 | grep boxbox
+# Caddy logs (from shared reverse proxy)
+docker logs -f <CADDY_CONTAINER> 2>&1 | grep boxbox
 ```
 
 ### Container status
@@ -211,7 +211,7 @@ docker compose ps
 |----------|-------------|---------|
 | `MONGODB_URI` | MongoDB connection string | `mongodb://mongo:27017` (set in compose) |
 | `JWT_SECRET` | JWT signing key | **required** |
-| `CORS_ORIGIN` | Allowed CORS origin | `https://boxbox.lighthousedev.uk` |
+| `CORS_ORIGIN` | Allowed CORS origin | `https://<APP_DOMAIN>` |
 | `ASPNETCORE_ENVIRONMENT` | .NET environment | `Production` |
 | `BOXBOX_IMAGE_TAG` | Docker image tag | `main` |
-| `VITE_API_URL` | API URL (build-time) | `https://boxbox.lighthousedev.uk/api` |
+| `VITE_API_URL` | API URL (build-time) | `https://<APP_DOMAIN>/api` |
