@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { ScenarioData } from '@boxbox/engine';
+import type { ScenarioData } from '@apex/engine';
 import { getCircuitImageUrl, getCircuitFallbackGradient } from '../../lib/images';
 import { useI18n } from '../../i18n';
 
@@ -65,7 +65,7 @@ export function ScenarioStrip({ scenario, turn, onQuit }: ScenarioStripProps) {
                   i < turn
                     ? 'bg-hud-green'
                     : i === turn
-                      ? 'bg-f1-red'
+                      ? 'bg-apex-red'
                       : 'bg-white/10'
                 }`}
               />

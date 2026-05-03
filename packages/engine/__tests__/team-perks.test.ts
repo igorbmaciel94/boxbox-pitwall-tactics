@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadCatalog } from '@boxbox/content';
+import { loadCatalog } from '@apex/content';
 import { maybeApplyTeamPerk } from '../src/team-perks.js';
 import type { PlayerAgent, RaceState } from '../src/types.js';
 
@@ -7,7 +7,7 @@ const catalog = loadCatalog();
 
 function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
   return {
-    scenarioId: 'monaco',
+    scenarioId: 'harbor',
     teamId: 'azure',
     seed: 42,
     difficulty: 'normal',
@@ -16,11 +16,11 @@ function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
     currentTurn: 1,
     totalTurns: 6,
     deck: [],
-    hand: ['push-hard', 'box-box', 'overtake'],
+    hand: ['push-hard', 'pit-call', 'overtake'],
     discard: [],
     currentEvent: null,
     eventHistory: [],
-    scUsed: false,
+    cautionUsed: false,
     lastEventType: null,
     perkUsed: false,
     objectivesCompleted: [],

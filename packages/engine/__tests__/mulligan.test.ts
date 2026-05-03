@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadCatalog } from '@boxbox/content';
+import { loadCatalog } from '@apex/content';
 import { createRng } from '../src/rng.js';
 import { performMulligan, performEmergencyMulligan, handHasPitCard } from '../src/card-effects.js';
 import type { RaceState } from '../src/types.js';
@@ -8,7 +8,7 @@ const catalog = loadCatalog();
 
 function makeState(overrides: Partial<RaceState> = {}): RaceState {
   return {
-    scenarioId: 'monaco',
+    scenarioId: 'harbor',
     teamId: 'crimson',
     seed: 42,
     difficulty: 'normal',
@@ -21,13 +21,13 @@ function makeState(overrides: Partial<RaceState> = {}): RaceState {
     pitStopsMade: 0,
     currentTurn: 1,
     totalTurns: 8,
-    deck: ['drs-attack', 'slipstream', 'gap-management', 'engine-mode'],
+    deck: ['aero-boost', 'slipstream', 'gap-management', 'engine-mode'],
     hand: ['push-hard', 'overtake', 'defend-position'],
     discard: [],
     currentEvent: null,
     eventHistory: [],
-    scUsed: false,
-    underSafetyCar: false,
+    cautionUsed: false,
+    underCaution: false,
     lastEventType: null,
     perkUsed: false,
     mulliganUsed: false,
@@ -99,7 +99,7 @@ describe('performEmergencyMulligan', () => {
 
 describe('handHasPitCard', () => {
   it('returns true when hand contains a pit card', () => {
-    const hand = ['push-hard', 'box-box', 'overtake'];
+    const hand = ['push-hard', 'pit-call', 'overtake'];
     expect(handHasPitCard(hand, catalog)).toBe(true);
   });
 

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { EventType } from '@boxbox/engine';
+import type { EventType } from '@apex/engine';
 import type { RadioContext } from '../i18n';
 
 interface EventRadioMessage {

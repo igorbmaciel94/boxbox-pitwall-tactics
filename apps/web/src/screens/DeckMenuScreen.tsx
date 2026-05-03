@@ -33,7 +33,7 @@ export function DeckMenuScreen() {
         {/* Create new deck tile */}
         <button
           onClick={() => navigate('/decks/new')}
-          className="flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-white/20 bg-white/[0.02] transition-all hover:border-f1-red/50 hover:bg-white/[0.04] active:scale-[0.97]"
+          className="flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-white/20 bg-white/[0.02] transition-all hover:border-apex-red/50 hover:bg-white/[0.04] active:scale-[0.97]"
         >
           <span className="text-3xl text-white/40">+</span>
           <span className="text-xs font-display uppercase tracking-wider text-metal-light">

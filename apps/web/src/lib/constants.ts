@@ -38,7 +38,7 @@ export const MEDAL_COLORS = {
 };
 
 export const EVENT_ICONS: Record<string, string> = {
-  'safety-car': '\u{1F6A8}',        // 🚨
+  'caution-phase': '\u{1F6A8}',        // 🚨
   rain: '\u{1F327}\u{FE0F}',        // 🌧️
   'rival-pits': '\u{1F527}',        // 🔧
   'rival-overtake': '\u{1F3CE}\u{FE0F}', // 🏎️
@@ -56,7 +56,7 @@ export const COMPOUND_COLORS: Record<string, string> = {
 };
 
 export const EVENT_COLORS: Record<string, string> = {
-  'safety-car': 'border-hud-yellow/85 bg-hud-yellow/14',
+  'caution-phase': 'border-hud-yellow/85 bg-hud-yellow/14',
   rain: 'border-hud-cyan/85 bg-hud-cyan/14',
   'rival-pits': 'border-hud-amber/85 bg-hud-amber/14',
   'rival-overtake': 'border-hud-red/85 bg-hud-red/14',

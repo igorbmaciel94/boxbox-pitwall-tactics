@@ -2,7 +2,7 @@ import { useCallback, useRef } from 'react';
 import { useGameStore } from '../stores/game-store';
 import { useUIStore } from '../stores/ui-store';
 import { useAudio } from './use-audio';
-import type { EventType } from '@boxbox/engine';
+import type { EventType } from '@apex/engine';
 import type { RadioContext } from '../i18n';
 
 export function useRadioMessage() {

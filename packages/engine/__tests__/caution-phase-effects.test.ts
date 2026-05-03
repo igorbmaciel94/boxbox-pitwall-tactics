@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadCatalog } from '@boxbox/content';
+import { loadCatalog } from '@apex/content';
 import { applyCardEffect } from '../src/card-effects.js';
 import type { RaceState } from '../src/types.js';
 
@@ -7,7 +7,7 @@ const catalog = loadCatalog();
 
 function makeState(overrides: Partial<RaceState> = {}): RaceState {
   return {
-    scenarioId: 'monaco',
+    scenarioId: 'harbor',
     teamId: 'crimson',
     seed: 42,
     difficulty: 'normal',
@@ -21,12 +21,12 @@ function makeState(overrides: Partial<RaceState> = {}): RaceState {
     currentTurn: 3,
     totalTurns: 8,
     deck: [],
-    hand: ['push-hard', 'box-box', 'defend-position'],
+    hand: ['push-hard', 'pit-call', 'defend-position'],
     discard: [],
     currentEvent: null,
     eventHistory: [],
-    scUsed: false,
-    underSafetyCar: false,
+    cautionUsed: false,
+    underCaution: false,
     lastEventType: null,
     perkUsed: false,
     mulliganUsed: false,
@@ -44,41 +44,41 @@ function makeState(overrides: Partial<RaceState> = {}): RaceState {
   };
 }
 
-describe('Safety Car card effects', () => {
-  it('overtake card under SC: gains nullified + +3 penalty', () => {
+describe('Caution Phase card effects', () => {
+  it('overtake card under caution: gains nullified + +3 penalty', () => {
     // push-hard: position -2 normally
-    const state = makeState({ underSafetyCar: true });
+    const state = makeState({ underCaution: true });
     const updated = applyCardEffect(state, 'push-hard', catalog);
 
     // Position gain nullified (0) + penalty +3 = 10 + 0 + 3 = 13
     expect(updated.position).toBe(13);
   });
 
-  it('overtake card without SC: normal effect', () => {
-    const state = makeState({ underSafetyCar: false });
+  it('overtake card without Caution: normal effect', () => {
+    const state = makeState({ underCaution: false });
     const updated = applyCardEffect(state, 'push-hard', catalog);
 
     // push-hard: position -2, so 10 - 2 = 8
     expect(updated.position).toBe(8);
   });
 
-  it('defensive card under SC: gains +2 bonus positions', () => {
+  it('defensive card under caution: gains +2 bonus positions', () => {
     // defend-position has 'defensive' tag, effect.position = 0
-    const state = makeState({ underSafetyCar: true });
+    const state = makeState({ underCaution: true });
     const updated = applyCardEffect(state, 'defend-position', catalog);
 
     // position: 0 - 2 = -2 => 10 + (-2) = 8
     expect(updated.position).toBe(8);
   });
 
-  it('pit card under SC: free pit (position restored) with tire freshness bonus', () => {
-    // box-box: pit tag, position +4, tireWear -15
+  it('pit card under caution: free pit (position restored) with tire freshness bonus', () => {
+    // pit-call: pit tag, position +4, tireWear -15
     const state = makeState({
-      underSafetyCar: true,
+      underCaution: true,
       position: 6,
       tireWear: 70,
     });
-    const updated = applyCardEffect(state, 'box-box', catalog);
+    const updated = applyCardEffect(state, 'pit-call', catalog);
 
     // Free pit: position restored to original (6)
     expect(updated.position).toBe(6);
@@ -87,27 +87,27 @@ describe('Safety Car card effects', () => {
     expect(updated.hasPitted).toBe(true);
   });
 
-  it('pit card without SC: loses positions normally with tire freshness bonus', () => {
+  it('pit card without Caution: loses positions normally with tire freshness bonus', () => {
     const state = makeState({
-      underSafetyCar: false,
+      underCaution: false,
       position: 6,
       tireWear: 70,
     });
-    const updated = applyCardEffect(state, 'box-box', catalog);
+    const updated = applyCardEffect(state, 'pit-call', catalog);
 
-    // box-box: position +4, so 6 + 4 = 10
+    // pit-call: position +4, so 6 + 4 = 10
     expect(updated.position).toBe(10);
     // Fresh tires with bonus from card's wear value (-15)
     expect(updated.tireWear).toBe(-15);
     expect(updated.hasPitted).toBe(true);
   });
 
-  it('non-overtake non-defensive card under SC: halved position effect', () => {
+  it('non-overtake non-defensive card under caution: halved position effect', () => {
     // Find a card that has positive position change and no aggressive/defensive/pit tags
     // 'engine-mode' has aggressive tag and position -1, let's use 'gap-management'
     // gap-management: position 0, tireWear -10, tags: ['defensive']
     // Actually let's use 'slipstream' which is aggressive, position: -1
-    // Under SC, slipstream (aggressive, position -1 < 0) -> overtake penalty
+    // Under caution, slipstream (aggressive, position -1 < 0) -> overtake penalty
     // We need a card with positive position and not defensive/pit
     // 'conserve-tires': tags ['defensive'], so that won't work either
     // All cards seem to be aggressive/defensive/pit. Let's just verify the
@@ -118,8 +118,8 @@ describe('Safety Car card effects', () => {
 
     // Test overtake with a card that gains 3 positions
     const state = makeState({
-      underSafetyCar: true,
-      hand: ['overtake', 'box-box', 'defend-position'],
+      underCaution: true,
+      hand: ['overtake', 'pit-call', 'defend-position'],
     });
     // overtake: position -3, aggressive tag
     const updated = applyCardEffect(state, 'overtake', catalog);
@@ -128,9 +128,9 @@ describe('Safety Car card effects', () => {
     expect(updated.position).toBe(13);
   });
 
-  it('SC overtake tire wear still applies', () => {
+  it('caution overtake tire wear still applies', () => {
     const state = makeState({
-      underSafetyCar: true,
+      underCaution: true,
       tireWear: 20,
     });
     // push-hard: tireWear +15

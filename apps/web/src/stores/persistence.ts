@@ -1,24 +1,35 @@
 import { get, set, del } from 'idb-keyval';
-import type { CardId, RaceDebrief, TeamId } from '@boxbox/engine';
+import type { CardId, RaceDebrief, RaceEvent, TeamId, TurnSummary } from '@apex/engine';
 import type { BestScore, RunHistoryEntry, SavedDeck, SeasonRunEntry, Trophy } from '../lib/types';
 import type { SeasonProgress } from './game-store';
 import { calculateMedal } from '../lib/constants';
 import type { Locale } from '../i18n';
 
+export const OFFLINE_PROFILE_ID = 'offline';
+
 function keysFor(userId: string) {
+  return scopedKeys('apex', userId);
+}
+
+function legacyKeysFor(userId: string) {
+  return scopedKeys('boxbox', userId);
+}
+
+function scopedKeys(prefix: string, userId: string) {
   return {
-    selectedTeam: `boxbox-${userId}-team`,
-    locale: `boxbox-${userId}-locale`,
-    savedDecks: `boxbox-${userId}-decks`,
-    currentDeck: `boxbox-${userId}-current-deck`,
-    bestScores: `boxbox-${userId}-best-scores`,
-    runHistory: `boxbox-${userId}-run-history`,
-    seasonRuns: `boxbox-${userId}-season-runs`,
-    seasonProgress: `boxbox-${userId}-season-progress`,
-    trophies: `boxbox-${userId}-trophies`,
-    lastSynced: `boxbox-${userId}-last-synced-idb`,
+    selectedTeam: `${prefix}-${userId}-team`,
+    locale: `${prefix}-${userId}-locale`,
+    savedDecks: `${prefix}-${userId}-decks`,
+    currentDeck: `${prefix}-${userId}-current-deck`,
+    bestScores: `${prefix}-${userId}-best-scores`,
+    runHistory: `${prefix}-${userId}-run-history`,
+    seasonRuns: `${prefix}-${userId}-season-runs`,
+    seasonProgress: `${prefix}-${userId}-season-progress`,
+    trophies: `${prefix}-${userId}-trophies`,
   };
 }
+
+type PersistenceKeys = ReturnType<typeof keysFor>;
 
 // Old keys (pre-migration, no userId prefix)
 const LEGACY_KEYS = {
@@ -33,26 +44,178 @@ const LEGACY_KEYS = {
   trophies: 'boxbox-trophies',
 } as const;
 
-// --- Migration from legacy keys to userId-scoped keys ---
-export async function migrateToUserScoped(userId: string): Promise<void> {
-  if (localStorage.getItem('boxbox-migrated-v2')) return;
+export interface PersistedGameData {
+  selectedTeam: TeamId | null;
+  locale: Locale | null;
+  currentDeck: CardId[];
+  savedDecks: SavedDeck[];
+  bestScores: BestScore[];
+  runHistory: RunHistoryEntry[];
+  seasonRuns: SeasonRunEntry[];
+  seasonProgress: SeasonProgress | null;
+  trophies: Trophy[];
+}
 
-  const keys = keysFor(userId);
-  const migrations = Object.entries(LEGACY_KEYS).map(async ([field, legacyKey]) => {
-    const oldValue = await get(legacyKey);
-    if (oldValue !== undefined) {
-      const newKey = keys[field as keyof typeof keys];
-      // Only migrate if the new key doesn't already have data
-      const existing = await get(newKey);
-      if (existing === undefined) {
-        await set(newKey, oldValue);
+const LEGACY_ID_RENAMES: Record<string, string> = {
+  'box-box': 'pit-call',
+  'drs-attack': 'aero-boost',
+  'safety-car': 'caution-phase',
+  monaco: 'harbor',
+  'monaco-main': 'harbor-main',
+  'monaco-bonus': 'harbor-bonus',
+  spa: 'forest-run',
+  'spa-main': 'forest-run-main',
+  'spa-bonus': 'forest-run-bonus',
+  monza: 'velocity-ring',
+  'monza-main': 'velocity-ring-main',
+  'monza-bonus': 'velocity-ring-bonus',
+  silverstone: 'north-loop',
+  'silverstone-main': 'north-loop-main',
+  'silverstone-bonus': 'north-loop-bonus',
+  suzuka: 'figure-eight',
+  'suzuka-main': 'figure-eight-main',
+  'suzuka-bonus': 'figure-eight-bonus',
+  interlagos: 'southbank',
+  'interlagos-main': 'southbank-main',
+  'interlagos-bonus': 'southbank-bonus',
+};
+
+function normalizeLegacyId<T extends string | null | undefined>(value: T): T {
+  if (typeof value !== 'string') return value;
+  return (LEGACY_ID_RENAMES[value] ?? value) as T;
+}
+
+function normalizeCardIds(cards: CardId[]): CardId[] {
+  return cards.map((cardId) => normalizeLegacyId(cardId));
+}
+
+function normalizeRaceEvent(event: RaceEvent): RaceEvent {
+  return {
+    ...event,
+    type: normalizeLegacyId(event.type) as RaceEvent['type'],
+  };
+}
+
+function normalizeTurnSummary(summary: TurnSummary): TurnSummary {
+  return {
+    ...summary,
+    event: normalizeRaceEvent(summary.event),
+    actionCard: normalizeLegacyId(summary.actionCard),
+  };
+}
+
+function normalizeRaceDebrief(debrief: RaceDebrief): RaceDebrief {
+  return {
+    ...debrief,
+    scenarioId: normalizeLegacyId(debrief.scenarioId),
+    objectivesCompleted: debrief.objectivesCompleted.map((objective) => ({
+      ...objective,
+      id: normalizeLegacyId(objective.id),
+    })),
+    eventHistory: debrief.eventHistory.map(normalizeRaceEvent),
+    cardsPlayed: normalizeCardIds(debrief.cardsPlayed),
+    turnLog: debrief.turnLog.map(normalizeTurnSummary),
+  };
+}
+
+export function normalizePersistedData(data: PersistedGameData): PersistedGameData {
+  return {
+    ...data,
+    currentDeck: normalizeCardIds(data.currentDeck),
+    savedDecks: data.savedDecks.map((deck) => ({
+      ...deck,
+      cards: normalizeCardIds(deck.cards),
+    })),
+    bestScores: data.bestScores.map((score) => ({
+      ...score,
+      scenarioId: normalizeLegacyId(score.scenarioId),
+    })),
+    runHistory: data.runHistory.map((entry) => ({
+      ...entry,
+      scenarioId: normalizeLegacyId(entry.scenarioId),
+      debrief: normalizeRaceDebrief(entry.debrief),
+    })),
+    seasonRuns: data.seasonRuns.map((entry) => ({
+      ...entry,
+      goalCardId: normalizeLegacyId(entry.goalCardId),
+      races: entry.races.map(normalizeRaceDebrief),
+    })),
+    seasonProgress: data.seasonProgress
+      ? {
+        ...data.seasonProgress,
+        raceOrder: data.seasonProgress.raceOrder.map((scenarioId) => normalizeLegacyId(scenarioId)),
+        raceResults: data.seasonProgress.raceResults.map(normalizeRaceDebrief),
+        goalCardId: normalizeLegacyId(data.seasonProgress.goalCardId),
       }
-      await del(legacyKey);
-    }
-  });
+      : null,
+    trophies: data.trophies.map((trophy) => ({
+      ...trophy,
+      goalCardId: normalizeLegacyId(trophy.goalCardId),
+    })),
+  };
+}
 
-  await Promise.all(migrations);
-  localStorage.setItem('boxbox-migrated-v2', 'true');
+async function hasPersistedData(userId: string): Promise<boolean> {
+  const data = await loadAllPersistedData(userId);
+  return Boolean(
+    data.selectedTeam
+    || data.currentDeck.length
+    || data.savedDecks.length
+    || data.bestScores.length
+    || data.runHistory.length
+    || data.seasonRuns.length
+    || data.seasonProgress
+    || data.trophies.length,
+  );
+}
+
+async function copyProfileData(sourceUserId: string, targetUserId: string): Promise<boolean> {
+  const data = await loadPersistedDataForKeys(legacyKeysFor(sourceUserId));
+  if (!data.selectedTeam
+    && !data.locale
+    && data.currentDeck.length === 0
+    && data.savedDecks.length === 0
+    && data.bestScores.length === 0
+    && data.runHistory.length === 0
+    && data.seasonRuns.length === 0
+    && !data.seasonProgress
+    && data.trophies.length === 0) {
+    return false;
+  }
+
+  await replaceAllPersistedData(targetUserId, data);
+  return true;
+}
+
+// Copies the best-known previous local profile into the new offline profile.
+// Old user/guest/legacy data is intentionally left in place.
+export async function migrateToOfflineProfile(): Promise<void> {
+  if (await hasPersistedData(OFFLINE_PROFILE_ID)) return;
+
+  if (await copyProfileData(OFFLINE_PROFILE_ID, OFFLINE_PROFILE_ID)) return;
+
+  const previousUserId = localStorage.getItem('boxbox-auth-user-id');
+  if (previousUserId && previousUserId !== OFFLINE_PROFILE_ID) {
+    if (await copyProfileData(previousUserId, OFFLINE_PROFILE_ID)) return;
+  }
+
+  const guestId = localStorage.getItem('boxbox-guest-id');
+  if (guestId && guestId !== previousUserId && guestId !== OFFLINE_PROFILE_ID) {
+    if (await copyProfileData(guestId, OFFLINE_PROFILE_ID)) return;
+  }
+
+  const legacyData = await loadLegacyPersistedData();
+  if (legacyData.selectedTeam
+    || legacyData.locale
+    || legacyData.currentDeck.length
+    || legacyData.savedDecks.length
+    || legacyData.bestScores.length
+    || legacyData.runHistory.length
+    || legacyData.seasonRuns.length
+    || legacyData.seasonProgress
+    || legacyData.trophies.length) {
+    await replaceAllPersistedData(OFFLINE_PROFILE_ID, legacyData);
+  }
 }
 
 // --- Team ---
@@ -163,46 +326,6 @@ export async function addTrophy(userId: string, trophy: Trophy): Promise<Trophy[
   return trophies;
 }
 
-// --- Last Synced ---
-export async function saveLastSynced(userId: string, timestamp: number): Promise<void> {
-  await set(keysFor(userId).lastSynced, timestamp);
-}
-
-export async function loadLastSynced(userId: string): Promise<number> {
-  return (await get<number>(keysFor(userId).lastSynced)) ?? 0;
-}
-
-// --- Credential Hash (offline login) ---
-export async function hashCredential(username: string, password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(username + ':' + password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-}
-
-export async function saveCredentialHash(username: string, hash: string): Promise<void> {
-  await set(`boxbox-credential-${username}`, hash);
-}
-
-export async function loadCredentialHash(username: string): Promise<string | null> {
-  return (await get<string>(`boxbox-credential-${username}`)) ?? null;
-}
-
-interface LocalAuthData {
-  username: string;
-  playerCode: string;
-  userId: string;
-}
-
-export async function saveLocalAuthData(username: string, data: LocalAuthData): Promise<void> {
-  await set(`boxbox-auth-local-${username}`, data);
-}
-
-export async function loadLocalAuthData(username: string): Promise<LocalAuthData | null> {
-  return (await get<LocalAuthData>(`boxbox-auth-local-${username}`)) ?? null;
-}
-
 // --- Season Progress ---
 export async function saveSeasonProgress(userId: string, progress: SeasonProgress | null): Promise<void> {
   if (progress) {
@@ -223,56 +346,91 @@ export async function loadSeasonProgress(userId: string): Promise<SeasonProgress
   };
 }
 
-// --- Export all data for sync ---
-export async function exportAllForSync(userId: string) {
-  const data = await loadAllPersistedData(userId);
+// --- Load all persisted data at startup ---
+export async function loadAllPersistedData(userId: string): Promise<PersistedGameData> {
+  return normalizePersistedData(await loadPersistedDataForKeys(keysFor(userId)));
+}
+
+async function loadPersistedDataForKeys(keys: PersistenceKeys): Promise<PersistedGameData> {
+  const [selectedTeam, locale, currentDeck, savedDecks, bestScores, runHistory, seasonRuns, seasonProgress, trophies] =
+    await Promise.all([
+      get<TeamId>(keys.selectedTeam),
+      get<Locale>(keys.locale),
+      get<CardId[]>(keys.currentDeck),
+      get<SavedDeck[]>(keys.savedDecks),
+      get<BestScore[]>(keys.bestScores),
+      get<RunHistoryEntry[]>(keys.runHistory),
+      get<SeasonRunEntry[]>(keys.seasonRuns),
+      get<SeasonProgress>(keys.seasonProgress),
+      get<Trophy[]>(keys.trophies),
+    ]);
+
+  return normalizePersistedData({
+    selectedTeam: selectedTeam ?? null,
+    locale: locale ?? null,
+    currentDeck: currentDeck ?? [],
+    savedDecks: savedDecks ?? [],
+    bestScores: bestScores ?? [],
+    runHistory: runHistory ?? [],
+    seasonRuns: seasonRuns ?? [],
+    seasonProgress: seasonProgress
+      ? {
+        ...seasonProgress,
+        playerDriverId: seasonProgress.playerDriverId ?? '',
+        goalCardId: seasonProgress.goalCardId ?? null,
+        championshipStandings: seasonProgress.championshipStandings ?? [],
+      }
+      : null,
+    trophies: trophies ?? [],
+  });
+}
+
+async function loadLegacyPersistedData(): Promise<PersistedGameData> {
+  const [selectedTeam, locale, currentDeck, savedDecks, bestScores, runHistory, seasonRuns, seasonProgress, trophies] =
+    await Promise.all([
+      get<TeamId>(LEGACY_KEYS.selectedTeam),
+      get<Locale>(LEGACY_KEYS.locale),
+      get<CardId[]>(LEGACY_KEYS.currentDeck),
+      get<SavedDeck[]>(LEGACY_KEYS.savedDecks),
+      get<BestScore[]>(LEGACY_KEYS.bestScores),
+      get<RunHistoryEntry[]>(LEGACY_KEYS.runHistory),
+      get<SeasonRunEntry[]>(LEGACY_KEYS.seasonRuns),
+      get<SeasonProgress>(LEGACY_KEYS.seasonProgress),
+      get<Trophy[]>(LEGACY_KEYS.trophies),
+    ]);
+
   return {
-    selectedTeam: data.selectedTeam,
-    locale: data.locale ?? 'en',
-    savedDecks: data.savedDecks,
-    bestScores: data.bestScores,
-    runHistory: data.runHistory,
-    seasonRuns: data.seasonRuns,
-    trophies: data.trophies,
+    selectedTeam: selectedTeam ?? null,
+    locale: locale ?? null,
+    currentDeck: currentDeck ?? [],
+    savedDecks: savedDecks ?? [],
+    bestScores: bestScores ?? [],
+    runHistory: runHistory ?? [],
+    seasonRuns: seasonRuns ?? [],
+    seasonProgress: seasonProgress
+      ? {
+        ...seasonProgress,
+        playerDriverId: seasonProgress.playerDriverId ?? '',
+        goalCardId: seasonProgress.goalCardId ?? null,
+        championshipStandings: seasonProgress.championshipStandings ?? [],
+      }
+      : null,
+    trophies: trophies ?? [],
   };
 }
 
-// --- Import synced data ---
-export async function importFromSync(userId: string, data: {
-  selectedTeam: string | null;
-  locale: string;
-  savedDecks: SavedDeck[];
-  bestScores: BestScore[];
-  runHistory: RunHistoryEntry[];
-  seasonRuns: SeasonRunEntry[];
-  trophies: Trophy[];
-}) {
+export async function replaceAllPersistedData(userId: string, data: PersistedGameData): Promise<void> {
   const keys = keysFor(userId);
+  const normalized = normalizePersistedData(data);
   await Promise.all([
-    data.selectedTeam ? set(keys.selectedTeam, data.selectedTeam) : Promise.resolve(),
-    data.locale ? set(keys.locale, data.locale) : Promise.resolve(),
-    set(keys.savedDecks, data.savedDecks),
-    set(keys.bestScores, data.bestScores),
-    set(keys.runHistory, data.runHistory),
-    set(keys.seasonRuns, data.seasonRuns),
-    set(keys.trophies, data.trophies),
+    normalized.selectedTeam ? set(keys.selectedTeam, normalized.selectedTeam) : del(keys.selectedTeam),
+    normalized.locale ? set(keys.locale, normalized.locale) : del(keys.locale),
+    set(keys.currentDeck, normalized.currentDeck),
+    set(keys.savedDecks, normalized.savedDecks),
+    set(keys.bestScores, normalized.bestScores),
+    set(keys.runHistory, normalized.runHistory),
+    set(keys.seasonRuns, normalized.seasonRuns),
+    normalized.seasonProgress ? set(keys.seasonProgress, normalized.seasonProgress) : del(keys.seasonProgress),
+    set(keys.trophies, normalized.trophies),
   ]);
-}
-
-// --- Load all persisted data at startup ---
-export async function loadAllPersistedData(userId: string) {
-  const [selectedTeam, locale, currentDeck, savedDecks, bestScores, runHistory, seasonRuns, seasonProgress, trophies] =
-    await Promise.all([
-      loadSelectedTeam(userId),
-      loadLocale(userId),
-      loadCurrentDeck(userId),
-      loadDeckList(userId),
-      loadBestScores(userId),
-      loadRunHistory(userId),
-      loadSeasonRuns(userId),
-      loadSeasonProgress(userId),
-      loadTrophies(userId),
-    ]);
-
-  return { selectedTeam, locale, currentDeck, savedDecks, bestScores, runHistory, seasonRuns, seasonProgress, trophies };
 }

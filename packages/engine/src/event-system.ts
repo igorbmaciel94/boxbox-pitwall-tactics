@@ -9,7 +9,7 @@ import type {
 } from './types.js';
 
 const EVENT_EFFECTS: Record<EventType, CardEffect> = {
-  'safety-car': { tireWear: -5 },
+  'caution-phase': { tireWear: -5 },
   rain: { tireWear: 8 },
   'rival-pits': { position: -1 },
   'rival-overtake': { position: 2 },
@@ -26,14 +26,14 @@ export function selectEvent(
 ): RaceEvent {
   const weights = { ...scenario.params.eventWeights };
 
-  // Max 1 safety car per race
-  if (state.scUsed) {
-    weights['safety-car'] = 0;
+  // Max 1 caution phase per race
+  if (state.cautionUsed) {
+    weights['caution-phase'] = 0;
   }
 
-  // No consecutive safety cars
-  if (state.lastEventType === 'safety-car') {
-    weights['safety-car'] = 0;
+  // No consecutive caution phases
+  if (state.lastEventType === 'caution-phase') {
+    weights['caution-phase'] = 0;
   }
 
   const eventTypes = Object.keys(weights) as EventType[];
@@ -80,8 +80,8 @@ export function updateEventTracking(state: RaceState, event: RaceEvent): RaceSta
     currentEvent: event,
     eventHistory: [...state.eventHistory, event],
     lastEventType: event.type,
-    scUsed: state.scUsed || event.type === 'safety-car',
-    underSafetyCar: event.type === 'safety-car',
+    cautionUsed: state.cautionUsed || event.type === 'caution-phase',
+    underCaution: event.type === 'caution-phase',
   };
 }
 

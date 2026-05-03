@@ -1,5 +1,5 @@
 export type EventType =
-  | 'safety-car'
+  | 'caution-phase'
   | 'rain'
   | 'rival-pits'
   | 'rival-overtake'
@@ -65,7 +65,7 @@ export interface GameStringsData {
   events: Record<EventType, string[]>;
   radio: {
     stayOut: string[];
-    boxBox: string[];
+    pitCall: string[];
     generic: string[];
   };
 }

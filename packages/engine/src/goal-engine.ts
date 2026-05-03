@@ -1,4 +1,4 @@
-import type { DriverData, GoalCardData, GoalCardTier } from '@boxbox/content';
+import type { DriverData, GoalCardData, GoalCardTier } from '@apex/content';
 import type { DriverStanding, RaceDebrief } from './types.js';
 import { getPositionScore } from './scoring.js';
 

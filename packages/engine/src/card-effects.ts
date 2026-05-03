@@ -42,10 +42,10 @@ export function applyCardEffect(
   const newHand = [...state.hand];
   newHand.splice(handIndex, 1);
 
-  // Under Safety Car: special rules
+  // Under Caution Phase: special rules
   let effectToApply = card.effect;
-  let scOvertakePenalty = 0;
-  if (state.underSafetyCar) {
+  let cautionOvertakePenalty = 0;
+  if (state.underCaution) {
     const isPit = isPitStopCard(cardId, catalog);
     const isDefensive = card.tags.includes('defensive');
     const posChange = card.effect.position ?? 0;
@@ -57,8 +57,8 @@ export function applyCardEffect(
       // Defensive/overcut: bonus — gain 2 extra positions
       effectToApply = { ...card.effect, position: posChange - 2 };
     } else if (posChange < 0) {
-      // Overtaking under SC: nullify gains + penalize +3
-      scOvertakePenalty = 3;
+      // Overtaking under caution: nullify gains + penalize +3
+      cautionOvertakePenalty = 3;
       effectToApply = { ...card.effect, position: 0 };
     } else {
       // Other cards: halve position changes
@@ -74,15 +74,15 @@ export function applyCardEffect(
     cardsPlayedTotal: [...state.cardsPlayedTotal, cardId],
   };
 
-  // Apply SC overtake penalty
-  if (scOvertakePenalty > 0) {
-    updated = { ...updated, position: updated.position + scOvertakePenalty };
+  // Apply caution overtake penalty
+  if (cautionOvertakePenalty > 0) {
+    updated = { ...updated, position: updated.position + cautionOvertakePenalty };
   }
 
   // Pit stop: reset tire wear and change compound
   if (isPitStopCard(cardId, catalog)) {
-    // Under SC: free pit stop (restore position to before card)
-    if (state.underSafetyCar) {
+    // Under caution: free pit stop (restore position to before card)
+    if (state.underCaution) {
       updated = { ...updated, position: state.position };
     }
 
@@ -90,7 +90,7 @@ export function applyCardEffect(
       // Normal pit: reset tires, select compound
       const newCompound = agent?.chooseCompound?.(updated) ?? 'medium';
       // New tire freshness: card's negative wear becomes a tire life bonus
-      // e.g. Box Box (-15) → tire starts at -15 (lasts longer before degradation)
+      // e.g. Pit Call (-15) → tire starts at -15 (lasts longer before degradation)
       const tireFreshness = Math.min(0, effectToApply.tireWear ?? 0);
       updated = {
         ...updated,

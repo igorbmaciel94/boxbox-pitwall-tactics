@@ -9,8 +9,8 @@
       "tags": ["aggressive"]
     },
     {
-      "id": "box-box",
-      "name": "Box Box",
+      "id": "pit-call",
+      "name": "Pit Call",
       "rulesText": "Pit stop! Lose 4 positions but fresh tires with extra life.",
       "effect": { "position": 4, "tireWear": -15 },
       "tags": ["pit"]
@@ -37,9 +37,9 @@
       "tags": ["defensive"]
     },
     {
-      "id": "drs-attack",
-      "name": "DRS Attack",
-      "rulesText": "DRS open! Gain 2 positions, +10 tire wear.",
+      "id": "aero-boost",
+      "name": "Aero Boost",
+      "rulesText": "Aero boost! Gain 2 positions, +10 tire wear.",
       "effect": { "position": -2, "tireWear": 10 },
       "tags": ["aggressive"]
     },

@@ -1,11 +1,11 @@
-import type { EventType } from '@boxbox/engine';
+import type { EventType } from '@apex/engine';
 import cardsData from '@content-data/cards.json';
 import scenariosData from '@content-data/scenarios.json';
 import teamsData from '@content-data/teams.json';
 import stringsData from '@content-data/strings.json';
 
 export type Locale = 'en' | 'pt-BR';
-export type RadioContext = 'stayOut' | 'boxBox' | 'generic';
+export type RadioContext = 'stayOut' | 'pitCall' | 'generic';
 export type Medal = 'gold' | 'silver' | 'bronze';
 export type FilterKey = 'all' | 'drive' | 'pit' | 'tactics';
 
@@ -104,7 +104,7 @@ export interface UIStrings {
     lapWord: string;
     noEffect: string;
     qdEligibleTitle: string;
-    safetyCarActive: string;
+    cautionPhaseActive: string;
     freePitStop: string;
     crashDamage: string;
     crashDNF: string;
@@ -113,9 +113,9 @@ export interface UIStrings {
     skipTurn: string;
     emergencyMulligan: string;
     noPitCardWarning: string;
-    scFreePit: string;
-    scOvertakeWarning: string;
-    scPlayAnyway: string;
+    cautionFreePit: string;
+    cautionOvertakeWarning: string;
+    cautionPlayAnyway: string;
     p1NoOvertake: string;
     pLastNoLose: string;
     p1SkipUsed: string;
@@ -175,6 +175,14 @@ export interface UIStrings {
   };
   garage: {
     title: string;
+    backupTitle: string;
+    backupDesc: string;
+    exportBackup: string;
+    importBackup: string;
+    importConfirm: string;
+    backupExported: string;
+    backupImported: string;
+    backupInvalid: string;
     runHistory: string;
     bestScores: string;
     trophies: string;
@@ -293,8 +301,8 @@ export interface UIStrings {
       tireNoTiresWarning: string;
       mulliganTitle: string;
       mulliganText: string;
-      safetyCarTitle: string;
-      safetyCarText: string;
+      cautionPhaseTitle: string;
+      cautionPhaseText: string;
       skipTurnTitle: string;
       skipTurnText: string;
       crashTitle: string;
@@ -343,7 +351,7 @@ export interface UIStrings {
   traits: {
     'traffic-heavy': string;
     'no-overtaking': string;
-    'sc-prone': string;
+    'caution-prone': string;
     'rain-likely': string;
     'rain-possible': string;
     'high-speed': string;
@@ -366,32 +374,6 @@ export interface UIStrings {
     pos: string;
     wear: string;
     lap: string;
-  };
-  auth: {
-    loginButton: string;
-    registerButton: string;
-    guestButton: string;
-    usernamePlaceholder: string;
-    passwordPlaceholder: string;
-    usernameMin: string;
-    passwordMin: string;
-    usernameExists: string;
-    invalidCredentials: string;
-    networkError: string;
-    logoutButton: string;
-    switchToLogin: string;
-    switchToRegister: string;
-    playerCodePreview: string;
-  };
-  sync: {
-    button: string;
-    syncing: string;
-    lastSynced: string;
-    never: string;
-    success: string;
-    error: string;
-    registerFirst: string;
-    registerFirstDesc: string;
   };
 }
 
@@ -421,8 +403,8 @@ const EN_CARD_STRATEGY: Record<string, { pros: string[]; cons: string[] }> = {
     pros: ['Gains 2 positions — solid overtaking', 'Good balance of risk and reward'],
     cons: ['+15 tire wear', 'Crash risk if tires are already worn'],
   },
-  'box-box': {
-    pros: ['Fresh tires with extra life (starts below 0 wear)', 'Essential for tire management', 'Free pit stop under Safety Car'],
+  'pit-call': {
+    pros: ['Fresh tires with extra life (starts below 0 wear)', 'Essential for tire management', 'Free pit stop during caution Phase'],
     cons: ['Lose 4 positions — big position cost', 'Timing the pit stop is critical'],
   },
   'conserve-tires': {
@@ -431,26 +413,26 @@ const EN_CARD_STRATEGY: Record<string, { pros: string[]; cons: string[] }> = {
   },
   'overtake': {
     pros: ['Gains 3 positions — strongest overtaking card', 'Can change the race in one move'],
-    cons: ['Very high tire wear (+25)', 'High crash risk on worn tires', 'Penalized under Safety Car'],
+    cons: ['Very high tire wear (+25)', 'High crash risk on worn tires', 'Penalized under caution Phase'],
   },
   'defend-position': {
-    pros: ['Holds position with minimal tire cost (+5)', 'Very safe — almost no risk', '+2 bonus positions under Safety Car'],
+    pros: ['Holds position with minimal tire cost (+5)', 'Very safe — almost no risk', '+2 bonus positions under caution Phase'],
     cons: ['No position gain', 'Purely reactive — does not improve standing'],
   },
-  'drs-attack': {
+  'aero-boost': {
     pros: ['Gains 2 positions with moderate wear (+10)', 'Good in clear air situations'],
-    cons: ['Adds tire wear (+10)', 'Penalized under Safety Car'],
+    cons: ['Adds tire wear (+10)', 'Penalized under caution Phase'],
   },
   'slipstream': {
     pros: ['Gains 1 position with zero tire cost', 'Safest aggressive card — no wear penalty'],
-    cons: ['Only gains 1 position — modest gain', 'Penalized under Safety Car'],
+    cons: ['Only gains 1 position — modest gain', 'Penalized under caution Phase'],
   },
   'late-brake': {
     pros: ['Gains 3 positions — tied for strongest', 'High-risk high-reward play'],
     cons: ['High tire wear (+20)', 'Significant crash risk on worn tires'],
   },
   'gap-management': {
-    pros: ['Reduces tire wear by 10 while holding position', 'Great for extending a stint', '+2 bonus positions under Safety Car'],
+    pros: ['Reduces tire wear by 10 while holding position', 'Great for extending a stint', '+2 bonus positions under caution Phase'],
     cons: ['No position gain', 'Purely defensive — no overtaking power'],
   },
   'undercut': {
@@ -459,10 +441,10 @@ const EN_CARD_STRATEGY: Record<string, { pros: string[]; cons: string[] }> = {
   },
   'engine-mode': {
     pros: ['Gains 1 position with moderate wear (+10)', 'Reliable one-position gain'],
-    cons: ['Adds tire wear (+10)', 'Penalized under Safety Car'],
+    cons: ['Adds tire wear (+10)', 'Penalized under caution Phase'],
   },
   'alternate-strategy': {
-    pros: ['Triggers pit with fresh tires with extra life', 'Defensive tag: safe play, +2 under SC', 'Lose only 2 positions vs 4 for Box Box'],
+    pros: ['Triggers pit with fresh tires with extra life', 'Defensive tag: safe play, +2 under caution', 'Lose only 2 positions vs 4 for Pit Call'],
     cons: ['Still loses 2 positions', 'Must have compound available for pit'],
   },
 };
@@ -488,7 +470,7 @@ function buildEnglishContent(): ContentStrings {
     objectives: objectiveMap,
     events: {
       names: {
-        'safety-car': 'Safety Car',
+        'caution-phase': 'Caution Phase',
         rain: 'Rain',
         'rival-pits': 'Rival Pits',
         'rival-overtake': 'Rival Overtake',
@@ -548,7 +530,7 @@ const EN_UI: UIStrings = {
     noData: 'No data available.',
   },
   home: {
-    title: 'Box Box',
+    title: 'Apex Tactics',
     subtitle: 'Racing Card Game',
     teamLabel: 'Team',
     teamNone: 'None',
@@ -614,8 +596,8 @@ const EN_UI: UIStrings = {
     lapWord: 'LAP',
     noEffect: 'none',
     qdEligibleTitle: 'Quick Decision eligible',
-    safetyCarActive: 'Safety Car - No overtaking',
-    freePitStop: 'Free pit stop under SC!',
+    cautionPhaseActive: 'Caution Phase - No overtaking',
+    freePitStop: 'Free pit stop during caution!',
     crashDamage: 'Incident! Heavy damage to the car.',
     crashDNF: 'Crash! Car retired from the race.',
     dnfTitle: 'Did Not Finish',
@@ -623,9 +605,9 @@ const EN_UI: UIStrings = {
     skipTurn: 'Skip Turn',
     emergencyMulligan: 'Emergency Redraw',
     noPitCardWarning: 'No pit card! Redraw or skip turn.',
-    scFreePit: 'Free pit under SC',
-    scOvertakeWarning: 'Overtaking under SC! +3 position penalty if you play this card.',
-    scPlayAnyway: 'Play Anyway (+3 penalty)',
+    cautionFreePit: 'Free pit during caution',
+    cautionOvertakeWarning: 'Overtaking under caution! +3 position penalty if you play this card.',
+    cautionPlayAnyway: 'Play Anyway (+3 penalty)',
     p1NoOvertake: 'You\'re P1! Overtake cards won\'t gain positions. Consider pit stop or skip.',
     pLastNoLose: 'You\'re last — this card won\'t lose positions.',
     p1SkipUsed: 'Free skip used! You must play a card to defend P1.',
@@ -685,6 +667,14 @@ const EN_UI: UIStrings = {
   },
   garage: {
     title: 'Garage',
+    backupTitle: 'Offline Backup',
+    backupDesc: 'Export a local backup file before changing devices or reinstalling. Imports replace the current local progress.',
+    exportBackup: 'Export Backup',
+    importBackup: 'Import Backup',
+    importConfirm: 'Import this backup and replace current progress?',
+    backupExported: 'Backup exported.',
+    backupImported: 'Backup imported.',
+    backupInvalid: 'Invalid backup file.',
     runHistory: 'History',
     bestScores: 'Records',
     trophies: 'Trophies',
@@ -756,11 +746,11 @@ const EN_UI: UIStrings = {
   },
   howToPlay: {
     title: 'How to Play',
-    subtitle: 'Your guide to pit wall strategy',
+    subtitle: 'Your guide to command deck strategy',
     backToMenu: 'Back to Menu',
     sections: {
       overviewTitle: 'Overview',
-      overviewP1: 'You are the pit wall strategist for a Formula 1 team. Before each race, you build a 9-card deck representing your tactical options. During the race, you draw cards each lap and play them to respond to events on track.',
+      overviewP1: 'You are the command deck strategist for a fictional racing team. Before each race, you build a 9-card deck representing your tactical options. During the race, you draw cards each lap and play them to respond to events on track.',
       overviewP2: 'Your goal is to finish in the best position possible while completing race objectives for bonus points.',
       gettingStartedTitle: 'Getting Started',
       start1: '1. Select a Team - Each constructor has a unique perk that activates once per race.',
@@ -772,7 +762,7 @@ const EN_UI: UIStrings = {
       eventLabel: 'Event',
       eventText: 'A random event is revealed - it may affect your car or trigger a quick decision.',
       qdLabel: 'QD',
-      qdText: 'If a Safety Car, VSC, or rain spike occurs, you may play a Quick Decision card instantly.',
+      qdText: 'If a caution phase or rain spike occurs, you may play a Quick Decision card instantly.',
       perkLabel: 'Perk',
       perkText: 'You can activate your team\'s unique perk (once per race).',
       playLabel: 'Play',
@@ -787,11 +777,11 @@ const EN_UI: UIStrings = {
       pos: 'Your race position (P1 = leading). Lower is better.',
       wear: 'Tire degradation (0-100). High wear hurts performance and worsens position.',
       eventsTitle: 'Events',
-      sc: 'Safety Car - field bunches up. Max 1 per race.',
+      sc: 'Caution Phase - field bunches up. Max 1 per race.',
       rainEvent: 'Rain affects tire wear and track conditions.',
       others: 'Traffic, rivals pitting, clear air, and mechanical issues each affect position or wear.',
       scoringTitle: 'Scoring',
-      finish: 'Points based on your final position (P1 = 25 pts, like real F1).',
+      finish: 'Points based on your final position (P1 = 25 pts, like pro racing).',
       main: 'Complete the circuit\'s main objective for bonus points.',
       bonus: 'Optional secondary objectives for extra points.',
       tireStrategyTitle: 'Tire Strategy',
@@ -803,12 +793,12 @@ const EN_UI: UIStrings = {
       tireNoTiresWarning: 'You only get 3 sets of dry tires per race. If you pit with none left (and no rain for Inter/Wet), penalties scale with difficulty — free pass on Easy, position + wear loss on Normal/Hard. Rain unlocks Inter and Wet as wildcards. Keep 2-3 pit cards max in your deck.',
       mulliganTitle: 'Mulligan (Redraw)',
       mulliganText: 'On the first lap only, you can redraw your entire hand once. Use this if your starting hand doesn\'t match the event or your strategy.',
-      safetyCarTitle: 'Safety Car Rules',
-      safetyCarText: 'Under Safety Car: pit stops are free (no position loss), defensive/overcut cards get +2 bonus positions, overtaking cards are nullified with a +3 penalty (you can still choose to play them). Team perk is blocked under SC. Use it to pit for fresh tires!',
+      cautionPhaseTitle: 'Caution Phase Rules',
+      cautionPhaseText: 'Under Caution Phase: pit stops are free (no position loss), defensive/overcut cards get +2 bonus positions, overtaking cards are nullified with a +3 penalty (you can still choose to play them). Team perk is blocked under caution. Use it to pit for fresh tires!',
       skipTurnTitle: 'Skip Turn & Emergency Redraw',
       skipTurnText: 'If you have no pit card when mandatory pit is needed, you get an emergency redraw. If still no pit card, you can skip your turn (no card played). Skipping avoids crash risk but you still take tire degradation penalties.',
       crashTitle: 'Crash / DNF Risk',
-      crashText: 'Aggressive cards on worn tires, rain on dry tires, and mechanical issues increase crash risk. A crash can cause heavy damage (+6 positions, +25 wear) or a DNF (race over). Under Safety Car there is no crash risk.',
+      crashText: 'Aggressive cards on worn tires, rain on dry tires, and mechanical issues increase crash risk. A crash can cause heavy damage (+6 positions, +25 wear) or a DNF (race over). Under Caution Phase there is no crash risk.',
       tipsTitle: 'Strategy Tips',
       tip1: 'Balance your deck - do not go all-in on one card type.',
       tip2: 'Watch your tire wear - at 100 you get a tire blowout penalty.',
@@ -828,7 +818,7 @@ const EN_UI: UIStrings = {
       goalMid: 'Mid teams (Crimson, Amber): Points Machine - finish top 5 AND score points every race.',
       goalBottom: 'Lower teams (Emerald, Violet): Rising Star - beat your teammates AND score 20+ points.',
       championshipTitle: 'Championship Points',
-      championshipP1: 'Points are awarded using the real F1 system: P1=25, P2=18, P3=15, P4=12, P5=10, P6=8, P7=6, P8=4, P9=2, P10=1. Positions 11-18 score 0 points.',
+      championshipP1: 'Points are awarded using the pro racing system: P1=25, P2=18, P3=15, P4=12, P5=10, P6=8, P7=6, P8=4, P9=2, P10=1. Positions 11-18 score 0 points.',
       championshipP2: 'Championship standings accumulate across all 6 races. View standings from the season hub at any time. At season end, your goal is evaluated and a trophy is awarded.',
       difficultyModesTitle: 'Difficulty Modes & P1 Strategy',
       difficultyEasy: 'Easy: Less tire wear, fewer crashes. When leading (P1), you can skip your turn freely — no card needed.',
@@ -853,7 +843,7 @@ const EN_UI: UIStrings = {
   traits: {
     'traffic-heavy': 'Heavy Traffic',
     'no-overtaking': 'Hard to Overtake',
-    'sc-prone': 'SC Prone',
+    'caution-prone': 'Caution Prone',
     'rain-likely': 'Rain Likely',
     'rain-possible': 'Rain Possible',
     'high-speed': 'High Speed',
@@ -876,32 +866,6 @@ const EN_UI: UIStrings = {
     pos: 'POS',
     wear: 'WEAR',
     lap: 'LAP',
-  },
-  auth: {
-    loginButton: 'Login',
-    registerButton: 'Register',
-    guestButton: 'Play as Guest',
-    usernamePlaceholder: 'Username (min 3 characters)',
-    passwordPlaceholder: 'Password (min 6 characters)',
-    usernameMin: 'Username must be at least 3 characters',
-    passwordMin: 'Password must be at least 6 characters',
-    usernameExists: 'Username already exists',
-    invalidCredentials: 'Invalid username or password',
-    networkError: 'Connection error. Check if the server is running.',
-    logoutButton: 'Logout',
-    switchToLogin: 'Already have an account? Login',
-    switchToRegister: "Don't have an account? Register",
-    playerCodePreview: 'Your 3-letter code',
-  },
-  sync: {
-    button: 'Sync Data',
-    syncing: 'Syncing...',
-    lastSynced: 'Last synced',
-    never: 'Never synced',
-    success: 'Data synced successfully!',
-    error: 'Sync failed. Try again later.',
-    registerFirst: 'Account Required',
-    registerFirstDesc: 'Create an account to sync your data across devices.',
   },
 };
 
@@ -934,7 +898,7 @@ const PT_BR_UI: UIStrings = {
     noData: 'Sem dados disponiveis.',
   },
   home: {
-    title: 'Box Box',
+    title: 'Apex Tactics',
     subtitle: 'Racing Card Game',
     teamLabel: 'Equipe',
     teamNone: 'Nenhuma',
@@ -1000,8 +964,8 @@ const PT_BR_UI: UIStrings = {
     lapWord: 'VOLTA',
     noEffect: 'sem efeito',
     qdEligibleTitle: 'Elegivel para Decisao Rapida',
-    safetyCarActive: 'Safety Car - Sem ultrapassagens',
-    freePitStop: 'Pit stop gratis sob SC!',
+    cautionPhaseActive: 'Caution Phase - Sem ultrapassagens',
+    freePitStop: 'Pit stop gratis durante cautela!',
     crashDamage: 'Incidente! Dano pesado no carro.',
     crashDNF: 'Batida! Carro abandonou a corrida.',
     dnfTitle: 'Nao Terminou',
@@ -1009,9 +973,9 @@ const PT_BR_UI: UIStrings = {
     skipTurn: 'Passar Vez',
     emergencyMulligan: 'Trocar Mao Extra',
     noPitCardWarning: 'Sem carta de pit! Troque a mao ou passe a vez.',
-    scFreePit: 'Pit gratis sob SC',
-    scOvertakeWarning: 'Ultrapassagem sob SC! +3 penalidade de posicao se jogar esta carta.',
-    scPlayAnyway: 'Jogar Mesmo Assim (+3 penalidade)',
+    cautionFreePit: 'Pit gratis durante cautela',
+    cautionOvertakeWarning: 'Ultrapassagem durante cautela! +3 penalidade de posicao se jogar esta carta.',
+    cautionPlayAnyway: 'Jogar Mesmo Assim (+3 penalidade)',
     p1NoOvertake: 'Voce esta em P1! Cartas de ultrapassagem nao ganham posicoes. Considere pit stop ou pular turno.',
     pLastNoLose: 'Voce esta em ultimo — esta carta nao vai perder posicoes.',
     p1SkipUsed: 'Skip gratuito usado! Voce deve jogar uma carta para defender o P1.',
@@ -1071,6 +1035,14 @@ const PT_BR_UI: UIStrings = {
   },
   garage: {
     title: 'Garagem',
+    backupTitle: 'Backup Offline',
+    backupDesc: 'Exporte um arquivo local antes de trocar de aparelho ou reinstalar. Importar substitui o progresso local atual.',
+    exportBackup: 'Exportar Backup',
+    importBackup: 'Importar Backup',
+    importConfirm: 'Importar este backup e substituir o progresso atual?',
+    backupExported: 'Backup exportado.',
+    backupImported: 'Backup importado.',
+    backupInvalid: 'Arquivo de backup invalido.',
     runHistory: 'Historico',
     bestScores: 'Recordes',
     trophies: 'Trofeus',
@@ -1142,11 +1114,11 @@ const PT_BR_UI: UIStrings = {
   },
   howToPlay: {
     title: 'Como Jogar',
-    subtitle: 'Seu guia de estrategia no pit wall',
+    subtitle: 'Seu guia de estrategia no command deck',
     backToMenu: 'Voltar ao Menu',
     sections: {
       overviewTitle: 'Visao Geral',
-      overviewP1: 'Voce e o estrategista de pit wall de uma equipe de Formula 1. Antes de cada corrida, monta um deck de 9 cartas com suas opcoes taticas. Durante a corrida, compra cartas por volta e joga para responder aos eventos da pista.',
+      overviewP1: 'Voce e o estrategista de command deck de uma equipe de corrida ficticia. Antes de cada corrida, monta um deck de 9 cartas com suas opcoes taticas. Durante a corrida, compra cartas por volta e joga para responder aos eventos da pista.',
       overviewP2: 'Seu objetivo e terminar na melhor posicao possivel enquanto completa objetivos da corrida para pontos extras.',
       gettingStartedTitle: 'Primeiros Passos',
       start1: '1. Selecione uma Equipe - Cada construtora tem um perk unico que ativa uma vez por corrida.',
@@ -1158,7 +1130,7 @@ const PT_BR_UI: UIStrings = {
       eventLabel: 'Evento',
       eventText: 'Um evento aleatorio e revelado e pode afetar seu carro ou acionar decisao rapida.',
       qdLabel: 'DR',
-      qdText: 'Se ocorrer Safety Car, VSC ou pico de chuva, voce pode jogar uma carta de decisao rapida imediatamente.',
+      qdText: 'Se ocorrer fase de cautela ou pico de chuva, voce pode jogar uma carta de decisao rapida imediatamente.',
       perkLabel: 'Perk',
       perkText: 'Voce pode ativar o perk unico da sua equipe (uma vez por corrida).',
       playLabel: 'Jogar',
@@ -1173,11 +1145,11 @@ const PT_BR_UI: UIStrings = {
       pos: 'Sua posicao na corrida (P1 = lider). Quanto menor, melhor.',
       wear: 'Desgaste de pneus (0-100). Desgaste alto piora desempenho e posicao.',
       eventsTitle: 'Eventos',
-      sc: 'Safety Car - pelotao junta. Maximo 1 por corrida.',
+      sc: 'Caution Phase - pelotao junta. Maximo 1 por corrida.',
       rainEvent: 'Chuva afeta desgaste de pneus e condicoes da pista.',
       others: 'Trafego, rivais parando, ar limpo e problemas mecanicos afetam posicao ou desgaste.',
       scoringTitle: 'Pontuacao',
-      finish: 'Pontos por posicao final (P1 = 25 pts, como na F1 real).',
+      finish: 'Pontos por posicao final (P1 = 25 pts, como no campeonato).',
       main: 'Complete o objetivo principal do circuito para ganhar pontos extras.',
       bonus: 'Objetivos secundarios opcionais valem pontos adicionais.',
       tireStrategyTitle: 'Estrategia de Pneus',
@@ -1189,12 +1161,12 @@ const PT_BR_UI: UIStrings = {
       tireNoTiresWarning: 'Voce so tem 3 jogos de pneus secos por corrida. Se fizer pit sem pneus disponiveis (e sem chuva para Inter/Wet), as penalidades escalam com a dificuldade — passe livre no Facil, perda de posicao + desgaste no Normal/Dificil. Chuva libera Inter e Wet como coringas. Mantenha no maximo 2-3 cartas de pit no deck.',
       mulliganTitle: 'Mulligan (Trocar Mao)',
       mulliganText: 'Apenas na primeira volta, voce pode trocar toda a mao uma vez. Use se a mao inicial nao combina com o evento ou sua estrategia.',
-      safetyCarTitle: 'Regras do Safety Car',
-      safetyCarText: 'Sob Safety Car: pit stops sao gratis (sem perda de posicao), cartas defensivas/overcut ganham +2 bonus de posicao, cartas de ultrapassagem sao anuladas com penalidade +3 (voce ainda pode jogar). Perk da equipe bloqueado sob SC. Aproveite para trocar os pneus!',
+      cautionPhaseTitle: 'Regras do Caution Phase',
+      cautionPhaseText: 'Sob Caution Phase: pit stops sao gratis (sem perda de posicao), cartas defensivas/overcut ganham +2 bonus de posicao, cartas de ultrapassagem sao anuladas com penalidade +3 (voce ainda pode jogar). Perk da equipe bloqueado durante cautela. Aproveite para trocar os pneus!',
       skipTurnTitle: 'Passar Vez e Troca Extra',
       skipTurnText: 'Se voce nao tiver carta de pit quando o pit e obrigatorio, ganha uma troca extra de mao. Se ainda nao tiver, pode passar a vez (sem jogar carta). Passar evita risco de batida mas voce ainda sofre penalidades de desgaste.',
       crashTitle: 'Risco de Batida / DNF',
-      crashText: 'Cartas agressivas com pneus gastos, chuva em pneus secos e problemas mecanicos aumentam o risco de batida. Uma batida causa dano pesado (+6 posicoes, +25 desgaste) ou DNF (corrida encerrada). Sob Safety Car nao ha risco de batida.',
+      crashText: 'Cartas agressivas com pneus gastos, chuva em pneus secos e problemas mecanicos aumentam o risco de batida. Uma batida causa dano pesado (+6 posicoes, +25 desgaste) ou DNF (corrida encerrada). Sob Caution Phase nao ha risco de batida.',
       tipsTitle: 'Dicas de Estrategia',
       tip1: 'Equilibre o deck - nao aposte tudo em um unico tipo de carta.',
       tip2: 'Fique de olho no desgaste - ao chegar a 100 voce sofre penalidade por estouro de pneu.',
@@ -1214,7 +1186,7 @@ const PT_BR_UI: UIStrings = {
       goalMid: 'Times medios (Crimson, Amber): Maquina de Pontos - terminar no top 5 E pontuar em toda corrida.',
       goalBottom: 'Times menores (Emerald, Violet): Estrela em Ascensao - superar companheiros E marcar 20+ pontos.',
       championshipTitle: 'Pontos do Campeonato',
-      championshipP1: 'Pontos sao dados usando o sistema real da F1: P1=25, P2=18, P3=15, P4=12, P5=10, P6=8, P7=6, P8=4, P9=2, P10=1. Posicoes 11-18 nao pontuam.',
+      championshipP1: 'Pontos sao dados usando o sistema do campeonato: P1=25, P2=18, P3=15, P4=12, P5=10, P6=8, P7=6, P8=4, P9=2, P10=1. Posicoes 11-18 nao pontuam.',
       championshipP2: 'A classificacao do campeonato acumula ao longo das 6 corridas. Veja a classificacao no hub da temporada a qualquer momento. No final, seu objetivo e avaliado e um trofeu e concedido.',
       difficultyModesTitle: 'Modos de Dificuldade e Estrategia em P1',
       difficultyEasy: 'Facil: Menos desgaste de pneus, menos batidas. Quando liderando (P1), voce pode pular o turno livremente — sem precisar jogar carta.',
@@ -1239,7 +1211,7 @@ const PT_BR_UI: UIStrings = {
   traits: {
     'traffic-heavy': 'Trafego Pesado',
     'no-overtaking': 'Dificil Ultrapassar',
-    'sc-prone': 'SC Frequente',
+    'caution-prone': 'Cautela Frequente',
     'rain-likely': 'Chuva Provavel',
     'rain-possible': 'Chuva Possivel',
     'high-speed': 'Alta Velocidade',
@@ -1263,32 +1235,6 @@ const PT_BR_UI: UIStrings = {
     wear: 'DESG',
     lap: 'VOLTA',
   },
-  auth: {
-    loginButton: 'Entrar',
-    registerButton: 'Cadastrar',
-    guestButton: 'Jogar como Convidado',
-    usernamePlaceholder: 'Usuario (min 3 caracteres)',
-    passwordPlaceholder: 'Senha (min 6 caracteres)',
-    usernameMin: 'Usuario deve ter pelo menos 3 caracteres',
-    passwordMin: 'Senha deve ter pelo menos 6 caracteres',
-    usernameExists: 'Usuario ja existe',
-    invalidCredentials: 'Usuario ou senha invalidos',
-    networkError: 'Erro de conexao. Verifique se o servidor esta rodando.',
-    logoutButton: 'Sair',
-    switchToLogin: 'Ja tem conta? Entrar',
-    switchToRegister: 'Nao tem conta? Cadastrar',
-    playerCodePreview: 'Seu codigo de 3 letras',
-  },
-  sync: {
-    button: 'Sincronizar Dados',
-    syncing: 'Sincronizando...',
-    lastSynced: 'Ultima sincronizacao',
-    never: 'Nunca sincronizado',
-    success: 'Dados sincronizados com sucesso!',
-    error: 'Falha na sincronizacao. Tente novamente.',
-    registerFirst: 'Conta Necessaria',
-    registerFirstDesc: 'Crie uma conta para sincronizar seus dados entre dispositivos.',
-  },
 };
 
 const PT_BR_CONTENT: ContentStrings = {
@@ -1298,9 +1244,9 @@ const PT_BR_CONTENT: ContentStrings = {
       pros: ['Ganha 2 posicoes — boa ultrapassagem', 'Bom equilibrio risco/recompensa'],
       cons: ['+15 desgaste de pneu', 'Risco de batida com pneus gastos'],
     },
-    'box-box': {
-      name: 'Box Box', rulesText: 'Pit stop! Perde 4 posicoes mas pneus novos com vida extra.',
-      pros: ['Pneus novos com vida extra (comeca abaixo de 0)', 'Essencial para gestao de pneus', 'Pit gratis sob Safety Car'],
+    'pit-call': {
+      name: 'Pit Call', rulesText: 'Pit stop! Perde 4 posicoes mas pneus novos com vida extra.',
+      pros: ['Pneus novos com vida extra (comeca abaixo de 0)', 'Essencial para gestao de pneus', 'Pit gratis sob Caution Phase'],
       cons: ['Perde 4 posicoes — custo alto', 'Timing do pit e crucial'],
     },
     'conserve-tires': {
@@ -1311,22 +1257,22 @@ const PT_BR_CONTENT: ContentStrings = {
     overtake: {
       name: 'Ultrapassar', rulesText: 'Manda por dentro! Ganhe 3 posicoes, +25 desgaste.',
       pros: ['Ganha 3 posicoes — carta mais forte de ataque', 'Pode mudar a corrida em um lance'],
-      cons: ['Desgaste muito alto (+25)', 'Alto risco de batida com pneus gastos', 'Penalizada sob Safety Car'],
+      cons: ['Desgaste muito alto (+25)', 'Alto risco de batida com pneus gastos', 'Penalizada sob Caution Phase'],
     },
     'defend-position': {
       name: 'Defender Posicao', rulesText: 'Segure a linha: mantenha posicao, +5 desgaste por pilotagem defensiva.',
-      pros: ['Mantem posicao com custo minimo (+5)', 'Muito segura — quase sem risco', '+2 bonus de posicao sob Safety Car'],
+      pros: ['Mantem posicao com custo minimo (+5)', 'Muito segura — quase sem risco', '+2 bonus de posicao sob Caution Phase'],
       cons: ['Sem ganho de posicao', 'Puramente reativa — nao melhora colocacao'],
     },
-    'drs-attack': {
-      name: 'Ataque de DRS', rulesText: 'DRS aberto! Ganhe 2 posicoes, +10 desgaste.',
+    'aero-boost': {
+      name: 'Impulso Aero', rulesText: 'Modo aero! Ganhe 2 posicoes, +10 desgaste.',
       pros: ['Ganha 2 posicoes com desgaste moderado (+10)', 'Boa em situacoes de ar limpo'],
-      cons: ['Adiciona desgaste (+10)', 'Penalizada sob Safety Car'],
+      cons: ['Adiciona desgaste (+10)', 'Penalizada sob Caution Phase'],
     },
     slipstream: {
       name: 'Vacuo', rulesText: 'Pegue vacuo do rival: ganhe 1 posicao, sem custo de pneu.',
       pros: ['Ganha 1 posicao com zero desgaste', 'Carta agressiva mais segura — sem custo de pneu'],
-      cons: ['Ganha apenas 1 posicao — ganho modesto', 'Penalizada sob Safety Car'],
+      cons: ['Ganha apenas 1 posicao — ganho modesto', 'Penalizada sob Caution Phase'],
     },
     'late-brake': {
       name: 'Frenagem Tardia', rulesText: 'Frenagem tardia arriscada! Ganhe 3 posicoes, +20 desgaste.',
@@ -1335,7 +1281,7 @@ const PT_BR_CONTENT: ContentStrings = {
     },
     'gap-management': {
       name: 'Gestao de Gap', rulesText: 'Controle o ritmo: mantenha posicao, -10 desgaste.',
-      pros: ['Reduz desgaste em 10 mantendo posicao', 'Otima para prolongar stint', '+2 bonus de posicao sob Safety Car'],
+      pros: ['Reduz desgaste em 10 mantendo posicao', 'Otima para prolongar stint', '+2 bonus de posicao sob Caution Phase'],
       cons: ['Sem ganho de posicao', 'Puramente defensiva — sem poder de ultrapassagem'],
     },
     undercut: {
@@ -1346,18 +1292,18 @@ const PT_BR_CONTENT: ContentStrings = {
     'engine-mode': {
       name: 'Modo Motor', rulesText: 'Aumente o motor: ganhe 1 posicao, +10 desgaste.',
       pros: ['Ganha 1 posicao com desgaste moderado (+10)', 'Ganho confiavel de uma posicao'],
-      cons: ['Adiciona desgaste (+10)', 'Penalizada sob Safety Car'],
+      cons: ['Adiciona desgaste (+10)', 'Penalizada sob Caution Phase'],
     },
     'alternate-strategy': {
       name: 'Estrategia Alternativa', rulesText: 'Estrategia oposta aos rivais: perca 2 posicoes, pneus com vida extra.',
-      pros: ['Aciona pit com pneus novos com vida extra', 'Tag defensiva: jogada segura, +2 sob SC', 'Perde so 2 posicoes vs 4 do Box Box'],
+      pros: ['Aciona pit com pneus novos com vida extra', 'Tag defensiva: jogada segura, +2 durante cautela', 'Perde so 2 posicoes vs 4 do Pit Call'],
       cons: ['Ainda perde 2 posicoes', 'Precisa ter composto disponivel para pit'],
     },
   },
   teams: {
     crimson: { name: 'Crimson Racing' },
     azure: { name: 'Azure Motorsport' },
-    emerald: { name: 'Emerald Grand Prix' },
+    emerald: { name: 'Emerald Racing' },
     amber: { name: 'Amber Autosport' },
     violet: { name: 'Violet Velocity' },
     onyx: { name: 'Onyx Engineering' },
@@ -1371,30 +1317,30 @@ const PT_BR_CONTENT: ContentStrings = {
     'onyx-fortify': { name: 'Fortificar', description: 'Excelencia de engenharia: reduza desgaste em 15.' },
   },
   scenarios: {
-    monaco: { name: 'Grande Premio de Monte Carlo', circuit: 'Circuito de Rua de Monte Carlo' },
-    spa: { name: 'Grande Premio das Ardenas', circuit: 'Circuito de Corrida das Ardenas' },
-    monza: { name: 'Grande Premio de Milao', circuit: 'Autodromo da Lombardia' },
-    silverstone: { name: 'Grande Premio de Northampton', circuit: 'Circuito de Corrida de Northampton' },
-    suzuka: { name: 'Grande Premio de Sakura', circuit: 'Circuito de Corrida de Sakura' },
-    interlagos: { name: 'Grande Premio de Sao Paulo', circuit: 'Circuito de Corrida Paulista' },
+    'harbor': { name: 'Desafio Harbor', circuit: 'Harbor Circuit' },
+    'forest-run': { name: 'Desafio Forest Run', circuit: 'Forest Run' },
+    'velocity-ring': { name: 'Desafio Velocity Ring', circuit: 'Velocity Ring' },
+    'north-loop': { name: 'Desafio North Loop', circuit: 'North Loop' },
+    'figure-eight': { name: 'Desafio Figure-Eight', circuit: 'Figure-Eight Circuit' },
+    'southbank': { name: 'Desafio Southbank', circuit: 'Southbank Circuit' },
   },
   objectives: {
-    'monaco-main': 'Termine no top 5',
-    'monaco-bonus': 'Termine com desgaste abaixo de 50',
-    'spa-main': 'Termine no top 3',
-    'spa-bonus': 'Use o perk da equipe durante a corrida',
-    'monza-main': 'Termine no top 6',
-    'monza-bonus': 'Jogue pelo menos 2 cartas agressivas',
-    'silverstone-main': 'Termine no top 4',
-    'silverstone-bonus': 'Nunca ultrapasse 80 de desgaste',
-    'suzuka-main': 'Termine no top 5',
-    'suzuka-bonus': 'Nunca passe de 80 de desgaste',
-    'interlagos-main': 'Termine no top 3',
-    'interlagos-bonus': 'Jogue ao menos 1 carta de clima',
+    'harbor-main': 'Termine no top 5',
+    'harbor-bonus': 'Termine com desgaste abaixo de 50',
+    'forest-run-main': 'Termine no top 3',
+    'forest-run-bonus': 'Use o perk da equipe durante a corrida',
+    'velocity-ring-main': 'Termine no top 6',
+    'velocity-ring-bonus': 'Jogue pelo menos 2 cartas agressivas',
+    'north-loop-main': 'Termine no top 4',
+    'north-loop-bonus': 'Nunca ultrapasse 80 de desgaste',
+    'figure-eight-main': 'Termine no top 5',
+    'figure-eight-bonus': 'Nunca passe de 80 de desgaste',
+    'southbank-main': 'Termine no top 3',
+    'southbank-bonus': 'Jogue ao menos 1 carta de clima',
   },
   events: {
     names: {
-      'safety-car': 'Safety Car',
+      'caution-phase': 'Caution Phase',
       rain: 'Chuva',
       'rival-pits': 'Pit dos Rivais',
       'rival-overtake': 'Ultrapassagem Rival',
@@ -1403,10 +1349,10 @@ const PT_BR_CONTENT: ContentStrings = {
       'mechanical-issue': 'Problema Mecanico',
     },
     flavors: {
-      'safety-car': [
-        'Safety car na pista! O pelotao se aproxima.',
-        'Bandeira amarela! Safety car em acao.',
-        'Incidente a frente! Safety car ativado.',
+      'caution-phase': [
+        'Caution phase na pista! O pelotao se aproxima.',
+        'Bandeira amarela! Caution phase em acao.',
+        'Incidente a frente! Caution phase ativado.',
       ],
       rain: [
         'Primeiras gotas no visor... condicoes mudando.',
@@ -1447,9 +1393,9 @@ const PT_BR_CONTENT: ContentStrings = {
       'Fique fora, o gap esta bom.',
       'Sem parada nesta volta. Posicao de pista e chave.',
     ],
-    boxBox: [
-      'Box box box! Pit nesta volta!',
-      'Ok, box nesta volta. Box box.',
+    pitCall: [
+      'Pit call! Pit nesta volta!',
+      'Ok, pit nesta volta. Pit call confirmado.',
       'Entra, entra! Vai para o pit lane.',
       'Box agora. Pneus novos te esperam.',
     ],

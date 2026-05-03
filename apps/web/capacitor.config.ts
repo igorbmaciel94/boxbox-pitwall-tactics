@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.boxbox.pitwall',
-  appName: 'Box Box',
+  appId: 'com.apextactics.game',
+  appName: 'Apex Tactics',
   webDir: 'dist',
   server: {
     androidScheme: 'https',

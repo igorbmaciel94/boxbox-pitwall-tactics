@@ -58,8 +58,8 @@ export function initializeRaceState(
     discard: [],
     currentEvent: null,
     eventHistory: [],
-    scUsed: false,
-    underSafetyCar: false,
+    cautionUsed: false,
+    underCaution: false,
     lastEventType: null,
     perkUsed: false,
     mulliganUsed: false,
@@ -134,7 +134,7 @@ export function runTurn(
   // Phase 5: Resolve - apply penalties & clamp
   s = { ...s, turnPhase: 'resolve' };
   const raining = isCurrentlyRaining(s);
-  s = applyEndOfTurnPenalties(s, raining, s.underSafetyCar, s.difficulty);
+  s = applyEndOfTurnPenalties(s, raining, s.underCaution, s.difficulty);
   s = clampRaceState(s);
 
   // Crash check (after all effects are resolved)

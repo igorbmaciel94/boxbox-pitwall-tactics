@@ -12,7 +12,23 @@ const MUSIC_FILES = {
 
 type MusicTrack = keyof typeof MUSIC_FILES;
 
-let globalMuted = localStorage.getItem('boxbox-muted') === 'true';
+const AUDIO_MUTED_KEY = 'apex-muted';
+const LEGACY_AUDIO_MUTED_KEY = 'boxbox-muted';
+
+function loadInitialMutedState() {
+  const stored = localStorage.getItem(AUDIO_MUTED_KEY);
+  if (stored !== null) return stored === 'true';
+
+  const legacy = localStorage.getItem(LEGACY_AUDIO_MUTED_KEY);
+  if (legacy !== null) {
+    localStorage.setItem(AUDIO_MUTED_KEY, legacy);
+    return legacy === 'true';
+  }
+
+  return false;
+}
+
+let globalMuted = loadInitialMutedState();
 
 // Preloaded audio elements (shared across hook instances)
 const audioCache: Record<string, HTMLAudioElement> = {};
@@ -147,7 +163,7 @@ export function useAudio() {
       playSound(AUDIO_FILES.pitStop, 0.2);
     },
     playEventReveal: () => {},
-    playSafetyCar: () => {},
+    playCautionPhase: () => {},
     playRainStart: () => {},
     playRadioMessage,
     playTurnComplete: () => {},
@@ -156,7 +172,7 @@ export function useAudio() {
     isMuted: () => globalMuted,
     toggleMute: () => {
       globalMuted = !globalMuted;
-      localStorage.setItem('boxbox-muted', String(globalMuted));
+      localStorage.setItem(AUDIO_MUTED_KEY, String(globalMuted));
       if (globalMuted) {
         currentMusicTrack = null;
         stopMusicPlayback(false);

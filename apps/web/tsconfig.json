@@ -14,8 +14,8 @@
     "isolatedModules": true,
     "noEmit": true,
     "paths": {
-      "@boxbox/engine": ["../../packages/engine/src/index.ts"],
-      "@boxbox/content": ["../../packages/content/src/index.ts"],
+      "@apex/engine": ["../../packages/engine/src/index.ts"],
+      "@apex/content": ["../../packages/content/src/index.ts"],
       "@content-data/*": ["../../packages/content/data/*"],
       "@/*": ["./src/*"]
     }

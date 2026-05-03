@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { TireCompound } from '@boxbox/engine';
+import type { TireCompound } from '@apex/engine';
 import { COMPOUND_COLORS } from '../../lib/constants';
 
 export interface RivalDot {
@@ -22,8 +22,8 @@ interface TrackMapProps {
 // Stylized circuit layouts — each unique and loosely inspired by real tracks
 // Defined within a 320×140 viewBox, coordinates trace the circuit clockwise from start/finish
 const CIRCUIT_PATHS: Record<string, [number, number][]> = {
-  // Monaco: Tight street circuit with sharp hairpin and chicanes
-  monaco: [
+  // Harbor Circuit: tight street circuit with sharp hairpin and chicanes
+  'harbor': [
     [260, 28], [280, 25], [295, 32], [300, 48],
     [295, 62], [278, 68], [255, 65], [235, 72],
     [215, 85], [195, 100], [170, 110], [140, 115],
@@ -33,8 +33,8 @@ const CIRCUIT_PATHS: Record<string, [number, number][]> = {
     [140, 42], [165, 35], [190, 26], [220, 22],
     [245, 24],
   ],
-  // Spa: Flowing elevation changes, Eau Rouge sweep, La Source hairpin
-  spa: [
+  // Forest Run: flowing elevation changes, sweeping curves, and a hairpin
+  'forest-run': [
     [275, 32], [295, 42], [298, 58], [288, 72],
     [265, 82], [240, 92], [210, 100], [178, 108],
     [148, 110], [120, 105], [95, 95], [72, 80],
@@ -43,8 +43,8 @@ const CIRCUIT_PATHS: Record<string, [number, number][]> = {
     [138, 48], [148, 58], [158, 48], [170, 35],
     [188, 25], [210, 20], [235, 22], [258, 26],
   ],
-  // Monza: Temple of speed — long straights, tight chicanes
-  monza: [
+  // Velocity Ring: long straights and tight chicanes
+  'velocity-ring': [
     [285, 45], [298, 55], [300, 68], [292, 80],
     [275, 88], [248, 94], [210, 98], [165, 100],
     [120, 98], [80, 92], [52, 82], [35, 68],
@@ -53,8 +53,8 @@ const CIRCUIT_PATHS: Record<string, [number, number][]> = {
     [125, 22], [160, 18], [200, 18], [235, 22],
     [260, 28], [275, 36],
   ],
-  // Silverstone: Fast flowing corners, Maggots-Becketts complex
-  silverstone: [
+  // North Loop: fast flowing corner complexes
+  'north-loop': [
     [275, 50], [288, 62], [285, 78], [268, 90],
     [245, 98], [215, 104], [185, 102], [158, 95],
     [132, 82], [112, 68], [92, 55], [72, 48],
@@ -63,8 +63,8 @@ const CIRCUIT_PATHS: Record<string, [number, number][]> = {
     [145, 36], [172, 32], [200, 28], [228, 26],
     [252, 30], [268, 40],
   ],
-  // Suzuka: Figure-8 with distinctive crossover
-  suzuka: [
+  // Figure-Eight Circuit: distinctive crossover
+  'figure-eight': [
     [270, 55], [288, 65], [292, 80], [282, 92],
     [262, 100], [238, 105], [212, 102], [190, 92],
     [172, 78], [158, 62], [148, 48], [135, 38],
@@ -74,8 +74,8 @@ const CIRCUIT_PATHS: Record<string, [number, number][]> = {
     [152, 72], [168, 55], [185, 42], [205, 34],
     [228, 30], [250, 35], [265, 45],
   ],
-  // Interlagos: Counter-clockwise, short and punchy
-  interlagos: [
+  // Southbank Circuit: counter-clockwise, short and punchy
+  'southbank': [
     [265, 38], [285, 48], [292, 65], [285, 80],
     [268, 92], [242, 100], [212, 105], [178, 106],
     [145, 102], [115, 92], [88, 78], [65, 62],

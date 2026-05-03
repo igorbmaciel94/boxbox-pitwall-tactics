@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { TireCompound, TireAllocation, SeasonTireBank, Difficulty } from '@boxbox/engine';
+import type { TireCompound, TireAllocation, SeasonTireBank, Difficulty } from '@apex/engine';
 import { Button } from '../shared/Button';
 import { useI18n } from '../../i18n';
 import { useGameStore } from '../../stores/game-store';

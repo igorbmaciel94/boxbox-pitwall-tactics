@@ -25,12 +25,12 @@ export function NavBar() {
               key={item.path}
               onClick={() => navigate(item.path)}
               className={`group relative flex flex-1 flex-col items-center gap-1 py-2.5 transition-colors duration-150
-                ${active ? 'text-f1-red' : 'text-metal-light hover:text-white/80'}`}
+                ${active ? 'text-apex-red' : 'text-metal-light hover:text-white/80'}`}
             >
               {active && (
-                <span className="absolute inset-x-4 top-0 h-[2px] rounded-full bg-f1-red" />
+                <span className="absolute inset-x-4 top-0 h-[2px] rounded-full bg-apex-red" />
               )}
-              <span className={`font-mono text-[11px] font-semibold tracking-wider ${active ? 'text-f1-red' : ''}`}>
+              <span className={`font-mono text-[11px] font-semibold tracking-wider ${active ? 'text-apex-red' : ''}`}>
                 {item.icon}
               </span>
               <span className="text-[10px] font-medium tracking-wide">

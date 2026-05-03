@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadCatalog } from '@boxbox/content';
+import { loadCatalog } from '@apex/content';
 import { applyCardEffect, refillHandWithRng } from '../src/card-effects.js';
 import { createRng } from '../src/rng.js';
 import type { RaceState } from '../src/types.js';
@@ -8,7 +8,7 @@ const catalog = loadCatalog();
 
 function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
   return {
-    scenarioId: 'monaco',
+    scenarioId: 'harbor',
     teamId: 'crimson',
     seed: 42,
     difficulty: 'normal',
@@ -17,11 +17,11 @@ function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
     currentTurn: 1,
     totalTurns: 6,
     deck: [],
-    hand: ['push-hard', 'box-box', 'overtake'],
+    hand: ['push-hard', 'pit-call', 'overtake'],
     discard: [],
     currentEvent: null,
     eventHistory: [],
-    scUsed: false,
+    cautionUsed: false,
     lastEventType: null,
     perkUsed: false,
     objectivesCompleted: [],
@@ -45,9 +45,9 @@ describe('applyCardEffect', () => {
     expect(updated.cardsPlayedTotal).toContain('push-hard');
   });
 
-  it('applies box-box effect correctly — tire freshness bonus', () => {
+  it('applies pit-call effect correctly — tire freshness bonus', () => {
     const state = makeBaseState({ tireWear: 80 });
-    const updated = applyCardEffect(state, 'box-box', catalog);
+    const updated = applyCardEffect(state, 'pit-call', catalog);
 
     expect(updated.position).toBe(14); // 10 + 4
     expect(updated.tireWear).toBe(-15); // pit: fresh tires with -15 bonus
@@ -56,7 +56,7 @@ describe('applyCardEffect', () => {
   });
 
   it('applies undercut — gain position, standard fresh tires', () => {
-    const state = makeBaseState({ hand: ['undercut', 'box-box', 'overtake'], tireWear: 60 });
+    const state = makeBaseState({ hand: ['undercut', 'pit-call', 'overtake'], tireWear: 60 });
     const updated = applyCardEffect(state, 'undercut', catalog);
 
     expect(updated.position).toBe(9); // 10 + (-1)
@@ -65,7 +65,7 @@ describe('applyCardEffect', () => {
   });
 
   it('applies alternate-strategy — moderate loss, tire bonus', () => {
-    const state = makeBaseState({ hand: ['alternate-strategy', 'box-box', 'overtake'], tireWear: 70 });
+    const state = makeBaseState({ hand: ['alternate-strategy', 'pit-call', 'overtake'], tireWear: 70 });
     const updated = applyCardEffect(state, 'alternate-strategy', catalog);
 
     expect(updated.position).toBe(12); // 10 + 2
@@ -84,10 +84,10 @@ describe('applyCardEffect', () => {
   });
 
   it('moves card from hand to discard', () => {
-    const state = makeBaseState({ hand: ['push-hard', 'box-box', 'overtake'], discard: ['defend-position'] });
+    const state = makeBaseState({ hand: ['push-hard', 'pit-call', 'overtake'], discard: ['defend-position'] });
     const updated = applyCardEffect(state, 'push-hard', catalog);
 
-    expect(updated.hand).toEqual(['box-box', 'overtake']);
+    expect(updated.hand).toEqual(['pit-call', 'overtake']);
     expect(updated.discard).toEqual(['defend-position', 'push-hard']);
   });
 });
@@ -96,7 +96,7 @@ describe('refillHandWithRng', () => {
   it('draws cards to fill hand to 3', () => {
     const state = makeBaseState({
       hand: ['push-hard'],
-      deck: ['overtake', 'defend-position', 'slipstream', 'drs-attack'],
+      deck: ['overtake', 'defend-position', 'slipstream', 'aero-boost'],
     });
     const rng = createRng(42);
     const updated = refillHandWithRng(state, catalog, rng);
@@ -109,7 +109,7 @@ describe('refillHandWithRng', () => {
     const state = makeBaseState({
       hand: [],
       deck: [],
-      discard: ['push-hard', 'box-box', 'overtake', 'defend-position'],
+      discard: ['push-hard', 'pit-call', 'overtake', 'defend-position'],
     });
     const rng = createRng(42);
     const updated = refillHandWithRng(state, catalog, rng);
@@ -120,7 +120,7 @@ describe('refillHandWithRng', () => {
   });
 
   it('does nothing when hand is already 3', () => {
-    const state = makeBaseState({ hand: ['push-hard', 'box-box', 'overtake'] });
+    const state = makeBaseState({ hand: ['push-hard', 'pit-call', 'overtake'] });
     const rng = createRng(42);
     const updated = refillHandWithRng(state, catalog, rng);
 

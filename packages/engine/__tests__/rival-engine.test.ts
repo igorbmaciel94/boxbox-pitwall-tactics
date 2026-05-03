@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createRng } from '../src/rng.js';
 import { simulateRivalPositions, buildFullClassification, updateChampionshipStandings } from '../src/rival-engine.js';
-import type { DriverData } from '@boxbox/content';
+import type { DriverData } from '@apex/content';
 
 const MOCK_DRIVERS: DriverData[] = [
   { id: 'd1', firstName: 'A', lastName: 'One', abbreviation: 'AON', teamId: 'onyx', strength: 95 },

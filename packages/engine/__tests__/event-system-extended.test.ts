@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadCatalog } from '@boxbox/content';
+import { loadCatalog } from '@apex/content';
 import { createRng } from '../src/rng.js';
 import { applyEventEffect, updateEventTracking, isCurrentlyRaining } from '../src/event-system.js';
 import type { RaceEvent, RaceState } from '../src/types.js';
@@ -8,7 +8,7 @@ const catalog = loadCatalog();
 
 function makeState(overrides: Partial<RaceState> = {}): RaceState {
   return {
-    scenarioId: 'monaco',
+    scenarioId: 'harbor',
     teamId: 'crimson',
     seed: 42,
     difficulty: 'normal',
@@ -26,8 +26,8 @@ function makeState(overrides: Partial<RaceState> = {}): RaceState {
     discard: [],
     currentEvent: null,
     eventHistory: [],
-    scUsed: false,
-    underSafetyCar: false,
+    cautionUsed: false,
+    underCaution: false,
     lastEventType: null,
     perkUsed: false,
     mulliganUsed: false,
@@ -49,23 +49,23 @@ function makeEvent(type: string, effect: { position?: number; tireWear?: number 
 }
 
 describe('updateEventTracking', () => {
-  it('sets underSafetyCar when SC event occurs', () => {
+  it('sets underCaution when caution event occurs', () => {
     const state = makeState();
-    const updated = updateEventTracking(state, makeEvent('safety-car'));
-    expect(updated.underSafetyCar).toBe(true);
-    expect(updated.scUsed).toBe(true);
+    const updated = updateEventTracking(state, makeEvent('caution-phase'));
+    expect(updated.underCaution).toBe(true);
+    expect(updated.cautionUsed).toBe(true);
   });
 
-  it('clears underSafetyCar for non-SC events', () => {
-    const state = makeState({ underSafetyCar: true });
+  it('clears underCaution for non-caution events', () => {
+    const state = makeState({ underCaution: true });
     const updated = updateEventTracking(state, makeEvent('rain'));
-    expect(updated.underSafetyCar).toBe(false);
+    expect(updated.underCaution).toBe(false);
   });
 
-  it('preserves scUsed after subsequent non-SC events', () => {
-    const state = makeState({ scUsed: true });
+  it('preserves cautionUsed after subsequent non-caution events', () => {
+    const state = makeState({ cautionUsed: true });
     const updated = updateEventTracking(state, makeEvent('traffic'));
-    expect(updated.scUsed).toBe(true);
+    expect(updated.cautionUsed).toBe(true);
   });
 
   it('appends to eventHistory', () => {
@@ -98,9 +98,9 @@ describe('applyEventEffect', () => {
     expect(updated.tireWear).toBe(35);
   });
 
-  it('applies safety-car effect (tire wear reduction)', () => {
+  it('applies caution-phase effect (tire wear reduction)', () => {
     const state = makeState({ tireWear: 40 });
-    const updated = applyEventEffect(state, makeEvent('safety-car', { tireWear: -5 }));
+    const updated = applyEventEffect(state, makeEvent('caution-phase', { tireWear: -5 }));
     expect(updated.tireWear).toBe(35);
   });
 });

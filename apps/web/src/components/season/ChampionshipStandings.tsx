@@ -1,4 +1,4 @@
-import type { DriverStanding } from '@boxbox/engine';
+import type { DriverStanding } from '@apex/engine';
 import { getPositionColor } from '../../lib/constants';
 import { useI18n } from '../../i18n';
 
@@ -26,7 +26,7 @@ export function ChampionshipStandings({ standings, playerDriverId, teams }: Cham
             <div
               key={standing.driverId}
               className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs ${
-                isPlayer ? 'bg-f1-red/15 ring-1 ring-f1-red/30' : ''
+                isPlayer ? 'bg-apex-red/15 ring-1 ring-apex-red/30' : ''
               }`}
             >
               <span className={`w-6 font-mono font-bold ${getPositionColor(championshipPos)}`}>

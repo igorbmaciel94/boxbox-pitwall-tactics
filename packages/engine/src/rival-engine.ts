@@ -1,4 +1,4 @@
-import type { DriverData } from '@boxbox/content';
+import type { DriverData } from '@apex/content';
 import type { RivalRaceResult, DriverStanding, SeededRng, TeamId } from './types.js';
 import { getPositionScore } from './scoring.js';
 

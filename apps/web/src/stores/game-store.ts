@@ -15,8 +15,8 @@ import type {
   TeamData,
   SeasonTireBank,
   SeededRng,
-} from '@boxbox/engine';
-import { createRng, initializeRaceState, updateChampionshipStandings } from '@boxbox/engine';
+} from '@apex/engine';
+import { createRng, initializeRaceState, updateChampionshipStandings } from '@apex/engine';
 import type { TurnPhaseUI, GameMode, SavedDeck, BestScore, RunHistoryEntry, SeasonRunEntry, Trophy } from '../lib/types';
 
 export const SEASON_TIRE_TOTALS: Record<Difficulty, number> = {

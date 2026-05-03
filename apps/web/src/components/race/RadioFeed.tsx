@@ -19,7 +19,7 @@ export function RadioFeed() {
             className="animate-fade-in text-sm leading-snug text-white/70"
             style={{ animationDelay: `${i * 50}ms` }}
           >
-            <span className="mr-1.5 font-mono text-[11px] text-f1-red/80">{msg.source === 'event' ? 'PIT>' : 'ENG>'}</span>
+            <span className="mr-1.5 font-mono text-[11px] text-apex-red/80">{msg.source === 'event' ? 'PIT>' : 'ENG>'}</span>
             {msg.source === 'event'
               ? getEventFlavor(msg.key, msg.flavorIndex)
               : getRadioMessage(msg.key, msg.flavorIndex)}

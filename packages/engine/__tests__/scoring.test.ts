@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadCatalog } from '@boxbox/content';
+import { loadCatalog } from '@apex/content';
 import { calculateRaceScore, calculateSeasonScore, evaluateObjective, getPositionScore } from '../src/scoring.js';
 import type { RaceDebrief, RaceState, ScoringConfig } from '../src/types.js';
 
@@ -7,7 +7,7 @@ const catalog = loadCatalog();
 
 function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
   return {
-    scenarioId: 'monaco',
+    scenarioId: 'harbor',
     teamId: 'crimson',
     seed: 42,
     difficulty: 'normal',
@@ -20,7 +20,7 @@ function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
     discard: [],
     currentEvent: null,
     eventHistory: [],
-    scUsed: false,
+    cautionUsed: false,
     lastEventType: null,
     perkUsed: false,
     objectivesCompleted: [],
@@ -143,7 +143,7 @@ describe('evaluateObjective', () => {
 
 describe('calculateRaceScore', () => {
   const config: ScoringConfig = { styleBonusesEnabled: false };
-  const scenario = catalog.scenarios.find((s) => s.id === 'monaco')!;
+  const scenario = catalog.scenarios.find((s) => s.id === 'harbor')!;
 
   it('calculates position score + objective points', () => {
     const state = makeBaseState({ position: 3, tireWear: 40 });

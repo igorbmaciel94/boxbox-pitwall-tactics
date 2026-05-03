@@ -1,10 +1,10 @@
 {
   "version": "2.0.0",
   "events": {
-    "safety-car": [
-      "Safety car deployed! The field bunches up.",
-      "Yellow flags! Safety car is out on track.",
-      "Incident ahead! Safety car activated."
+    "caution-phase": [
+      "Caution phase deployed! The field bunches up.",
+      "Yellow flags! Caution car is out on track.",
+      "Incident ahead! Caution phase activated."
     ],
     "rain": [
       "Drops of rain on the visor... conditions changing.",
@@ -44,9 +44,9 @@
       "Stay out, the gap is fine.",
       "No stop this lap. Track position is key."
     ],
-    "boxBox": [
-      "Box box box! Pit this lap!",
-      "Okay, box this lap. Box box.",
+    "pitCall": [
+      "Pit call! Pit this lap!",
+      "Okay, pit this lap. Confirm pit call.",
       "In in in! Head for the pit lane.",
       "Box now. Fresh tires waiting."
     ],

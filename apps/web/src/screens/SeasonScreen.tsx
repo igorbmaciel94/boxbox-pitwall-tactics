@@ -97,7 +97,7 @@ export function SeasonScreen() {
                   result
                     ? 'bg-hud-green'
                     : isCurrent
-                      ? 'bg-f1-red'
+                      ? 'bg-apex-red'
                       : 'bg-white/10'
                 }`}
               />
@@ -158,8 +158,8 @@ export function SeasonScreen() {
       )}
 
       {/* Next race */}
-      <div className="mb-5 rounded-2xl border border-f1-red/30 bg-f1-red/5 p-4">
-        <div className="mb-1 text-xs font-display uppercase tracking-wider text-f1-red/80">
+      <div className="mb-5 rounded-2xl border border-apex-red/30 bg-apex-red/5 p-4">
+        <div className="mb-1 text-xs font-display uppercase tracking-wider text-apex-red/80">
           {t('season.raceOf', { current: currentRaceIndex + 1, total: raceOrder.length })}
         </div>
         <div className="font-display text-xl font-bold uppercase tracking-wide">

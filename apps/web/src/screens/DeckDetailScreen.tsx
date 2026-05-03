@@ -108,7 +108,7 @@ export function DeckDetailScreen() {
               onChange={(e) => { setEditName(e.target.value); setNameError(''); }}
               onKeyDown={handleNameKeyDown}
               onBlur={handleCancelEditing}
-              className="flex-1 rounded-lg border border-white/20 bg-white/[0.06] px-3 py-1.5 font-display text-xl font-bold uppercase tracking-wide text-white outline-none focus:border-f1-red/50"
+              className="flex-1 rounded-lg border border-white/20 bg-white/[0.06] px-3 py-1.5 font-display text-xl font-bold uppercase tracking-wide text-white outline-none focus:border-apex-red/50"
               maxLength={40}
             />
             <button

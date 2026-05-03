@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
 import { calculateMedal, MEDAL_COLORS, getPositionColor } from '../lib/constants';
 import { useI18n } from '../i18n';
+import { downloadBackup, readBackupFile, serializeBackup } from '../lib/backup';
+import { OFFLINE_PROFILE_ID, loadAllPersistedData, replaceAllPersistedData } from '../stores/persistence';
+import type { PersistedGameData } from '../stores/persistence';
 
 type Tab = 'history' | 'best' | 'trophies';
 
@@ -48,11 +51,49 @@ export function GarageScreen() {
   const [tab, setTab] = useState<Tab>('history');
   const [historyPage, setHistoryPage] = useState(0);
   const [trophyPage, setTrophyPage] = useState(0);
-  const { t, getScenarioName, getScenarioCircuit, getTeamName, getMedalLabel } = useI18n();
+  const [backupMessage, setBackupMessage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const { t, setLocale, getScenarioName, getScenarioCircuit, getTeamName, getMedalLabel } = useI18n();
   const runHistory = useGameStore((s) => s.runHistory);
   const bestScores = useGameStore((s) => s.bestScores);
   const trophies = useGameStore((s) => s.trophies);
   const catalog = useGameStore((s) => s.catalog);
+
+  const applyImportedData = (data: PersistedGameData) => {
+    const store = useGameStore.getState();
+    store.clearGameState();
+    if (data.locale) setLocale(data.locale);
+    if (data.selectedTeam) store.selectTeam(data.selectedTeam);
+    store.setDeck(data.currentDeck);
+    store.setSavedDecks(data.savedDecks);
+    store.setBestScores(data.bestScores);
+    store.setRunHistory(data.runHistory);
+    store.setSeasonRuns(data.seasonRuns);
+    store.setTrophies(data.trophies);
+    if (data.seasonProgress) store.setSeasonProgress(data.seasonProgress);
+  };
+
+  const handleExportBackup = async () => {
+    const data = await loadAllPersistedData(OFFLINE_PROFILE_ID);
+    const exportedAt = Date.now();
+    downloadBackup(serializeBackup(data, exportedAt), exportedAt);
+    setBackupMessage(t('garage.backupExported'));
+  };
+
+  const handleImportBackup = async (file: File | undefined) => {
+    if (!file) return;
+    try {
+      const backup = await readBackupFile(file);
+      if (!window.confirm(t('garage.importConfirm'))) return;
+      await replaceAllPersistedData(OFFLINE_PROFILE_ID, backup.data);
+      applyImportedData(backup.data);
+      setBackupMessage(t('garage.backupImported'));
+    } catch {
+      setBackupMessage(t('garage.backupInvalid'));
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const handleTabChange = (newTab: Tab) => {
     setTab(newTab);
@@ -82,6 +123,41 @@ export function GarageScreen() {
       </button>
       <h1 className="mb-5 font-display text-2xl font-bold uppercase tracking-wide">{t('garage.title')}</h1>
 
+      <div className="mb-5 rounded-2xl bg-white/[0.04] p-4">
+        <div className="mb-2 font-display text-sm font-semibold uppercase tracking-wide">
+          {t('garage.backupTitle')}
+        </div>
+        <p className="mb-3 text-xs leading-relaxed text-metal-light">
+          {t('garage.backupDesc')}
+        </p>
+        <div className="flex gap-2.5">
+          <button
+            onClick={handleExportBackup}
+            className="flex-1 rounded-xl bg-white/[0.06] px-3 py-2.5 font-display text-xs font-bold uppercase tracking-wide transition-colors hover:bg-white/[0.10]"
+          >
+            {t('garage.exportBackup')}
+          </button>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex-1 rounded-xl bg-white/[0.06] px-3 py-2.5 font-display text-xs font-bold uppercase tracking-wide transition-colors hover:bg-white/[0.10]"
+          >
+            {t('garage.importBackup')}
+          </button>
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json,.json"
+          className="hidden"
+          onChange={(event) => handleImportBackup(event.target.files?.[0])}
+        />
+        {backupMessage && (
+          <p className="mt-3 text-center text-xs text-metal-light">
+            {backupMessage}
+          </p>
+        )}
+      </div>
+
       {/* Tabs */}
       <div className="flex gap-1.5 mb-5">
         {(['history', 'best', 'trophies'] as const).map((tabKey) => (
@@ -91,7 +167,7 @@ export function GarageScreen() {
             className={`flex-1 rounded-full py-2 text-xs font-medium uppercase tracking-wider transition-colors
               ${
                 tab === tabKey
-                  ? 'bg-f1-red text-white'
+                  ? 'bg-apex-red text-white'
                   : 'bg-white/5 text-metal-light hover:bg-white/10 hover:text-white'
               }`}
           >

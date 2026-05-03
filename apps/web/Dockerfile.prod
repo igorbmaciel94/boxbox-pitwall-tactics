@@ -6,8 +6,6 @@ COPY packages/content/package*.json ./packages/content/
 COPY packages/engine/package*.json ./packages/engine/
 RUN npm ci
 COPY . .
-ARG VITE_API_URL=https://boxbox.lighthousedev.uk/api
-ENV VITE_API_URL=$VITE_API_URL
 RUN npm run build
 
 FROM nginx:alpine

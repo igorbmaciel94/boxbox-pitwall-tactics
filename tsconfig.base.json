@@ -11,6 +11,11 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@apex/content": ["packages/content/src/index.ts"],
+      "@apex/engine": ["packages/engine/src/index.ts"]
+    }
   }
 }

@@ -1,4 +1,4 @@
-import type { CardId, GameCatalogData } from '@boxbox/engine';
+import type { CardId, GameCatalogData } from '@apex/engine';
 import { CardComponent } from './CardComponent';
 import { useI18n } from '../../i18n';
 

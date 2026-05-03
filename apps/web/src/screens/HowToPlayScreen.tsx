@@ -66,8 +66,8 @@ export function HowToPlayScreen() {
             <span className="font-display text-xs font-bold uppercase text-hud-amber">{getTagLabel('pit', 'Pit')}</span>
             <span className="ml-2 text-sm text-metal-light">{t('howToPlay.sections.pit')}</span>
           </div>
-          <div className="rounded-xl bg-f1-red/5 border border-f1-red/15 p-3">
-            <span className="font-display text-xs font-bold uppercase text-f1-red">{getTagLabel('defensive', 'Tactics')}</span>
+          <div className="rounded-xl bg-apex-red/5 border border-apex-red/15 p-3">
+            <span className="font-display text-xs font-bold uppercase text-apex-red">{getTagLabel('defensive', 'Tactics')}</span>
             <span className="ml-2 text-sm text-metal-light">{t('howToPlay.sections.tactics')}</span>
           </div>
         </div>
@@ -88,8 +88,8 @@ export function HowToPlayScreen() {
           <Term label="100%">{t('howToPlay.sections.tireBlowout')}</Term>
           <Term label="SZN">{t('howToPlay.sections.tireSeasonBudget')}</Term>
         </div>
-        <div className="mt-3 rounded-xl bg-f1-red/5 border border-f1-red/15 p-3">
-          <span className="font-display text-xs font-bold uppercase text-f1-red">TIP</span>
+        <div className="mt-3 rounded-xl bg-apex-red/5 border border-apex-red/15 p-3">
+          <span className="font-display text-xs font-bold uppercase text-apex-red">TIP</span>
           <span className="ml-2 text-sm text-metal-light">{t('howToPlay.sections.tireNoTiresWarning')}</span>
         </div>
       </Section>
@@ -98,8 +98,8 @@ export function HowToPlayScreen() {
         <p>{t('howToPlay.sections.mulliganText')}</p>
       </Section>
 
-      <Section title={t('howToPlay.sections.safetyCarTitle')}>
-        <p>{t('howToPlay.sections.safetyCarText')}</p>
+      <Section title={t('howToPlay.sections.cautionPhaseTitle')}>
+        <p>{t('howToPlay.sections.cautionPhaseText')}</p>
       </Section>
 
       <Section title={t('howToPlay.sections.skipTurnTitle')}>
@@ -124,7 +124,7 @@ export function HowToPlayScreen() {
 
       <Section title={t('howToPlay.sections.eventsTitle')}>
         <div className="space-y-2 rounded-xl bg-white/[0.04] p-3">
-          <Term label="SC">{t('howToPlay.sections.sc')}</Term>
+          <Term label="CP">{t('howToPlay.sections.sc')}</Term>
           <Term label={'\u{1F327}\u{FE0F}'}>{t('howToPlay.sections.rainEvent')}</Term>
           <Term label="ETC">{t('howToPlay.sections.others')}</Term>
         </div>

@@ -1,5 +1,4 @@
 import { useCallback, useRef } from 'react';
-import { useAuthStore } from '../stores/auth-store';
 import {
   createRng,
   refillHandWithRng,
@@ -18,14 +17,14 @@ import {
   simulateRivalPositions,
   buildFullClassification,
   hasAvailableCompounds,
-} from '@boxbox/engine';
+} from '@apex/engine';
 import type {
   CardId,
   RaceState,
   SeededRng,
   TurnSummary,
   TireCompound,
-} from '@boxbox/engine';
+} from '@apex/engine';
 import { useGameStore } from '../stores/game-store';
 
 export function useTurnStepper() {
@@ -88,8 +87,8 @@ export function useTurnStepper() {
     const { raceState: state, team } = store.getState();
     if (!state || !team) return;
 
-    // Phase 3: Team perk (if available, but NOT under Safety Car)
-    if (!state.perkUsed && !state.underSafetyCar) {
+    // Phase 3: Team perk (if available, but NOT under Caution Phase)
+    if (!state.perkUsed && !state.underCaution) {
       store.getState().setTurnPhaseUI('await-perk');
     } else {
       store.getState().setTurnPhaseUI('await-action-card');
@@ -139,14 +138,14 @@ export function useTurnStepper() {
     if (!state) return;
 
     // Block P1 skip based on difficulty: hard=never, normal=max 1
-    if (state.position === 1 && !state.underSafetyCar) {
+    if (state.position === 1 && !state.underCaution) {
       if (difficulty === 'hard') return;
       if (difficulty === 'normal' && state.p1SkipsUsed >= 1) return;
     }
 
     // Skip turn: no card played, go straight to resolving
     actionCardRef.current = '';
-    const isP1Skip = state.position === 1 && !state.underSafetyCar;
+    const isP1Skip = state.position === 1 && !state.underCaution;
     const s: RaceState = {
       ...state,
       turnPhase: 'play-card',
@@ -210,7 +209,7 @@ export function useTurnStepper() {
 
     // Phase 5: Apply penalties & clamp
     const raining = isCurrentlyRaining(state);
-    let s = applyEndOfTurnPenalties(state, raining, state.underSafetyCar, state.difficulty);
+    let s = applyEndOfTurnPenalties(state, raining, state.underCaution, state.difficulty);
     s = clampRaceState(s);
 
     // Crash check
@@ -258,9 +257,7 @@ export function useTurnStepper() {
         const playerDriverId = seasonProgress?.playerDriverId
           ?? catalog.drivers.find((d) => d.teamId === s.teamId)?.id
           ?? `player-${s.teamId}`;
-        const playerDriver = catalog.drivers.find((d) => d.id === playerDriverId);
-        const authPlayerCode = useAuthStore.getState().playerCode;
-        const playerAbbr = authPlayerCode ?? playerDriver?.abbreviation ?? 'YOU';
+        const playerAbbr = 'YOU';
 
         const rivalRng = rngRef.current.fork(s.seed + 9999);
         const rivalResults = simulateRivalPositions(

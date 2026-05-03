@@ -4,9 +4,8 @@ import { useGameStore } from '../stores/game-store';
 import { Button } from '../components/shared/Button';
 import { ChampionshipStandings } from '../components/season/ChampionshipStandings';
 import { getPositionColor, calculateMedal, MEDAL_COLORS } from '../lib/constants';
-import { evaluateGoalCard } from '@boxbox/engine';
-import { addTrophy, addSeasonRun } from '../stores/persistence';
-import { useAuthStore } from '../stores/auth-store';
+import { evaluateGoalCard } from '@apex/engine';
+import { OFFLINE_PROFILE_ID, addTrophy, addSeasonRun } from '../stores/persistence';
 import { useI18n } from '../i18n';
 
 export function SeasonResultsScreen() {
@@ -16,7 +15,6 @@ export function SeasonResultsScreen() {
   const seasonProgress = useGameStore((s) => s.seasonProgress);
   const selectedTeamId = useGameStore((s) => s.selectedTeamId);
   const resetAll = useGameStore((s) => s.resetAll);
-  const userId = useAuthStore((s) => s.userId);
   const savedRef = useRef(false);
 
   if (!catalog || !seasonProgress || seasonProgress.raceResults.length === 0) {
@@ -46,11 +44,11 @@ export function SeasonResultsScreen() {
 
   // Auto-save trophy and season run on mount (once)
   useEffect(() => {
-    if (savedRef.current || !selectedTeamId || !userId) return;
+    if (savedRef.current || !selectedTeamId) return;
     savedRef.current = true;
 
     if (goalCardId && championshipPosition !== null) {
-      addTrophy(userId, {
+      addTrophy(OFFLINE_PROFILE_ID, {
         goalCardId,
         teamId: selectedTeamId,
         championshipPosition,
@@ -60,7 +58,7 @@ export function SeasonResultsScreen() {
       }).then((trophies) => useGameStore.getState().setTrophies(trophies));
     }
 
-    addSeasonRun(userId, {
+    addSeasonRun(OFFLINE_PROFILE_ID, {
       teamId: selectedTeamId,
       races: raceResults,
       finalScore: cumulativeScore,

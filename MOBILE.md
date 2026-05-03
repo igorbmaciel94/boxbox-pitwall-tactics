@@ -1,6 +1,6 @@
 # Mobile Builds (Capacitor)
 
-Box Box Pitwall Tactics ships as a Capacitor app for iOS and Android.
+Apex Tactics ships as a Capacitor app for iOS and Android.
 The same React web app is bundled inside a native shell.
 
 ## Prerequisites
@@ -66,19 +66,9 @@ npx cap run android --livereload --external
 
 > The device must be on the same Wi-Fi network as your machine.
 
-## API URL
+## Offline Data
 
-The app reads `VITE_API_URL` at build time. Default is `http://localhost:5001`.
-
-- **Without an API**: the app works fully in guest / offline mode.
-- **Local dev on device**: create `apps/web/.env.development.local`:
-  ```
-  VITE_API_URL=http://192.168.X.X:5001
-  ```
-- **Production**: create `apps/web/.env.production`:
-  ```
-  VITE_API_URL=https://api.your-domain.com
-  ```
+The mobile app is fully offline. Player progress stays on the device and can be moved with the in-app backup export/import controls.
 
 ## App Icons & Splash Screen
 

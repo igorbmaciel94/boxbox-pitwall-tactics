@@ -6,7 +6,7 @@ import { CardInfoPanel } from '../components/shared/CardInfoPanel';
 import { Button } from '../components/shared/Button';
 import { FILTER_CATEGORIES } from '../lib/constants';
 import { DECK_PRESETS } from '../lib/deck-presets';
-import type { CardId } from '@boxbox/engine';
+import type { CardId } from '@apex/engine';
 import { useI18n } from '../i18n';
 
 export function DeckEditorScreen() {
@@ -120,7 +120,7 @@ export function DeckEditorScreen() {
           value={deckName}
           onChange={(e) => { setDeckName(e.target.value); setError(null); }}
           placeholder={t('deckEditor.deckNamePlaceholder')}
-          className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder-white/30 outline-none transition-colors focus:border-f1-red/50 focus:bg-white/[0.06]"
+          className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-sm text-white placeholder-white/30 outline-none transition-colors focus:border-apex-red/50 focus:bg-white/[0.06]"
           maxLength={30}
         />
         {error && (
@@ -222,7 +222,7 @@ export function DeckEditorScreen() {
             className={`rounded-full px-3 py-1.5 text-xs font-medium uppercase tracking-wider transition-colors
               ${
                 filter === cat.key
-                  ? 'bg-f1-red text-white'
+                  ? 'bg-apex-red text-white'
                   : 'bg-white/5 text-metal-light hover:bg-white/10 hover:text-white'
               }`}
           >
@@ -258,7 +258,7 @@ export function DeckEditorScreen() {
                   onClick={() => { if (canAdd) addCard(card.id); }}
                 />
                 {count > 0 && (
-                  <span className="absolute left-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-f1-red text-[10px] font-bold text-white shadow">
+                  <span className="absolute left-1.5 top-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-apex-red text-[10px] font-bold text-white shadow">
                     {count}
                   </span>
                 )}

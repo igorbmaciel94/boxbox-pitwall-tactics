@@ -92,7 +92,7 @@ export function applyEffect(state: RaceState, effect: CardEffect): RaceState {
 export function applyEndOfTurnPenalties(
   state: RaceState,
   isRaining: boolean,
-  underSafetyCar: boolean = false,
+  underCaution: boolean = false,
   difficulty: Difficulty = 'normal',
 ): RaceState {
   let updated = state;
@@ -105,8 +105,8 @@ export function applyEndOfTurnPenalties(
   const compoundWear = Math.round(baseWear * multiplier * cfg.wearMultiplier);
   updated = { ...updated, tireWear: updated.tireWear + compoundWear };
 
-  // Under Safety Car: no position changes from degradation (field is bunched)
-  if (!underSafetyCar) {
+  // Under Caution Phase: no position changes from degradation (field is bunched)
+  if (!underCaution) {
     // Progressive degradation: high wear = lose positions
     if (updated.tireWear >= 90) {
       updated = { ...updated, position: updated.position + 3 - cfg.degradationReduction };
@@ -144,7 +144,7 @@ export function applyEndOfTurnPenalties(
 /**
  * Check for crash/incident after turn resolution.
  * Risk increases with aggressive play, rain on dry tires, and high wear.
- * Under Safety Car: no crash risk (controlled pace).
+ * Under Caution Phase: no crash risk (controlled pace).
  */
 export function applyCrashCheck(
   state: RaceState,
@@ -154,7 +154,7 @@ export function applyCrashCheck(
   rng: SeededRng,
   difficulty: Difficulty = 'normal',
 ): RaceState {
-  if (state.underSafetyCar || state.isDNF) return state;
+  if (state.underCaution || state.isDNF) return state;
 
   const card = catalog.cards.find((c) => c.id === lastCardPlayed);
   const cfg = DIFFICULTY_CONFIG[difficulty];

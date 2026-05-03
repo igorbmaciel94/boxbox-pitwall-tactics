@@ -18,10 +18,10 @@
 // ---------------------------------------------------------------------------
 // Filename format:  public/images/cards/{id}.webp
 //
-// push-hard.webp        | box-box.webp          | conserve-tires.webp
+// push-hard.webp        | pit-call.webp          | conserve-tires.webp
 // fuel-save.webp        | overtake.webp         | defend-position.webp
 // wet-setup.webp        | dry-setup.webp        | undercut.webp
-// overcut.webp          | drs-attack.webp       | slipstream.webp
+// overcut.webp          | aero-boost.webp       | slipstream.webp
 // engine-mode.webp      | battery-deploy.webp   | track-position.webp
 // gap-management.webp   | late-brake.webp       | alternate-strategy.webp
 
@@ -34,8 +34,8 @@ export function getCardImageUrl(cardId: string): string {
 // ---------------------------------------------------------------------------
 // Filename format:  public/images/circuits/{id}.webp
 //
-// monaco.webp  | spa.webp       | monza.webp
-// silverstone.webp | suzuka.webp | interlagos.webp
+// harbor.webp  | forest-run.webp       | velocity-ring.webp
+// north-loop.webp | figure-eight.webp | southbank.webp
 
 export function getCircuitImageUrl(scenarioId: string): string {
   return `/images/circuits/${scenarioId}.webp`;
@@ -85,12 +85,12 @@ export function getTeamFallbackGradient(teamId: string): string {
 }
 
 const CIRCUIT_GRADIENTS: Record<string, string> = {
-  monaco: 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 60%), url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'100\' viewBox=\'0 0 200 100\'><path d=\'M20 80 Q50 20 100 50 T180 30\' fill=\'none\' stroke=\'rgba(255,255,255,0.08)\' stroke-width=\'2\'/></svg>")',
-  spa: 'linear-gradient(135deg, #1a3f2b 0%, #0a1f15 100%)',
-  monza: 'linear-gradient(135deg, #4a1a1a 0%, #1a0808 100%)',
-  silverstone: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-  suzuka: 'linear-gradient(135deg, #312e81 0%, #1e1b4b 100%)',
-  interlagos: 'linear-gradient(135deg, #14532d 0%, #052e16 100%)',
+  'harbor': 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 60%), url("data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'100\' viewBox=\'0 0 200 100\'><path d=\'M20 80 Q50 20 100 50 T180 30\' fill=\'none\' stroke=\'rgba(255,255,255,0.08)\' stroke-width=\'2\'/></svg>")',
+  'forest-run': 'linear-gradient(135deg, #1a3f2b 0%, #0a1f15 100%)',
+  'velocity-ring': 'linear-gradient(135deg, #4a1a1a 0%, #1a0808 100%)',
+  'north-loop': 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+  'figure-eight': 'linear-gradient(135deg, #312e81 0%, #1e1b4b 100%)',
+  'southbank': 'linear-gradient(135deg, #14532d 0%, #052e16 100%)',
 };
 
 export function getCircuitFallbackGradient(scenarioId: string): string {
