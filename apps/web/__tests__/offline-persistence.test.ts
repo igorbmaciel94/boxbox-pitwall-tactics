@@ -45,14 +45,14 @@ describe('offline profile migration', () => {
     localStorage.setItem('boxbox-guest-id', 'guest-123');
     mockIdb.store.set('boxbox-guest-123-team', 'crimson');
     mockIdb.store.set('boxbox-guest-123-current-deck', ['push-hard', 'box-box']);
-    mockIdb.store.set('boxbox-guest-123-decks', [{ id: 'deck-1', name: 'Starter', cards: [], createdAt: 1 }]);
+    mockIdb.store.set('boxbox-guest-123-decks', [{ id: 'deck-1', name: 'box-box', cards: ['box-box'], createdAt: 1 }]);
 
     await migrateToOfflineProfile();
 
     const data = await loadAllPersistedData(OFFLINE_PROFILE_ID);
     expect(data.selectedTeam).toBe('crimson');
     expect(data.currentDeck).toEqual(['push-hard', 'pit-call']);
-    expect(data.savedDecks).toHaveLength(1);
+    expect(data.savedDecks).toEqual([{ id: 'deck-1', name: 'box-box', cards: ['pit-call'], createdAt: 1 }]);
     expect(mockIdb.store.get('boxbox-guest-123-team')).toBe('crimson');
     expect(mockIdb.store.get('apex-offline-team')).toBe('crimson');
   });

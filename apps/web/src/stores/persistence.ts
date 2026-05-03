@@ -1,5 +1,5 @@
 import { get, set, del } from 'idb-keyval';
-import type { CardId, RaceDebrief, TeamId } from '@apex/engine';
+import type { CardId, RaceDebrief, RaceEvent, TeamId, TurnSummary } from '@apex/engine';
 import type { BestScore, RunHistoryEntry, SavedDeck, SeasonRunEntry, Trophy } from '../lib/types';
 import type { SeasonProgress } from './game-store';
 import { calculateMedal } from '../lib/constants';
@@ -56,7 +56,7 @@ export interface PersistedGameData {
   trophies: Trophy[];
 }
 
-const LEGACY_VALUE_RENAMES: Record<string, string> = {
+const LEGACY_ID_RENAMES: Record<string, string> = {
   'box-box': 'pit-call',
   'drs-attack': 'aero-boost',
   'safety-car': 'caution-phase',
@@ -80,22 +80,79 @@ const LEGACY_VALUE_RENAMES: Record<string, string> = {
   'interlagos-bonus': 'southbank-bonus',
 };
 
-function normalizeLegacyValue(value: unknown): unknown {
-  if (typeof value === 'string') return LEGACY_VALUE_RENAMES[value] ?? value;
-  if (Array.isArray(value)) return value.map(normalizeLegacyValue);
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>).map(([key, entry]) => [
-        LEGACY_VALUE_RENAMES[key] ?? key,
-        normalizeLegacyValue(entry),
-      ]),
-    );
-  }
-  return value;
+function normalizeLegacyId<T extends string | null | undefined>(value: T): T {
+  if (typeof value !== 'string') return value;
+  return (LEGACY_ID_RENAMES[value] ?? value) as T;
+}
+
+function normalizeCardIds(cards: CardId[]): CardId[] {
+  return cards.map((cardId) => normalizeLegacyId(cardId));
+}
+
+function normalizeRaceEvent(event: RaceEvent): RaceEvent {
+  return {
+    ...event,
+    type: normalizeLegacyId(event.type) as RaceEvent['type'],
+  };
+}
+
+function normalizeTurnSummary(summary: TurnSummary): TurnSummary {
+  return {
+    ...summary,
+    event: normalizeRaceEvent(summary.event),
+    actionCard: normalizeLegacyId(summary.actionCard),
+  };
+}
+
+function normalizeRaceDebrief(debrief: RaceDebrief): RaceDebrief {
+  return {
+    ...debrief,
+    scenarioId: normalizeLegacyId(debrief.scenarioId),
+    objectivesCompleted: debrief.objectivesCompleted.map((objective) => ({
+      ...objective,
+      id: normalizeLegacyId(objective.id),
+    })),
+    eventHistory: debrief.eventHistory.map(normalizeRaceEvent),
+    cardsPlayed: normalizeCardIds(debrief.cardsPlayed),
+    turnLog: debrief.turnLog.map(normalizeTurnSummary),
+  };
 }
 
 export function normalizePersistedData(data: PersistedGameData): PersistedGameData {
-  return normalizeLegacyValue(data) as PersistedGameData;
+  return {
+    ...data,
+    currentDeck: normalizeCardIds(data.currentDeck),
+    savedDecks: data.savedDecks.map((deck) => ({
+      ...deck,
+      cards: normalizeCardIds(deck.cards),
+    })),
+    bestScores: data.bestScores.map((score) => ({
+      ...score,
+      scenarioId: normalizeLegacyId(score.scenarioId),
+    })),
+    runHistory: data.runHistory.map((entry) => ({
+      ...entry,
+      scenarioId: normalizeLegacyId(entry.scenarioId),
+      debrief: normalizeRaceDebrief(entry.debrief),
+    })),
+    seasonRuns: data.seasonRuns.map((entry) => ({
+      ...entry,
+      goalCardId: normalizeLegacyId(entry.goalCardId),
+      races: entry.races.map(normalizeRaceDebrief),
+    })),
+    seasonProgress: data.seasonProgress
+      ? {
+        ...data.seasonProgress,
+        raceOrder: data.seasonProgress.raceOrder.map((scenarioId) => normalizeLegacyId(scenarioId)),
+        raceResults: data.seasonProgress.raceResults.map(normalizeRaceDebrief),
+        goalCardId: normalizeLegacyId(data.seasonProgress.goalCardId),
+      }
+      : null,
+    trophies: data.trophies.map((trophy) => ({
+      ...trophy,
+      goalCardId: normalizeLegacyId(trophy.goalCardId),
+    })),
+  };
 }
 
 async function hasPersistedData(userId: string): Promise<boolean> {

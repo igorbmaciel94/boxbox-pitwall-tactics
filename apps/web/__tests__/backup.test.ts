@@ -117,11 +117,14 @@ describe('backup payloads', () => {
       data: {
         ...sampleData,
         currentDeck: ['box-box', 'drs-attack'],
+        savedDecks: [{ id: 'deck-1', name: 'monaco', cards: ['box-box'], createdAt: 1 }],
         bestScores: [{ ...sampleData.bestScores[0], scenarioId: 'monaco' }],
       },
     };
 
-    expect(parseBackup(JSON.stringify(legacy)).data.currentDeck).toEqual(['pit-call', 'aero-boost']);
-    expect(parseBackup(JSON.stringify(legacy)).data.bestScores[0].scenarioId).toBe('harbor');
+    const parsed = parseBackup(JSON.stringify(legacy));
+    expect(parsed.data.currentDeck).toEqual(['pit-call', 'aero-boost']);
+    expect(parsed.data.savedDecks[0]).toMatchObject({ name: 'monaco', cards: ['pit-call'] });
+    expect(parsed.data.bestScores[0].scenarioId).toBe('harbor');
   });
 });
