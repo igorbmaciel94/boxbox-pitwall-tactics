@@ -8,6 +8,15 @@ import { DICTIONARIES } from '../src/i18n/translations';
 const en = DICTIONARIES.en;
 const ptBR = DICTIONARIES['pt-BR'];
 
+function collectStringValues(value: unknown): string[] {
+  if (typeof value === 'string') return [value];
+  if (Array.isArray(value)) return value.flatMap(collectStringValues);
+  if (value && typeof value === 'object') {
+    return Object.values(value).flatMap(collectStringValues);
+  }
+  return [];
+}
+
 describe('i18n dictionaries', () => {
   it('has translated card names and rules for all card ids', () => {
     for (const card of cardsData.cards) {
@@ -54,7 +63,7 @@ describe('i18n dictionaries', () => {
   });
 
   it('keeps radio pools parity between en and pt-BR', () => {
-    for (const context of ['stayOut', 'boxBox', 'generic'] as const) {
+    for (const context of ['stayOut', 'pitCall', 'generic'] as const) {
       const englishMessages = stringsData.radio[context];
       expect(en.content.radio[context]).toHaveLength(englishMessages.length);
       expect(ptBR.content.radio[context]).toHaveLength(englishMessages.length);
@@ -75,6 +84,35 @@ describe('i18n dictionaries', () => {
     for (const medal of ['gold', 'silver', 'bronze'] as const) {
       expect(en.content.medals[medal]).toBeTruthy();
       expect(ptBR.content.medals[medal]).toBeTruthy();
+    }
+  });
+
+  it('does not expose legacy motorsport brand terms in user-facing text', () => {
+    const bannedTerms = [
+      /\bFormula 1\b/i,
+      /\bF1\b/i,
+      /\bDRS\b/i,
+      /\bSafety Car\b/i,
+      /\bGrand Prix\b/i,
+      /\bBox Box\b/i,
+      /\bPit Wall\b/i,
+    ];
+
+    const visibleText = collectStringValues({
+      en,
+      ptBR,
+      cards: cardsData.cards.map((card) => ({ name: card.name, rulesText: card.rulesText })),
+      scenarios: scenariosData.scenarios.map((scenario) => ({ name: scenario.name, circuit: scenario.circuit })),
+      teams: teamsData.teams.map((team) => ({
+        name: team.name,
+        perkName: team.perk.name,
+        perkDescription: team.perk.description,
+      })),
+      strings: stringsData,
+    }).join('\n');
+
+    for (const term of bannedTerms) {
+      expect(visibleText).not.toMatch(term);
     }
   });
 });

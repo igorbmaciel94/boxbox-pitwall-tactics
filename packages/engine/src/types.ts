@@ -10,7 +10,7 @@ import type {
   ScenarioData,
   TeamData,
   TireCompound,
-} from '@boxbox/content';
+} from '@apex/content';
 
 export type {
   CardData,
@@ -85,8 +85,8 @@ export interface RaceState {
 
   currentEvent: RaceEvent | null;
   eventHistory: RaceEvent[];
-  scUsed: boolean;
-  underSafetyCar: boolean;
+  cautionUsed: boolean;
+  underCaution: boolean;
   lastEventType: EventType | null;
 
   perkUsed: boolean;

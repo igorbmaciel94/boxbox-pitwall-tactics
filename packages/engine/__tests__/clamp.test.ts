@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadCatalog } from '@boxbox/content';
+import { loadCatalog } from '@apex/content';
 import { createRng } from '../src/rng.js';
 import {
   clampRaceState,
@@ -13,7 +13,7 @@ const catalog = loadCatalog();
 
 function makeState(overrides: Partial<RaceState> = {}): RaceState {
   return {
-    scenarioId: 'monaco',
+    scenarioId: 'harbor',
     teamId: 'crimson',
     seed: 42,
     difficulty: 'normal',
@@ -31,8 +31,8 @@ function makeState(overrides: Partial<RaceState> = {}): RaceState {
     discard: [],
     currentEvent: null,
     eventHistory: [],
-    scUsed: false,
-    underSafetyCar: false,
+    cautionUsed: false,
+    underCaution: false,
     lastEventType: null,
     perkUsed: false,
     mulliganUsed: false,
@@ -147,10 +147,10 @@ describe('applyEndOfTurnPenalties', () => {
     expect(updated.position).toBeGreaterThanOrEqual(6);
   });
 
-  it('no position penalties under Safety Car', () => {
+  it('no position penalties under Caution Phase', () => {
     const state = makeState({ tireWear: 95, tireCompound: 'soft', position: 5 });
     const updated = applyEndOfTurnPenalties(state, false, true);
-    // Under SC: compound wear still applies but no position penalties
+    // Under caution: compound wear still applies but no position penalties
     expect(updated.position).toBe(5);
     // Wear increased by compound (soft dry: 7)
     expect(updated.tireWear).toBeGreaterThan(95);
@@ -158,8 +158,8 @@ describe('applyEndOfTurnPenalties', () => {
 });
 
 describe('applyCrashCheck', () => {
-  it('no crash under Safety Car', () => {
-    const state = makeState({ underSafetyCar: true, tireWear: 99 });
+  it('no crash under Caution Phase', () => {
+    const state = makeState({ underCaution: true, tireWear: 99 });
     const rng = createRng(1);
     const updated = applyCrashCheck(state, 'push-hard', catalog, true, rng);
     expect(updated.isDNF).toBe(false);

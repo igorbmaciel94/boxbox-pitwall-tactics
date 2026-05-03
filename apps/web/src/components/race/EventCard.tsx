@@ -1,4 +1,4 @@
-import type { RaceEvent } from '@boxbox/engine';
+import type { RaceEvent } from '@apex/engine';
 import { EVENT_ICONS, EVENT_COLORS } from '../../lib/constants';
 import { useI18n } from '../../i18n';
 
@@ -33,9 +33,9 @@ export function EventCard({ event, animated = false }: EventCardProps) {
               {formatEffect(event.effect, t)}
             </span>
           )}
-          {event.type === 'safety-car' && (
+          {event.type === 'caution-phase' && (
             <span className="rounded-full bg-hud-green/20 px-2.5 py-1 text-xs font-bold text-hud-green whitespace-nowrap">
-              {t('race.scFreePit')}
+              {t('race.cautionFreePit')}
             </span>
           )}
         </div>

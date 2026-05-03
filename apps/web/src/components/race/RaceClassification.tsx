@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { RivalRaceResult } from '@boxbox/engine';
+import type { RivalRaceResult } from '@apex/engine';
 import { getPositionColor } from '../../lib/constants';
 import { useI18n } from '../../i18n';
 
@@ -85,7 +85,7 @@ export function RaceClassification({ classification, playerDriverId, teams, seed
               )}
               <div
                 className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs ${
-                  isPlayer ? 'bg-f1-red/15 ring-1 ring-f1-red/30' : ''
+                  isPlayer ? 'bg-apex-red/15 ring-1 ring-apex-red/30' : ''
                 }`}
               >
                 <span className={`w-6 font-mono font-bold ${getPositionColor(entry.position)}`}>

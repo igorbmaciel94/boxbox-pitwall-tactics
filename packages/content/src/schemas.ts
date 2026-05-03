@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const eventTypes = [
-  'safety-car',
+  'caution-phase',
   'rain',
   'rival-pits',
   'rival-overtake',
@@ -129,7 +129,7 @@ export const stringsFileSchema = z.object({
   events: eventStringsSchema,
   radio: z.object({
     stayOut: z.array(z.string().min(1)).min(1),
-    boxBox: z.array(z.string().min(1)).min(1),
+    pitCall: z.array(z.string().min(1)).min(1),
     generic: z.array(z.string().min(1)).min(1),
   }),
 });

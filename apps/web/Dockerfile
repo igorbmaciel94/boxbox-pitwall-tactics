@@ -7,4 +7,4 @@ COPY packages/engine/package*.json ./packages/engine/
 RUN npm install
 COPY . .
 EXPOSE 5173
-CMD ["npx", "--workspace=@boxbox/web", "vite", "--host", "0.0.0.0"]
+CMD ["npx", "--workspace=@apex/web", "vite", "--host", "0.0.0.0"]

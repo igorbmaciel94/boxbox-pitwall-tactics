@@ -1,4 +1,4 @@
-import type { CardId, RaceDebrief, TeamId } from '@boxbox/engine';
+import type { CardId, RaceDebrief, TeamId } from '@apex/engine';
 
 export type TurnPhaseUI =
   | 'idle'

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getTeamTier, getGoalCardForTeam, getGoalCardsForTeam, evaluateGoalCard } from '../src/goal-engine.js';
-import type { DriverData, GoalCardData } from '@boxbox/content';
+import type { DriverData, GoalCardData } from '@apex/content';
 import type { DriverStanding, RaceDebrief } from '../src/types.js';
 
 const DRIVERS: DriverData[] = [

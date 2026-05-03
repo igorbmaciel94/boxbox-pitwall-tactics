@@ -1,4 +1,4 @@
-import type { CardId } from '@boxbox/engine';
+import type { CardId } from '@apex/engine';
 
 export interface DeckPreset {
   name: string;
@@ -14,11 +14,11 @@ export const DECK_PRESETS: DeckPreset[] = [
       'push-hard',
       'push-hard',
       'overtake',
-      'drs-attack',
+      'aero-boost',
       'late-brake',
       'engine-mode',
       'slipstream',
-      'box-box',
+      'pit-call',
       'undercut',
     ],
   },
@@ -33,7 +33,7 @@ export const DECK_PRESETS: DeckPreset[] = [
       'gap-management',
       'gap-management',
       'alternate-strategy',
-      'box-box',
+      'pit-call',
       'slipstream',
     ],
   },
@@ -44,10 +44,10 @@ export const DECK_PRESETS: DeckPreset[] = [
       'push-hard',
       'overtake',
       'conserve-tires',
-      'drs-attack',
+      'aero-boost',
       'defend-position',
       'gap-management',
-      'box-box',
+      'pit-call',
       'undercut',
       'engine-mode',
     ],

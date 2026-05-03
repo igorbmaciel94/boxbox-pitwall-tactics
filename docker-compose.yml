@@ -35,8 +35,6 @@ services:
       dockerfile: apps/web/Dockerfile
     ports:
       - "5173:5173"
-    environment:
-      VITE_API_URL: http://localhost:5001
     depends_on:
       - api
     volumes:
@@ -45,7 +43,7 @@ services:
       - /app/apps/web/node_modules
       - /app/packages/content/node_modules
       - /app/packages/engine/node_modules
-    command: npx --workspace=@boxbox/web vite --host 0.0.0.0
+    command: npx --workspace=@apex/web vite --host 0.0.0.0
 
 volumes:
   mongo-data:

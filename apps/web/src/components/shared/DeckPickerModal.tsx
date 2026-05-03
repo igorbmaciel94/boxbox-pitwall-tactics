@@ -84,7 +84,7 @@ export function DeckPickerModal({ open, onClose, onSelect }: DeckPickerModalProp
 
         <button
           onClick={() => { onClose(); navigate('/decks/new'); }}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 p-3 text-xs font-display uppercase tracking-wider text-metal-light transition-colors hover:border-f1-red/50 hover:text-white"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 p-3 text-xs font-display uppercase tracking-wider text-metal-light transition-colors hover:border-apex-red/50 hover:text-white"
         >
           <span>+</span>
           <span>{t('deckPicker.createNewDeck')}</span>

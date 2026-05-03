@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { useGameStore } from '../stores/game-store';
-import { useAuthStore } from '../stores/auth-store';
 import { useUIStore } from '../stores/ui-store';
 import { useTurnStepper } from '../hooks/use-turn-stepper';
 import { useRadioMessage } from '../hooks/use-radio-message';
@@ -20,8 +19,8 @@ import { ConfirmDialog } from '../components/shared/ConfirmDialog';
 import { useAudio } from '../hooks/use-audio';
 import { useHaptics } from '../hooks/use-haptics';
 import { getCircuitImageUrl, getCircuitFallbackGradient } from '../lib/images';
-import { handHasPitCard, createRng } from '@boxbox/engine';
-import type { CardId, TireAllocation, TireCompound } from '@boxbox/engine';
+import { handHasPitCard, createRng } from '@apex/engine';
+import type { TireAllocation, TireCompound } from '@apex/engine';
 import { useI18n } from '../i18n';
 
 function hashCombine(a: number, b: number): number {
@@ -50,7 +49,6 @@ export function RaceScreen() {
 
   const selectedTeamId = useGameStore((s) => s.selectedTeamId);
   const currentDeck = useGameStore((s) => s.currentDeck);
-  const authPlayerCode = useAuthStore((s) => s.playerCode);
 
   const stepper = useTurnStepper();
   const { sendRadio, sendEventRadio } = useRadioMessage();
@@ -62,7 +60,7 @@ export function RaceScreen() {
   const deductTireBank = useGameStore((s) => s.deductTireBank);
 
   const [selectedHandIndex, setSelectedHandIndex] = useState<number | null>(null);
-  const [scWarningShown, setScWarningShown] = useState(false);
+  const [cautionWarningShown, setCautionWarningShown] = useState(false);
   const [scenarioSelectMode, setScenarioSelectMode] = useState(false);
   const [pendingScenarioId, setPendingScenarioId] = useState<string | null>(null);
   const [pendingRaceSeed, setPendingRaceSeed] = useState<number | undefined>(undefined);
@@ -132,13 +130,8 @@ export function RaceScreen() {
 
   // Player abbreviation — used in both timing tower and track map
   const playerAbbreviation = useMemo(() => {
-    if (authPlayerCode) return authPlayerCode;
-    if (!catalog || !team) return 'YOU';
-    const playerDriverId = seasonProgress?.playerDriverId
-      ?? catalog.drivers.find((d) => d.teamId === team.id)?.id ?? '';
-    const playerDriver = catalog.drivers.find((d) => d.id === playerDriverId);
-    return playerDriver?.abbreviation ?? 'YOU';
-  }, [catalog, team, seasonProgress?.playerDriverId, authPlayerCode]);
+    return 'YOU';
+  }, []);
 
   // Compute starting grid positions for rivals (using same shuffle algorithm with turn=0)
   const rivalStartingPositions = useMemo(() => {
@@ -185,8 +178,6 @@ export function RaceScreen() {
 
     const playerDriverId = seasonProgress?.playerDriverId
       ?? catalog.drivers.find((d) => d.teamId === team.id)?.id ?? '';
-    const playerDriver = catalog.drivers.find((d) => d.id === playerDriverId);
-
     const rivals = rivalDots.map((r) => ({
       position: r.position,
       abbreviation: r.abbreviation ?? '???',
@@ -197,14 +188,14 @@ export function RaceScreen() {
 
     const player = {
       position: raceState.position,
-      abbreviation: authPlayerCode ?? playerDriver?.abbreviation ?? 'YOU',
+      abbreviation: 'YOU',
       color: team.color,
-      strength: playerDriver?.strength ?? 80,
+      strength: catalog.drivers.find((d) => d.id === playerDriverId)?.strength ?? 80,
       startingPosition: raceState.startingPosition,
     };
 
     return buildTimingEntries(rivals, player, raceState.seed ?? 42, raceState.currentTurn, raceState.tireCompound);
-  }, [rivalDots, raceState, team, catalog, seasonProgress?.playerDriverId, authPlayerCode, rivalStartingPositions]);
+  }, [rivalDots, raceState, team, catalog, seasonProgress?.playerDriverId, rivalStartingPositions]);
 
   // On mount: scroll to top and reset stale race state if needed
   useEffect(() => {
@@ -412,12 +403,12 @@ export function RaceScreen() {
     );
   }
 
-  const isSC = currentEvent?.type === 'safety-car';
+  const isCaution = currentEvent?.type === 'caution-phase';
   const isRain = currentEvent?.type === 'rain';
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden">
-      {isSC && turnPhaseUI !== 'idle' && (
+      {isCaution && turnPhaseUI !== 'idle' && (
         <div className="pointer-events-none fixed inset-0 z-30 bg-hud-yellow/8 animate-sc-pulse" />
       )}
       {isRain && turnPhaseUI !== 'idle' && (
@@ -521,16 +512,16 @@ export function RaceScreen() {
           );
           // Emergency pit skip — also respects P1 difficulty rules
           const canSkipTurn = needsPit && !hasPit && raceState.emergencyMulliganUsed && (raceState.position !== 1 || canSkipP1);
-          const showSkipAlways = raceState.underSafetyCar || canSkipP1;
-          // SC overtake warning: selected card gains positions (posChange < 0) and is not a pit card
+          const showSkipAlways = raceState.underCaution || canSkipP1;
+          // caution overtake warning: selected card gains positions (posChange < 0) and is not a pit card
           const selectedCardId = selectedHandIndex !== null ? raceState.hand[selectedHandIndex] : null;
           const selectedCardData = selectedCardId ? catalog.cards.find((c) => c.id === selectedCardId) : null;
-          const isScOvertakeCard = raceState.underSafetyCar && selectedCardData
+          const isCautionOvertakeCard = raceState.underCaution && selectedCardData
             && (selectedCardData.effect.position ?? 0) < 0
             && !selectedCardData.tags.includes('pit');
-          // Show SC warning based on difficulty: easy=always, normal=once per race, hard=never
-          const showScWarning = isScOvertakeCard && (
-            difficulty === 'easy' || (difficulty === 'normal' && !scWarningShown)
+          // Show caution warning based on difficulty: easy=always, normal=once per race, hard=never
+          const showCautionWarning = isCautionOvertakeCard && (
+            difficulty === 'easy' || (difficulty === 'normal' && !cautionWarningShown)
           );
 
           return (
@@ -595,23 +586,23 @@ export function RaceScreen() {
                         </div>
                       </div>
                     )}
-                    {/* SC overtake warning — visible on easy (always) and normal (once) */}
-                    {showScWarning && (
+                    {/* caution overtake warning — visible on easy (always) and normal (once) */}
+                    {showCautionWarning && (
                       <div className="mb-3 rounded-xl border-2 border-hud-yellow bg-hud-yellow/20 px-4 py-3 text-center animate-fade-in">
                         <div className="font-display text-base font-bold uppercase tracking-wide text-hud-yellow">
-                          {t('race.scOvertakeWarning')}
+                          {t('race.cautionOvertakeWarning')}
                         </div>
                       </div>
                     )}
                     <Button
-                      variant={isScOvertakeCard ? 'secondary' : 'primary'}
+                      variant={isCautionOvertakeCard ? 'secondary' : 'primary'}
                       size="md"
                       className="w-full"
                       onClick={() => {
                         const cardId = raceState.hand[selectedHandIndex];
                         if (cardId) {
-                          if (isScOvertakeCard && !scWarningShown) {
-                            setScWarningShown(true);
+                          if (isCautionOvertakeCard && !cautionWarningShown) {
+                            setCautionWarningShown(true);
                           }
                           haptics.playCardTap();
                           sendRadio('generic');
@@ -620,7 +611,7 @@ export function RaceScreen() {
                         }
                       }}
                     >
-                      {isScOvertakeCard ? t('race.scPlayAnyway') : t('race.playCard')}
+                      {isCautionOvertakeCard ? t('race.cautionPlayAnyway') : t('race.playCard')}
                     </Button>
                   </>
                   );
@@ -646,8 +637,8 @@ export function RaceScreen() {
         {turnPhaseUI === 'resolving' && noTiresPenaltyApplied && (
           <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 animate-fade-in">
             <div className="w-full max-w-lg rounded-t-3xl bg-carbon px-5 pb-6 pt-4 animate-slide-up">
-              <div className="animate-panel-pop space-y-3 rounded-2xl bg-f1-red/10 border border-f1-red/30 p-4 text-center">
-                <div className="font-display text-sm font-bold uppercase tracking-wide text-f1-red">
+              <div className="animate-panel-pop space-y-3 rounded-2xl bg-apex-red/10 border border-apex-red/30 p-4 text-center">
+                <div className="font-display text-sm font-bold uppercase tracking-wide text-apex-red">
                   {t('race.noTiresTitle')}
                 </div>
                 <p className="text-xs text-metal-light">
@@ -656,7 +647,7 @@ export function RaceScreen() {
               </div>
               <button
                 onClick={() => stepper.advanceToResult()}
-                className="mt-3 w-full rounded-xl bg-f1-red py-3 text-center font-display text-sm font-bold uppercase tracking-wider text-white transition-all hover:bg-f1-red/80 active:scale-[0.98]"
+                className="mt-3 w-full rounded-xl bg-apex-red py-3 text-center font-display text-sm font-bold uppercase tracking-wider text-white transition-all hover:bg-apex-red/80 active:scale-[0.98]"
               >
                 {t('race.continue')}
               </button>

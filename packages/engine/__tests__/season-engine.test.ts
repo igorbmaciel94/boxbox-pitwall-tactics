@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadCatalog } from '@boxbox/content';
+import { loadCatalog } from '@apex/content';
 import { runSeason } from '../src/season-engine.js';
 import type { PlayerAgent, ScoringConfig } from '../src/types.js';
 

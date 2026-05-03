@@ -96,14 +96,14 @@ describe('scenarioSchema', () => {
   it('accepts a valid scenario', () => {
     const valid = {
       id: 'test-track',
-      name: 'Test Grand Prix',
+      name: 'Test Circuit Clash',
       circuit: 'Test Circuit',
       turns: 6,
       params: {
         startingPosition: 10,
         baseTireWear: 5,
         eventWeights: {
-          'safety-car': 15,
+          'caution-phase': 15,
           'rain': 10,
           'rival-pits': 15,
           'rival-overtake': 15,
@@ -136,7 +136,7 @@ describe('scenarioSchema', () => {
         startingPosition: 10,
         baseTireWear: 5,
         eventWeights: {
-          'safety-car': -1,
+          'caution-phase': -1,
           'rain': 10,
           'rival-pits': 10,
           'traffic': 10,
@@ -168,7 +168,7 @@ describe('scenarioSchema', () => {
         startingPosition: 25,
         baseTireWear: 5,
         eventWeights: {
-          'safety-car': 10,
+          'caution-phase': 10,
           'rain': 10,
           'rival-pits': 10,
           'traffic': 10,

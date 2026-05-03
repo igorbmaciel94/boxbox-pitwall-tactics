@@ -158,7 +158,7 @@ export function DebriefScreen() {
                   <span className="text-metal-light">
                     {EVENT_ICONS[turn.event.type] ?? '?'} {getEventName(turn.event.type, turn.event.name)}
                   </span>
-                  <span className="ml-2 text-f1-red">{actionCard ? getCardName(actionCard.id, actionCard.name) : turn.actionCard}</span>
+                  <span className="ml-2 text-apex-red">{actionCard ? getCardName(actionCard.id, actionCard.name) : turn.actionCard}</span>
                   {turn.perkActivated && <span className="text-hud-green ml-2">{t('debrief.perkActivated')}</span>}
                 </div>
                 <span className="shrink-0 text-metal-light">

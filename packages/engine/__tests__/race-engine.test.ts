@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { loadCatalog } from '@boxbox/content';
+import { loadCatalog } from '@apex/content';
 import { runRace, initializeRaceState, runTurn } from '../src/race-engine.js';
 import { createRng } from '../src/rng.js';
 import type { PlayerAgent, ScoringConfig } from '../src/types.js';
@@ -110,20 +110,20 @@ describe('runRace', () => {
     }
   });
 
-  it('respects SC envelope constraint (max 1 per race)', () => {
+  it('respects caution envelope constraint (max 1 per race)', () => {
     const scenario = catalog.scenarios[0];
     const team = catalog.teams[0];
 
     for (let seed = 0; seed < 50; seed++) {
       const debrief = runRace(scenario, team, catalog, deterministicAgent, seed, config);
-      const scCount = debrief.eventHistory.filter((e) => e.type === 'safety-car').length;
-      expect(scCount).toBeLessThanOrEqual(1);
+      const cautionCount = debrief.eventHistory.filter((e) => e.type === 'caution-phase').length;
+      expect(cautionCount).toBeLessThanOrEqual(1);
 
-      // No consecutive safety cars
+      // No consecutive caution phases
       for (let i = 1; i < debrief.eventHistory.length; i++) {
         const prev = debrief.eventHistory[i - 1].type;
         const curr = debrief.eventHistory[i].type;
-        if (prev === 'safety-car') expect(curr).not.toBe('safety-car');
+        if (prev === 'caution-phase') expect(curr).not.toBe('caution-phase');
       }
     }
   });
@@ -143,7 +143,7 @@ describe('initializeRaceState', () => {
     expect(state.deck).toHaveLength(12);
     expect(state.hand).toHaveLength(0);
     expect(state.perkUsed).toBe(false);
-    expect(state.scUsed).toBe(false);
+    expect(state.cautionUsed).toBe(false);
   });
 
   it('shuffles deck deterministically', () => {

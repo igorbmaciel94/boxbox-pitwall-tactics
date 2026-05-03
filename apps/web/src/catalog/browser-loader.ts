@@ -4,7 +4,7 @@ import teamsData from '@content-data/teams.json';
 import stringsData from '@content-data/strings.json';
 import driversData from '@content-data/drivers.json';
 import goalCardsData from '@content-data/goal-cards.json';
-import type { GameCatalogData } from '@boxbox/content';
+import type { GameCatalogData } from '@apex/content';
 
 let cachedCatalog: GameCatalogData | null = null;
 

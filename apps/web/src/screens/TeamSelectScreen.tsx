@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import type { TeamData } from '@boxbox/engine';
+import type { TeamData } from '@apex/engine';
 import { useGameStore } from '../stores/game-store';
 import { getTeamImageUrl, getTeamFallbackGradient } from '../lib/images';
 import { useI18n } from '../i18n';
@@ -54,7 +54,7 @@ function TeamCard({ team, active, onSelect }: {
     <button
       onClick={onSelect}
       className={`relative overflow-hidden rounded-2xl text-left transition-all duration-150
-        ${active ? 'ring-2 ring-f1-red/50 ring-offset-2 ring-offset-carbon' : ''}
+        ${active ? 'ring-2 ring-apex-red/50 ring-offset-2 ring-offset-carbon' : ''}
         hover:scale-[1.01] active:scale-[0.98]`}
     >
       {/* Team image / gradient banner */}

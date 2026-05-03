@@ -1,4 +1,4 @@
-package com.boxbox.pitwall;
+package com.apextactics.game;
 
 import android.os.Bundle;
 import android.webkit.WebView;

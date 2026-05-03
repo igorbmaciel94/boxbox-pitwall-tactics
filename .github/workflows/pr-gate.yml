@@ -101,7 +101,7 @@ jobs:
         run: npm ci
 
       - name: Build packages
-        run: npm run build --workspace=@boxbox/content --workspace=@boxbox/engine
+        run: npm run build --workspace=@apex/content --workspace=@apex/engine
 
       - name: Type check web
         run: npx tsc -b --noEmit

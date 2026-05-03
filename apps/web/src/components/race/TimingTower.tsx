@@ -1,4 +1,4 @@
-import type { TireCompound } from '@boxbox/engine';
+import type { TireCompound } from '@apex/engine';
 import { getPositionColor, COMPOUND_COLORS } from '../../lib/constants';
 
 export interface TimingEntry {
@@ -27,7 +27,7 @@ function TimingRow({ entry }: { entry: TimingEntry }) {
   return (
     <div
       className={`flex items-center gap-0.5 rounded-sm px-1 py-[2px] ${
-        entry.isPlayer ? 'bg-f1-red/20' : ''
+        entry.isPlayer ? 'bg-apex-red/20' : ''
       }`}
     >
       <span

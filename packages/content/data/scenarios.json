@@ -2,16 +2,16 @@
   "version": "2.0.0",
   "scenarios": [
     {
-      "id": "monaco",
-      "name": "Monte Carlo Grand Prix",
-      "circuit": "Monte Carlo Street Circuit",
+      "id": "harbor",
+      "name": "Harbor Circuit Clash",
+      "circuit": "Harbor Circuit",
       "turns": 8,
-      "traits": ["traffic-heavy", "no-overtaking", "sc-prone"],
+      "traits": ["traffic-heavy", "no-overtaking", "caution-prone"],
       "params": {
         "startingPosition": 10,
         "baseTireWear": 5,
         "eventWeights": {
-          "safety-car": 10,
+          "caution-phase": 10,
           "rain": 3,
           "rival-pits": 12,
           "rival-overtake": 10,
@@ -22,7 +22,7 @@
       },
       "objectives": [
         {
-          "id": "monaco-main",
+          "id": "harbor-main",
           "description": "Finish in the top 5",
           "type": "main",
           "evaluate": "finish-above",
@@ -30,7 +30,7 @@
           "points": 10
         },
         {
-          "id": "monaco-bonus",
+          "id": "harbor-bonus",
           "description": "Finish with tire wear below 50",
           "type": "bonus",
           "evaluate": "tire-wear-below",
@@ -40,16 +40,16 @@
       ]
     },
     {
-      "id": "spa",
-      "name": "Ardennes Grand Prix",
-      "circuit": "Ardennes Racing Circuit",
+      "id": "forest-run",
+      "name": "Forest Run Circuit Clash",
+      "circuit": "Forest Run",
       "turns": 8,
-      "traits": ["rain-likely", "high-speed", "sc-prone"],
+      "traits": ["rain-likely", "high-speed", "caution-prone"],
       "params": {
         "startingPosition": 8,
         "baseTireWear": 8,
         "eventWeights": {
-          "safety-car": 8,
+          "caution-phase": 8,
           "rain": 15,
           "rival-pits": 10,
           "rival-overtake": 15,
@@ -60,7 +60,7 @@
       },
       "objectives": [
         {
-          "id": "spa-main",
+          "id": "forest-run-main",
           "description": "Finish in the top 3",
           "type": "main",
           "evaluate": "finish-above",
@@ -68,7 +68,7 @@
           "points": 12
         },
         {
-          "id": "spa-bonus",
+          "id": "forest-run-bonus",
           "description": "Use team perk during the race",
           "type": "bonus",
           "evaluate": "used-perk",
@@ -78,16 +78,16 @@
       ]
     },
     {
-      "id": "monza",
-      "name": "Milano Grand Prix",
-      "circuit": "Lombardia Autodrome",
+      "id": "velocity-ring",
+      "name": "Velocity Ring Circuit Clash",
+      "circuit": "Velocity Ring",
       "turns": 8,
       "traits": ["high-speed", "low-downforce", "overtake-friendly"],
       "params": {
         "startingPosition": 12,
         "baseTireWear": 6,
         "eventWeights": {
-          "safety-car": 3,
+          "caution-phase": 3,
           "rain": 2,
           "rival-pits": 12,
           "rival-overtake": 25,
@@ -98,7 +98,7 @@
       },
       "objectives": [
         {
-          "id": "monza-main",
+          "id": "velocity-ring-main",
           "description": "Finish in the top 6",
           "type": "main",
           "evaluate": "finish-above",
@@ -106,7 +106,7 @@
           "points": 8
         },
         {
-          "id": "monza-bonus",
+          "id": "velocity-ring-bonus",
           "description": "Play at least 3 aggressive cards",
           "type": "bonus",
           "evaluate": "min-cards-with-tag",
@@ -116,16 +116,16 @@
       ]
     },
     {
-      "id": "silverstone",
-      "name": "Northampton Grand Prix",
-      "circuit": "Northampton Racing Circuit",
+      "id": "north-loop",
+      "name": "North Loop Circuit Clash",
+      "circuit": "North Loop",
       "turns": 8,
       "traits": ["rain-possible", "high-speed", "tire-heavy"],
       "params": {
         "startingPosition": 9,
         "baseTireWear": 10,
         "eventWeights": {
-          "safety-car": 5,
+          "caution-phase": 5,
           "rain": 8,
           "rival-pits": 12,
           "rival-overtake": 20,
@@ -136,7 +136,7 @@
       },
       "objectives": [
         {
-          "id": "silverstone-main",
+          "id": "north-loop-main",
           "description": "Finish in the top 4",
           "type": "main",
           "evaluate": "finish-above",
@@ -144,7 +144,7 @@
           "points": 10
         },
         {
-          "id": "silverstone-bonus",
+          "id": "north-loop-bonus",
           "description": "Never exceed 80 tire wear",
           "type": "bonus",
           "evaluate": "max-tire-wear-below",
@@ -154,16 +154,16 @@
       ]
     },
     {
-      "id": "suzuka",
-      "name": "Sakura Grand Prix",
-      "circuit": "Sakura Racing Circuit",
+      "id": "figure-eight",
+      "name": "Figure-Eight Circuit Clash",
+      "circuit": "Figure-Eight Circuit",
       "turns": 8,
       "traits": ["technical", "tire-heavy", "mechanical-risk"],
       "params": {
         "startingPosition": 11,
         "baseTireWear": 12,
         "eventWeights": {
-          "safety-car": 5,
+          "caution-phase": 5,
           "rain": 5,
           "rival-pits": 12,
           "rival-overtake": 18,
@@ -174,7 +174,7 @@
       },
       "objectives": [
         {
-          "id": "suzuka-main",
+          "id": "figure-eight-main",
           "description": "Finish in the top 5",
           "type": "main",
           "evaluate": "finish-above",
@@ -182,7 +182,7 @@
           "points": 10
         },
         {
-          "id": "suzuka-bonus",
+          "id": "figure-eight-bonus",
           "description": "Never exceed 80 tire wear",
           "type": "bonus",
           "evaluate": "max-tire-wear-below",
@@ -192,16 +192,16 @@
       ]
     },
     {
-      "id": "interlagos",
-      "name": "Sao Paulo Grand Prix",
-      "circuit": "Paulista Racing Circuit",
+      "id": "southbank",
+      "name": "Southbank Circuit Clash",
+      "circuit": "Southbank Circuit",
       "turns": 8,
-      "traits": ["rain-likely", "sc-prone", "overtake-friendly"],
+      "traits": ["rain-likely", "caution-prone", "overtake-friendly"],
       "params": {
         "startingPosition": 10,
         "baseTireWear": 8,
         "eventWeights": {
-          "safety-car": 10,
+          "caution-phase": 10,
           "rain": 12,
           "rival-pits": 10,
           "rival-overtake": 18,
@@ -212,7 +212,7 @@
       },
       "objectives": [
         {
-          "id": "interlagos-main",
+          "id": "southbank-main",
           "description": "Finish in the top 3",
           "type": "main",
           "evaluate": "finish-above",
@@ -220,7 +220,7 @@
           "points": 12
         },
         {
-          "id": "interlagos-bonus",
+          "id": "southbank-bonus",
           "description": "Play at least 2 pit strategy cards",
           "type": "bonus",
           "evaluate": "min-cards-with-tag",

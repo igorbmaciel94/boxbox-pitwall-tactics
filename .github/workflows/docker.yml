@@ -63,8 +63,6 @@ jobs:
           context: .
           file: apps/web/Dockerfile.prod
           push: true
-          build-args: |
-            VITE_API_URL=https://boxbox.lighthousedev.uk/api
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/boxbox-web:main
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/boxbox-web:${{ github.sha }}

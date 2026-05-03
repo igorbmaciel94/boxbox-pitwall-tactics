@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { CardData } from '@boxbox/engine';
+import type { CardData } from '@apex/engine';
 import { Badge } from '../shared/Badge';
 import { getCardImageUrl, getCardFallbackGradient } from '../../lib/images';
 import { useI18n } from '../../i18n';
@@ -46,9 +46,9 @@ export function CardComponent({ card, selected = false, disabled = false, compac
         disabled={disabled}
         style={{ aspectRatio: '3 / 4.2' }}
         className={`group relative w-full overflow-hidden rounded-xl text-left transition-all duration-150
-          ${selected ? 'ring-2 ring-f1-red/60 ring-offset-2 ring-offset-carbon' : ''}
+          ${selected ? 'ring-2 ring-apex-red/60 ring-offset-2 ring-offset-carbon' : ''}
           ${disabled ? 'pointer-events-none opacity-40' : 'hover:brightness-110 active:scale-[0.98]'}
-          ${selected ? 'z-10 -translate-y-3 scale-[1.04] shadow-lg shadow-f1-red/20' : ''}
+          ${selected ? 'z-10 -translate-y-3 scale-[1.04] shadow-lg shadow-apex-red/20' : ''}
         `}
       >
         {/* Full background image or gradient */}
@@ -89,7 +89,7 @@ export function CardComponent({ card, selected = false, disabled = false, compac
           )}
         </div>
 
-        {selected && <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 rounded-b-xl bg-f1-red" />}
+        {selected && <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 rounded-b-xl bg-apex-red" />}
       </button>
     );
   }
@@ -100,7 +100,7 @@ export function CardComponent({ card, selected = false, disabled = false, compac
       onClick={onClick}
       disabled={disabled}
       className={`group relative w-full overflow-hidden rounded-2xl text-left transition-all duration-150
-        ${selected ? 'ring-2 ring-f1-red/60 ring-offset-2 ring-offset-carbon' : 'bg-white/[0.04]'}
+        ${selected ? 'ring-2 ring-apex-red/60 ring-offset-2 ring-offset-carbon' : 'bg-white/[0.04]'}
         ${disabled ? 'pointer-events-none opacity-40' : 'hover:brightness-110 active:scale-[0.98]'}
       `}
     >

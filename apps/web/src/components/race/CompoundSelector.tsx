@@ -1,6 +1,6 @@
-import type { TireCompound } from '@boxbox/engine';
-import { isCurrentlyRaining } from '@boxbox/engine';
-import type { RaceState } from '@boxbox/engine';
+import type { TireCompound } from '@apex/engine';
+import { isCurrentlyRaining } from '@apex/engine';
+import type { RaceState } from '@apex/engine';
 import { useI18n } from '../../i18n';
 
 interface CompoundSelectorProps {

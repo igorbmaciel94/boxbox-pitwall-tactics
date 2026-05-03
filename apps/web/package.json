@@ -1,5 +1,5 @@
 {
-  "name": "@boxbox/web",
+  "name": "@apex/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,8 +12,8 @@
     "cap:android": "npm run build && npx cap sync android && npx cap open android"
   },
   "dependencies": {
-    "@boxbox/content": "*",
-    "@boxbox/engine": "*",
+    "@apex/content": "*",
+    "@apex/engine": "*",
     "@capacitor/core": "^8.2.0",
     "@capacitor/haptics": "^8.0.1",
     "@capacitor/splash-screen": "^8.0.1",

@@ -1,5 +1,5 @@
 {
-  "name": "@boxbox/engine",
+  "name": "@apex/engine",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -16,6 +16,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@boxbox/content": "*"
+    "@apex/content": "*"
   }
 }

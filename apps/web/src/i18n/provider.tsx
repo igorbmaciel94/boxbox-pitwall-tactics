@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import type { EventType } from '@boxbox/engine';
+import type { EventType } from '@apex/engine';
 import { DEFAULT_LOCALE, DICTIONARIES } from './translations';
 import type { Dictionary, Locale, Medal, RadioContext } from './translations';
 

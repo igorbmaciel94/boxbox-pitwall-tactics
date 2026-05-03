@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { loadCatalog } from '@boxbox/content';
+import { loadCatalog } from '@apex/content';
 import { createRng } from '../src/rng.js';
 import { applyEventEffect, selectEvent, updateEventTracking } from '../src/event-system.js';
 import type { RaceState } from '../src/types.js';
 
 function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
   return {
-    scenarioId: 'monaco',
+    scenarioId: 'harbor',
     teamId: 'crimson',
     seed: 42,
     difficulty: 'normal',
@@ -15,11 +15,11 @@ function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
     currentTurn: 1,
     totalTurns: 6,
     deck: [],
-    hand: ['push-hard', 'box-box', 'overtake'],
+    hand: ['push-hard', 'pit-call', 'overtake'],
     discard: [],
     currentEvent: null,
     eventHistory: [],
-    scUsed: false,
+    cautionUsed: false,
     lastEventType: null,
     perkUsed: false,
     objectivesCompleted: [],
@@ -32,25 +32,25 @@ function makeBaseState(overrides: Partial<RaceState> = {}): RaceState {
 
 describe('selectEvent', () => {
   const catalog = loadCatalog();
-  const scenario = catalog.scenarios.find((s) => s.id === 'monaco')!;
+  const scenario = catalog.scenarios.find((s) => s.id === 'harbor')!;
 
-  it('never selects safety-car when scUsed is true', () => {
-    const state = makeBaseState({ scUsed: true });
+  it('never selects caution-phase when cautionUsed is true', () => {
+    const state = makeBaseState({ cautionUsed: true });
     const rng = createRng(42);
 
     for (let i = 0; i < 100; i++) {
       const event = selectEvent(state, scenario, rng, catalog);
-      expect(event.type).not.toBe('safety-car');
+      expect(event.type).not.toBe('caution-phase');
     }
   });
 
-  it('never selects safety-car consecutively', () => {
-    const state = makeBaseState({ lastEventType: 'safety-car' });
+  it('never selects caution-phase consecutively', () => {
+    const state = makeBaseState({ lastEventType: 'caution-phase' });
     const rng = createRng(42);
 
     for (let i = 0; i < 100; i++) {
       const event = selectEvent(state, scenario, rng, catalog);
-      expect(event.type).not.toBe('safety-car');
+      expect(event.type).not.toBe('caution-phase');
     }
   });
 
@@ -149,22 +149,22 @@ describe('applyEventEffect', () => {
 });
 
 describe('updateEventTracking', () => {
-  it('records safety-car usage', () => {
+  it('records caution-phase usage', () => {
     const state = makeBaseState();
     const event = {
-      type: 'safety-car' as const,
-      name: 'Safety Car',
+      type: 'caution-phase' as const,
+      name: 'Caution Phase',
       flavorIndex: 0,
       effect: { tireWear: -5 },
-      flavorText: 'SC.',
+      flavorText: 'caution.',
     };
     const updated = updateEventTracking(state, event);
-    expect(updated.scUsed).toBe(true);
-    expect(updated.lastEventType).toBe('safety-car');
+    expect(updated.cautionUsed).toBe(true);
+    expect(updated.lastEventType).toBe('caution-phase');
     expect(updated.eventHistory).toHaveLength(1);
   });
 
-  it('records non-SC event without marking scUsed', () => {
+  it('records non-caution event without marking cautionUsed', () => {
     const state = makeBaseState();
     const event = {
       type: 'rain' as const,
@@ -174,7 +174,7 @@ describe('updateEventTracking', () => {
       flavorText: 'Rain.',
     };
     const updated = updateEventTracking(state, event);
-    expect(updated.scUsed).toBe(false);
+    expect(updated.cautionUsed).toBe(false);
     expect(updated.lastEventType).toBe('rain');
   });
 });

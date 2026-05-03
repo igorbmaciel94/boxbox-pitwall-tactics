@@ -1,4 +1,4 @@
-import type { RaceState, TireCompound } from '@boxbox/engine';
+import type { RaceState, TireCompound } from '@apex/engine';
 import { StatBar } from '../shared/StatBar';
 import { getPositionColor, getWearColor } from '../../lib/constants';
 import { useI18n } from '../../i18n';
@@ -75,7 +75,7 @@ export function HUD({ state, previousPosition }: HUDProps) {
       {/* Inline radio message */}
       {lastMsg && (
         <div key={lastMsg.timestamp} className="animate-fade-in truncate text-[11px] leading-snug text-white/60">
-          <span className="mr-1 font-mono text-[10px] text-f1-red/70">{lastMsg.source === 'event' ? 'PIT>' : 'ENG>'}</span>
+          <span className="mr-1 font-mono text-[10px] text-apex-red/70">{lastMsg.source === 'event' ? 'PIT>' : 'ENG>'}</span>
           {lastMsg.source === 'event'
             ? getEventFlavor(lastMsg.key, lastMsg.flavorIndex)
             : getRadioMessage(lastMsg.key, lastMsg.flavorIndex)}

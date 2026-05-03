@@ -8,7 +8,7 @@ import type { RaceState, TireCompound } from '../src/types.js';
 
 function makeState(overrides: Partial<RaceState> = {}): RaceState {
   return {
-    scenarioId: 'monaco',
+    scenarioId: 'harbor',
     teamId: 'crimson',
     seed: 42,
     difficulty: 'normal',
@@ -26,8 +26,8 @@ function makeState(overrides: Partial<RaceState> = {}): RaceState {
     discard: [],
     currentEvent: null,
     eventHistory: [],
-    scUsed: false,
-    underSafetyCar: false,
+    cautionUsed: false,
+    underCaution: false,
     lastEventType: null,
     perkUsed: false,
     mulliganUsed: false,

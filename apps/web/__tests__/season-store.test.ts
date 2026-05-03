@@ -2,7 +2,7 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import { useGameStore, SEASON_TIRE_TOTALS } from '../src/stores/game-store';
 import type { SeasonProgress } from '../src/stores/game-store';
 import { loadBrowserCatalog } from '../src/catalog/browser-loader';
-import type { RaceDebrief, TireAllocation } from '@boxbox/engine';
+import type { RaceDebrief, TireAllocation } from '@apex/engine';
 
 const catalog = loadBrowserCatalog();
 
@@ -197,9 +197,9 @@ describe('Season store actions', () => {
   describe('setSeasonProgress', () => {
     it('restores season progress without changing mode (used by persistence load)', () => {
       const progress: SeasonProgress = {
-        raceOrder: ['monaco', 'spa', 'monza', 'silverstone', 'suzuka', 'interlagos'],
+        raceOrder: ['harbor', 'forest-run', 'velocity-ring', 'north-loop', 'figure-eight', 'southbank'],
         currentRaceIndex: 2,
-        raceResults: [makeFakeDebrief('monaco'), makeFakeDebrief('spa')],
+        raceResults: [makeFakeDebrief('harbor'), makeFakeDebrief('forest-run')],
         cumulativeScore: 100,
         seed: 42,
         tireBank: { soft: 5, medium: 5, hard: 5 },
@@ -229,7 +229,7 @@ describe('Season store actions', () => {
 
     it('sets mode to race for quick race', () => {
       expect(useGameStore.getState().mode).toBe('idle');
-      useGameStore.getState().startRace('monaco', 123);
+      useGameStore.getState().startRace('harbor', 123);
 
       expect(useGameStore.getState().mode).toBe('race');
     });

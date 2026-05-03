@@ -1,5 +1,5 @@
 {
-  "name": "boxbox-pitwall-tactics",
+  "name": "apex-tactics",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -13,9 +13,9 @@
     "test:watch": "vitest",
     "lint": "eslint 'packages/*/src/**/*.ts'",
     "format": "prettier --write 'packages/*/src/**/*.ts'",
-    "dev:web": "npm run dev --workspace=@boxbox/web",
-    "cap:ios": "npm run cap:ios --workspace=@boxbox/web",
-    "cap:android": "npm run cap:android --workspace=@boxbox/web"
+    "dev:web": "npm run dev --workspace=@apex/web",
+    "cap:ios": "npm run cap:ios --workspace=@apex/web",
+    "cap:android": "npm run cap:android --workspace=@apex/web"
   },
   "devDependencies": {
     "@types/node": "^25.3.3",

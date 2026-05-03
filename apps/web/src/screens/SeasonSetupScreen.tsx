@@ -4,8 +4,8 @@ import { useGameStore, SEASON_TIRE_TOTALS } from '../stores/game-store';
 import { Button } from '../components/shared/Button';
 import { useI18n } from '../i18n';
 import { getGoalCardImageUrl, getGoalCardFallbackGradient } from '../lib/images';
-import { getGoalCardForTeam } from '@boxbox/engine';
-import type { Difficulty, SeasonTireBank } from '@boxbox/engine';
+import { getGoalCardForTeam } from '@apex/engine';
+import type { Difficulty, SeasonTireBank } from '@apex/engine';
 
 const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard'];
 
@@ -114,7 +114,7 @@ export function SeasonSetupScreen() {
             <div
               key={s}
               className={`h-1 flex-1 rounded-full transition-colors ${
-                s === step ? 'bg-f1-red' : i < currentIdx ? 'bg-hud-green' : 'bg-white/10'
+                s === step ? 'bg-apex-red' : i < currentIdx ? 'bg-hud-green' : 'bg-white/10'
               }`}
             />
           );
@@ -138,7 +138,7 @@ export function SeasonSetupScreen() {
                   onClick={() => handleDifficultyChange(d)}
                   className={`flex-1 rounded-xl px-3 py-2.5 text-center transition-all ${
                     difficulty === d
-                      ? 'bg-f1-red/20 ring-1 ring-f1-red/50'
+                      ? 'bg-apex-red/20 ring-1 ring-apex-red/50'
                       : 'bg-white/5 hover:bg-white/10'
                   }`}
                 >
@@ -247,7 +247,7 @@ function GoalCardDisplay({
         )}
         <div className="absolute inset-0 bg-gradient-to-r from-carbon/90 via-carbon/60 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-center px-4">
-          <div className="text-[10px] uppercase tracking-wider text-f1-red/80 mb-0.5">{t('season.yourGoal')}</div>
+          <div className="text-[10px] uppercase tracking-wider text-apex-red/80 mb-0.5">{t('season.yourGoal')}</div>
           <div className="font-display text-base font-bold uppercase tracking-wide">{card.title}</div>
           <div className="mt-0.5 text-xs text-metal-light">{card.description}</div>
           <div className="mt-1 text-[10px] text-metal-light">

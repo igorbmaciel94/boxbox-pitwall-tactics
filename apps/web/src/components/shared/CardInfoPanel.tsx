@@ -1,4 +1,4 @@
-import type { CardData } from '@boxbox/engine';
+import type { CardData } from '@apex/engine';
 import { Badge } from './Badge';
 import { EffectDelta } from '../race/CardComponent';
 import { useI18n } from '../../i18n';

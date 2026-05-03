@@ -59,7 +59,7 @@ describe('loadCatalog', () => {
   it('has event strings for all event types', () => {
     const catalog = loadCatalog();
     const eventTypes = [
-      'safety-car',
+      'caution-phase',
       'rain',
       'rival-pits',
       'traffic',
@@ -75,7 +75,7 @@ describe('loadCatalog', () => {
   it('has radio string pools', () => {
     const catalog = loadCatalog();
     expect(catalog.strings.radio.stayOut.length).toBeGreaterThanOrEqual(1);
-    expect(catalog.strings.radio.boxBox.length).toBeGreaterThanOrEqual(1);
+    expect(catalog.strings.radio.pitCall.length).toBeGreaterThanOrEqual(1);
     expect(catalog.strings.radio.generic.length).toBeGreaterThanOrEqual(1);
   });
 });

@@ -12,7 +12,7 @@ export default defineWorkspace([
   {
     resolve: {
       alias: {
-        '@boxbox/content': resolve(__dirname, 'packages/content/src/index.ts'),
+        '@apex/content': resolve(__dirname, 'packages/content/src/index.ts'),
       },
     },
     test: {
@@ -24,7 +24,8 @@ export default defineWorkspace([
   {
     resolve: {
       alias: {
-        '@boxbox/engine': resolve(__dirname, 'packages/engine/src/index.ts'),
+        '@apex/engine': resolve(__dirname, 'packages/engine/src/index.ts'),
+        '@apex/content': resolve(__dirname, 'packages/content/src/index.ts'),
         '@content-data': resolve(__dirname, 'packages/content/data'),
       },
     },

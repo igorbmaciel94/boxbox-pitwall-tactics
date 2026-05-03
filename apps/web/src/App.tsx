@@ -1,8 +1,7 @@
-import { Routes, Route, useLocation, Navigate } from 'react-router';
-import { useEffect, useRef } from 'react';
+import { Routes, Route, useLocation } from 'react-router';
+import { useEffect, useState } from 'react';
 import { Shell } from './components/layout/Shell';
 import { HomeScreen } from './screens/HomeScreen';
-import { LoginScreen } from './screens/LoginScreen';
 import { TeamSelectScreen } from './screens/TeamSelectScreen';
 import { DeckMenuScreen } from './screens/DeckMenuScreen';
 import { DeckDetailScreen } from './screens/DeckDetailScreen';
@@ -15,27 +14,24 @@ import { SeasonResultsScreen } from './screens/SeasonResultsScreen';
 import { GarageScreen } from './screens/GarageScreen';
 import { HowToPlayScreen } from './screens/HowToPlayScreen';
 import { useGameStore } from './stores/game-store';
-import { useAuthStore } from './stores/auth-store';
 import { loadBrowserCatalog } from './catalog/browser-loader';
-import { loadAllPersistedData, migrateToUserScoped, saveLocale, saveSelectedTeam, saveCurrentDeck, saveDeckList, saveBestScore, addRunHistoryEntry, saveSeasonProgress } from './stores/persistence';
+import {
+  OFFLINE_PROFILE_ID,
+  loadAllPersistedData,
+  migrateToOfflineProfile,
+  saveLocale,
+  saveSelectedTeam,
+  saveCurrentDeck,
+  saveDeckList,
+  saveBestScore,
+  addRunHistoryEntry,
+  saveSeasonProgress,
+} from './stores/persistence';
 import type { SavedDeck } from './lib/types';
 import { useI18n } from './i18n';
 import type { Locale } from './i18n';
 import { useAudio } from './hooks/use-audio';
 import { hideSplashScreen, configureStatusBar } from './lib/capacitor-init';
-
-function AuthGate({ children }: { children: React.ReactNode }) {
-  const token = useAuthStore((s) => s.token);
-  const userId = useAuthStore((s) => s.userId);
-  const isGuest = useAuthStore((s) => s.isGuest);
-
-  // Allow: online login (token), guest (isGuest), or offline login (userId without guest)
-  if (!token && !isGuest && !userId) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <>{children}</>;
-}
 
 function populateStoreFromData(data: Awaited<ReturnType<typeof loadAllPersistedData>>, setLocale: (l: Locale) => void) {
   const store = useGameStore.getState();
@@ -66,8 +62,7 @@ export function App() {
   const setCatalog = useGameStore((s) => s.setCatalog);
   const { locale, setLocale } = useI18n();
   const { setBackgroundTrack } = useAudio();
-  const userId = useAuthStore((s) => s.userId);
-  const prevUserIdRef = useRef<string | null>(null);
+  const [persistenceReady, setPersistenceReady] = useState(false);
 
   // Load catalog once on startup, then init native shell
   useEffect(() => {
@@ -77,52 +72,52 @@ export function App() {
     configureStatusBar();
   }, [setCatalog]);
 
-  // Load persisted data when userId changes (login/logout/guest switch)
+  // Load local offline data once on startup.
   useEffect(() => {
-    if (!userId) return;
+    let cancelled = false;
 
-    // Clear game state when switching users
-    if (prevUserIdRef.current && prevUserIdRef.current !== userId) {
-      useGameStore.getState().clearGameState();
-    }
-    prevUserIdRef.current = userId;
+    migrateToOfflineProfile()
+      .then(() => loadAllPersistedData(OFFLINE_PROFILE_ID))
+      .then((data) => {
+        if (cancelled) return;
+        populateStoreFromData(data, setLocale);
+        setPersistenceReady(true);
+      });
 
-    // Migrate legacy data if needed, then load
-    migrateToUserScoped(userId).then(() =>
-      loadAllPersistedData(userId).then((data) => populateStoreFromData(data, setLocale)),
-    );
-  }, [userId, setLocale]);
+    return () => {
+      cancelled = true;
+    };
+  }, [setLocale]);
 
-  // Subscribe to store changes and persist with userId
+  // Subscribe to store changes and persist locally.
   useEffect(() => {
-    if (!userId) return;
-
     const unsub = useGameStore.subscribe((state, prev) => {
       if (state.selectedTeamId !== prev.selectedTeamId && state.selectedTeamId) {
-        saveSelectedTeam(userId, state.selectedTeamId);
+        saveSelectedTeam(OFFLINE_PROFILE_ID, state.selectedTeamId);
       }
       if (state.currentDeck !== prev.currentDeck) {
-        saveCurrentDeck(userId, state.currentDeck);
+        saveCurrentDeck(OFFLINE_PROFILE_ID, state.currentDeck);
       }
       if (state.lastDebrief && state.lastDebrief !== prev.lastDebrief) {
-        saveBestScore(userId, state.lastDebrief).then((scores) => useGameStore.getState().setBestScores(scores));
-        addRunHistoryEntry(userId, state.lastDebrief).then((history) => useGameStore.getState().setRunHistory(history));
+        saveBestScore(OFFLINE_PROFILE_ID, state.lastDebrief).then((scores) => useGameStore.getState().setBestScores(scores));
+        addRunHistoryEntry(OFFLINE_PROFILE_ID, state.lastDebrief).then((history) => useGameStore.getState().setRunHistory(history));
       }
       if (state.savedDecks !== prev.savedDecks) {
-        saveDeckList(userId, state.savedDecks);
+        saveDeckList(OFFLINE_PROFILE_ID, state.savedDecks);
       }
       if (state.seasonProgress !== prev.seasonProgress) {
-        saveSeasonProgress(userId, state.seasonProgress);
+        saveSeasonProgress(OFFLINE_PROFILE_ID, state.seasonProgress);
       }
     });
 
     return unsub;
-  }, [userId]);
+  }, []);
 
   useEffect(() => {
     document.documentElement.lang = locale === 'pt-BR' ? 'pt-BR' : 'en';
-    if (userId) saveLocale(userId, locale);
-  }, [locale, userId]);
+    if (!persistenceReady) return;
+    saveLocale(OFFLINE_PROFILE_ID, locale);
+  }, [locale, persistenceReady]);
 
   useEffect(() => {
     setBackgroundTrack('menu');
@@ -130,29 +125,26 @@ export function App() {
 
   return (
     <Routes>
-      <Route path="/login" element={<LoginScreen />} />
       <Route
         path="*"
         element={
-          <AuthGate>
-            <Shell>
-              <Routes>
-                <Route path="/" element={<HomeScreen />} />
-                <Route path="/team" element={<TeamSelectScreen />} />
-                <Route path="/decks" element={<DeckMenuScreen />} />
-                <Route path="/decks/new" element={<DeckEditorScreen />} />
-                <Route path="/decks/:id" element={<DeckDetailScreen />} />
-                <Route path="/decks/:id/edit" element={<DeckEditorScreen />} />
-                <Route path="/race" element={<RaceScreen />} />
-                <Route path="/debrief" element={<DebriefScreen />} />
-                <Route path="/season" element={<SeasonScreen />} />
-                <Route path="/season/setup" element={<SeasonSetupScreen />} />
-                <Route path="/season/results" element={<SeasonResultsScreen />} />
-                <Route path="/garage" element={<GarageScreen />} />
-                <Route path="/how-to-play" element={<HowToPlayScreen />} />
-              </Routes>
-            </Shell>
-          </AuthGate>
+          <Shell>
+            <Routes>
+              <Route path="/" element={<HomeScreen />} />
+              <Route path="/team" element={<TeamSelectScreen />} />
+              <Route path="/decks" element={<DeckMenuScreen />} />
+              <Route path="/decks/new" element={<DeckEditorScreen />} />
+              <Route path="/decks/:id" element={<DeckDetailScreen />} />
+              <Route path="/decks/:id/edit" element={<DeckEditorScreen />} />
+              <Route path="/race" element={<RaceScreen />} />
+              <Route path="/debrief" element={<DebriefScreen />} />
+              <Route path="/season" element={<SeasonScreen />} />
+              <Route path="/season/setup" element={<SeasonSetupScreen />} />
+              <Route path="/season/results" element={<SeasonResultsScreen />} />
+              <Route path="/garage" element={<GarageScreen />} />
+              <Route path="/how-to-play" element={<HowToPlayScreen />} />
+            </Routes>
+          </Shell>
         }
       />
     </Routes>
