@@ -5,6 +5,7 @@ import { calculateMedal, MEDAL_COLORS, getPositionColor } from '../lib/constants
 import { useI18n } from '../i18n';
 import { downloadBackup, readBackupFile, serializeBackup } from '../lib/backup';
 import { OFFLINE_PROFILE_ID, loadAllPersistedData, replaceAllPersistedData } from '../stores/persistence';
+import { ConfirmDialog } from '../components/shared/ConfirmDialog';
 import type { PersistedGameData } from '../stores/persistence';
 
 type Tab = 'history' | 'best' | 'trophies';
@@ -52,6 +53,7 @@ export function GarageScreen() {
   const [historyPage, setHistoryPage] = useState(0);
   const [trophyPage, setTrophyPage] = useState(0);
   const [backupMessage, setBackupMessage] = useState<string | null>(null);
+  const [pendingImportData, setPendingImportData] = useState<PersistedGameData | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { t, setLocale, getScenarioName, getScenarioCircuit, getTeamName, getMedalLabel } = useI18n();
   const runHistory = useGameStore((s) => s.runHistory);
@@ -84,14 +86,24 @@ export function GarageScreen() {
     if (!file) return;
     try {
       const backup = await readBackupFile(file);
-      if (!window.confirm(t('garage.importConfirm'))) return;
-      await replaceAllPersistedData(OFFLINE_PROFILE_ID, backup.data);
-      applyImportedData(backup.data);
-      setBackupMessage(t('garage.backupImported'));
+      setPendingImportData(backup.data);
     } catch {
       setBackupMessage(t('garage.backupInvalid'));
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleConfirmImport = async () => {
+    if (!pendingImportData) return;
+    try {
+      await replaceAllPersistedData(OFFLINE_PROFILE_ID, pendingImportData);
+      applyImportedData(pendingImportData);
+      setBackupMessage(t('garage.backupImported'));
+    } catch {
+      setBackupMessage(t('garage.backupInvalid'));
+    } finally {
+      setPendingImportData(null);
     }
   };
 
@@ -327,6 +339,17 @@ export function GarageScreen() {
           )}
         </div>
       )}
+
+      <ConfirmDialog
+        open={pendingImportData !== null}
+        title={t('garage.backupTitle')}
+        message={t('garage.importConfirm')}
+        confirmLabel={t('garage.importBackup')}
+        cancelLabel={t('common.back')}
+        onConfirm={handleConfirmImport}
+        onCancel={() => setPendingImportData(null)}
+        variant="danger"
+      />
     </div>
   );
 }
